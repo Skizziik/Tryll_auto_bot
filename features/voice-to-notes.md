@@ -35,8 +35,9 @@
 |---|---|
 | Trigger | Telegram Trigger (updates: `message`, `callback_query`), бот @Tryllauto_bot |
 | Роутер | Switch: ветка `voice` (голосовое в топике 7) / ветка `save` (кнопка) |
-| Транскрипция | HTTP → `POST https://api.mistral.ai/v1/audio/transcriptions`, model `voxtral-mini-latest`, multipart `file` |
-| Заметка | HTTP → `POST https://api.mistral.ai/v1/chat/completions`, model `mistral-small-latest` |
+| Транскрипция | HTTP → `POST https://api.mistral.ai/v1/audio/transcriptions`, model `voxtral-mini-2602` (новейшая mini; small/realtime endpoint не принимает), multipart `file` |
+| Заметка | HTTP → `POST https://api.mistral.ai/v1/chat/completions`, model `mistral-large-latest`. Промпт: точность важнее краткости, сохранять все детали (имена/числа/даты/сроки/решения), брать самопоправки, не выдумывать; разделы Ключевые моменты / Действия / Вопросы (пустые опускаются); чистый Markdown без обёрток |
+| Индикатор | по нажатию ✅ сообщение сразу → «⏳ Делаю заметку…» (нода Edit To Processing), в конце → «✅ сохранено + ссылка» |
 | Хранилище заметок | Google Drive, папка `1o-8nIrmt7fSxkdc1iwxlFiCR1SkqiZqN`, файл `Заметка YYYY-MM-DD HH-mm.md` |
 | Состояние | Data Table `notes_draft` (`bpwNfJwc15sqXgeU`) |
 
