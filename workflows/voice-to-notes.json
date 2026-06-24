@@ -2,83 +2,2905 @@
   "name": "TryllAuto · Voice → Notes",
   "meta": {
     "n8nWorkflowId": "WFarxoRPXfxnrqsV",
-    "version": "1.4 (append-only + debounce + order + timecodes + Google Doc output)",
     "exportedFrom": "n8n (source of truth) — credentials are not exported",
-    "dataTables": {
-      "notes_draft": "bpwNfJwc15sqXgeU (one row per voice line: session, transcript, chat_id, thread_id, voice_msg_id, segments, duration)",
-      "notes_card": "vZ74meVqtdYSt1j0 (single draft-card pointer per session: session, msg_id)"
+    "note": "Single TryllAuto bot workflow — several independent trigger-chains on one canvas.",
+    "features": {
+      "voiceToNotes": "Telegram Trigger -> buffer voices -> Voxtral transcribe -> Mistral note -> Google Doc (topic Notes, thread 7)",
+      "research": "/research command -> Sonnet/Opus pick -> Claude web research -> Google Doc (Research topic)",
+      "newsCollector": "Schedule 07:00 & 17:00 CET -> RSS sources -> fresh <24h -> dedup -> Claude value filter (+RU summary) -> post to News AI topic (thread 187) -> record in news_seen",
+      "newsSummary": "Schedule 19:00 CET -> today news_seen -> Claude digest -> post + pin (keep 5 latest pinned)"
     },
-    "driveFolderId": "1o-8nIrmt7fSxkdc1iwxlFiCR1SkqiZqN",
-    "models": { "transcribe": "voxtral-mini-2602 (Mistral, timestamp_granularities=segment)", "notes": "claude-sonnet-4-6 (Anthropic)" },
-    "credentialsToReattachOnImport": {
-      "Telegram nodes": "@Tryllauto_bot (telegramApi)",
-      "Transcribe Voxtral": "Mistral Bearer Auth (httpBearerAuth)",
-      "claude-sonnet-4-6": "Anthropic (Tryll) (anthropicApi)",
-      "Upload to Drive": "Google Drive account (googleDriveOAuth2Api)"
+    "dataTables": {
+      "notes_draft": "bpwNfJwc15sqXgeU",
+      "notes_card": "vZ74meVqtdYSt1j0",
+      "research_jobs": "3ky6zNtlCGsf57Dn",
+      "news_sources": "cHUyEGAFsNnpqjC6 (editable list: name, feed_url, industry, active)",
+      "news_seen": "mzGzfbnB18BVmM6h (dedup + daily-summary source)",
+      "news_pins": "EMRQitOd1yxnqjxe (pinned-summary rotation, keep 5)"
+    },
+    "telegram": {
+      "chatId": "-1004406148635",
+      "topics": {
+        "Notes": 7,
+        "NewsAI": 187
+      },
+      "bot": "@Tryllauto_bot"
+    },
+    "models": {
+      "notesResearch": "Mistral + Claude",
+      "news": "claude-sonnet-4-6"
     }
   },
-  "settings": { "executionOrder": "v1", "binaryMode": "separate" },
   "nodes": [
-    { "parameters": { "updates": ["message", "callback_query"], "additionalFields": {} }, "name": "Telegram Update", "type": "n8n-nodes-base.telegramTrigger", "typeVersion": 1.3, "position": [0, 96] },
-    { "parameters": { "rules": { "values": [ { "conditions": { "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose", "version": 1 }, "conditions": [ { "leftValue": "={{ $json.message.voice?.file_id || $json.message.video_note?.file_id }}", "operator": { "type": "string", "operation": "exists", "singleValue": true } }, { "leftValue": "={{ $json.message.message_thread_id }}", "operator": { "type": "number", "operation": "equals" }, "rightValue": 7 } ], "combinator": "and" }, "renameOutput": true, "outputKey": "voice" }, { "conditions": { "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose", "version": 1 }, "conditions": [ { "leftValue": "={{ $json.callback_query.data }}", "operator": { "type": "string", "operation": "equals" }, "rightValue": "save" } ], "combinator": "and" }, "renameOutput": true, "outputKey": "save" }, { "conditions": { "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose", "version": 1 }, "conditions": [ { "leftValue": "={{ $json.callback_query.data }}", "operator": { "type": "string", "operation": "equals" }, "rightValue": "cancel" } ], "combinator": "and" }, "renameOutput": true, "outputKey": "cancel" } ] }, "options": { "fallbackOutput": "none" } }, "name": "Route Update", "type": "n8n-nodes-base.switch", "typeVersion": 3.4, "position": [224, 96] },
-    { "parameters": { "resource": "file", "fileId": "={{ $json.message.voice?.file_id || $json.message.video_note?.file_id }}", "additionalFields": {} }, "name": "Get Voice File", "type": "n8n-nodes-base.telegram", "typeVersion": 1.2, "position": [448, 0] },
-    { "parameters": { "method": "POST", "url": "https://api.mistral.ai/v1/audio/transcriptions", "authentication": "genericCredentialType", "genericAuthType": "httpBearerAuth", "sendBody": true, "contentType": "multipart-form-data", "bodyParameters": { "parameters": [ { "parameterType": "formBinaryData", "name": "file", "inputDataFieldName": "data" }, { "name": "model", "value": "voxtral-mini-2602" }, { "name": "timestamp_granularities", "value": "segment" } ] }, "options": {} }, "name": "Transcribe Voxtral", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.4, "position": [672, 0] },
-    { "parameters": { "operation": "insert", "dataTableId": { "__rl": true, "mode": "id", "value": "bpwNfJwc15sqXgeU" }, "columns": { "mappingMode": "defineBelow", "value": { "session": "={{ $(\"Telegram Update\").item.json.message.chat.id }}:{{ $(\"Telegram Update\").item.json.message.message_thread_id }}", "transcript": "={{ $(\"Transcribe Voxtral\").item.json.text }}", "chat_id": "={{ $(\"Telegram Update\").item.json.message.chat.id }}", "thread_id": "={{ $(\"Telegram Update\").item.json.message.message_thread_id }}", "voice_msg_id": "={{ $(\"Telegram Update\").item.json.message.message_id }}", "segments": "={{ JSON.stringify($(\"Transcribe Voxtral\").item.json.segments || []) }}", "duration": "={{ $(\"Telegram Update\").item.json.message.voice?.duration || $(\"Telegram Update\").item.json.message.video_note?.duration }}" }, "schema": [ { "id": "session", "displayName": "session", "type": "string", "canBeUsedToMatch": true, "display": true, "required": false, "defaultMatch": false }, { "id": "transcript", "displayName": "transcript", "type": "string", "canBeUsedToMatch": true, "display": true, "required": false, "defaultMatch": false }, { "id": "chat_id", "displayName": "chat_id", "type": "string", "canBeUsedToMatch": true, "display": true, "required": false, "defaultMatch": false }, { "id": "thread_id", "displayName": "thread_id", "type": "number", "canBeUsedToMatch": true, "display": true, "required": false, "defaultMatch": false }, { "id": "voice_msg_id", "displayName": "voice_msg_id", "type": "number", "canBeUsedToMatch": true, "display": true, "required": false, "defaultMatch": false }, { "id": "segments", "displayName": "segments", "type": "string", "canBeUsedToMatch": true, "display": true, "required": false, "defaultMatch": false }, { "id": "duration", "displayName": "duration", "type": "number", "canBeUsedToMatch": true, "display": true, "required": false, "defaultMatch": false } ] } }, "name": "Insert Draft Row", "type": "n8n-nodes-base.dataTable", "typeVersion": 1.1, "position": [896, 0] },
-    { "parameters": { "amount": 3, "unit": "seconds" }, "name": "Wait Debounce", "type": "n8n-nodes-base.wait", "typeVersion": 1.1, "position": [1136, 0] },
-    { "parameters": { "operation": "get", "dataTableId": { "__rl": true, "mode": "id", "value": "bpwNfJwc15sqXgeU" }, "matchType": "allConditions", "filters": { "conditions": [ { "keyName": "session", "condition": "eq", "keyValue": "={{ $(\"Telegram Update\").item.json.message.chat.id }}:{{ $(\"Telegram Update\").item.json.message.message_thread_id }}" } ] }, "limit": 1, "orderBy": true, "orderByColumn": "createdAt", "orderByDirection": "DESC" }, "name": "Get Latest", "type": "n8n-nodes-base.dataTable", "typeVersion": 1.1, "position": [1376, 0] },
-    { "parameters": { "conditions": { "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose", "version": 2 }, "conditions": [ { "id": "c1", "leftValue": "={{ $(\"Get Latest\").item.json.id }}", "operator": { "type": "number", "operation": "equals" }, "rightValue": "={{ $(\"Insert Draft Row\").item.json.id }}" } ], "combinator": "and" } }, "name": "Is Latest", "type": "n8n-nodes-base.if", "typeVersion": 2.2, "position": [1616, 0] },
-    { "parameters": { "operation": "get", "dataTableId": { "__rl": true, "mode": "id", "value": "bpwNfJwc15sqXgeU" }, "matchType": "allConditions", "filters": { "conditions": [ { "keyName": "session", "condition": "eq", "keyValue": "={{ $(\"Telegram Update\").item.json.message.chat.id }}:{{ $(\"Telegram Update\").item.json.message.message_thread_id }}" } ] }, "returnAll": true, "orderBy": true, "orderByColumn": "createdAt", "orderByDirection": "ASC" }, "name": "Get Draft", "type": "n8n-nodes-base.dataTable", "typeVersion": 1.1, "position": [1856, 0], "alwaysOutputData": true },
-    { "parameters": { "operation": "get", "dataTableId": { "__rl": true, "mode": "id", "value": "vZ74meVqtdYSt1j0" }, "matchType": "allConditions", "filters": { "conditions": [ { "keyName": "session", "condition": "eq", "keyValue": "={{ $(\"Telegram Update\").item.json.message.chat.id }}:{{ $(\"Telegram Update\").item.json.message.message_thread_id }}" } ] }, "limit": 1 }, "name": "Get Card", "type": "n8n-nodes-base.dataTable", "typeVersion": 1.1, "position": [2096, 0], "executeOnce": true, "alwaysOutputData": true },
-    { "parameters": { "mode": "manual", "assignments": { "assignments": [ { "id": "b1", "name": "session", "type": "string", "value": "={{ $(\"Telegram Update\").item.json.message.chat.id }}:{{ $(\"Telegram Update\").item.json.message.message_thread_id }}" }, { "id": "b2", "name": "chat_id", "type": "string", "value": "={{ $(\"Telegram Update\").item.json.message.chat.id }}" }, { "id": "b3", "name": "thread_id", "type": "number", "value": "={{ $(\"Telegram Update\").item.json.message.message_thread_id }}" }, { "id": "b4", "name": "count", "type": "number", "value": "={{ $(\"Get Draft\").all().length }}" }, { "id": "b5", "name": "old_card_id", "type": "string", "value": "={{ $(\"Get Card\").item.json.msg_id || 0 }}" } ] } }, "name": "Build Draft State", "type": "n8n-nodes-base.set", "typeVersion": 3.4, "position": [2336, 0], "executeOnce": true },
-    { "parameters": { "operation": "deleteMessage", "chatId": "={{ $json.chat_id }}", "messageId": "={{ $json.old_card_id }}" }, "name": "Delete Old Draft Msg", "type": "n8n-nodes-base.telegram", "typeVersion": 1.2, "position": [2576, 0], "executeOnce": true, "onError": "continueRegularOutput" },
-    { "parameters": { "chatId": "={{ $(\"Build Draft State\").item.json.chat_id }}", "text": "=📝 Черновик заметки · {{ $(\"Build Draft State\").item.json.count }} голосовых\nНажми «✅ Сохранить заметку», когда всё запишешь.", "replyMarkup": "inlineKeyboard", "inlineKeyboard": { "rows": [ { "row": { "buttons": [ { "text": "✅ Сохранить", "additionalFields": { "callback_data": "save" } }, { "text": "🗑 Отменить", "additionalFields": { "callback_data": "cancel" } } ] } }, { "row": { "buttons": [ { "text": "ℹ️ Как это работает", "additionalFields": { "url": "https://telegra.ph/Zametki-iz-golosovyh--kak-polzovatsya-06-23" } } ] } } ] }, "additionalFields": { "appendAttribution": false, "message_thread_id": "={{ $(\"Build Draft State\").item.json.thread_id }}" } }, "name": "Send Draft", "type": "n8n-nodes-base.telegram", "typeVersion": 1.2, "position": [2816, 0], "executeOnce": true },
-    { "parameters": { "operation": "deleteRows", "dataTableId": { "__rl": true, "mode": "id", "value": "vZ74meVqtdYSt1j0" }, "matchType": "allConditions", "filters": { "conditions": [ { "keyName": "session", "condition": "eq", "keyValue": "={{ $(\"Build Draft State\").item.json.session }}" } ] } }, "name": "Clear Old Row", "type": "n8n-nodes-base.dataTable", "typeVersion": 1.1, "position": [3056, 0], "alwaysOutputData": true, "executeOnce": true },
-    { "parameters": { "operation": "insert", "dataTableId": { "__rl": true, "mode": "id", "value": "vZ74meVqtdYSt1j0" }, "columns": { "mappingMode": "defineBelow", "value": { "session": "={{ $(\"Build Draft State\").item.json.session }}", "msg_id": "={{ $(\"Send Draft\").item.json.result.message_id }}" }, "schema": [ { "id": "session", "displayName": "session", "type": "string", "canBeUsedToMatch": true, "display": true, "required": false, "defaultMatch": false }, { "id": "msg_id", "displayName": "msg_id", "type": "number", "canBeUsedToMatch": true, "display": true, "required": false, "defaultMatch": false } ] } }, "name": "Insert Card", "type": "n8n-nodes-base.dataTable", "typeVersion": 1.1, "position": [3296, 0], "executeOnce": true },
-    { "parameters": { "resource": "callback", "queryId": "={{ $json.callback_query.id }}", "additionalFields": { "text": "⏳ Делаю заметку…" } }, "name": "Answer Callback", "type": "n8n-nodes-base.telegram", "typeVersion": 1.2, "position": [448, 192], "onError": "continueRegularOutput" },
-    { "parameters": { "operation": "editMessageText", "chatId": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}", "messageId": "={{ $(\"Telegram Update\").item.json.callback_query.message.message_id }}", "text": "⏳ Делаю заметку…", "additionalFields": {} }, "name": "Edit To Processing", "type": "n8n-nodes-base.telegram", "typeVersion": 1.2, "position": [672, 192], "onError": "continueRegularOutput" },
-    { "parameters": { "operation": "get", "dataTableId": { "__rl": true, "mode": "id", "value": "bpwNfJwc15sqXgeU" }, "matchType": "allConditions", "filters": { "conditions": [ { "keyName": "session", "condition": "eq", "keyValue": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}:{{ $(\"Telegram Update\").item.json.callback_query.message.message_thread_id }}" } ] }, "returnAll": true, "orderBy": true, "orderByColumn": "voice_msg_id", "orderByDirection": "ASC" }, "name": "Get Draft For Save", "type": "n8n-nodes-base.dataTable", "typeVersion": 1.1, "position": [896, 192] },
-    { "parameters": { "jsCode": "const lines=$input.all().map(i=>i.json);let offset=0;const parts=[];const segs=[];for(const ln of lines){if(ln.transcript)parts.push(ln.transcript);let s=[];try{s=JSON.parse(ln.segments||\"[]\");}catch(e){s=[];}if(Array.isArray(s)){for(const seg of s){const t=((seg.text??\"\")+\"\").trim();if(t)segs.push({start:Math.round(offset+Number(seg.start||0)),text:t});}}offset+=Number(ln.duration||0);}let uc=parts.join(\"\\n\\n\");if(segs.length){uc+=\"\\n\\n---\\nСегменты с таймкодами (start = секунды от начала всей записи). Проставь [MM:SS] (или [H:MM:SS] если запись длиннее часа) рядом с заголовками подтем, ключевыми решениями и сильными цитатами — бери start ближайшего сегмента. Не ставь таймкод на каждом пункте.\\n```json\\n\"+JSON.stringify(segs)+\"\\n```\";}return[{json:{user_content:uc}}];" }, "name": "Build Content", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [1120, 192] },
-    { "parameters": { "includeOtherFields": true, "assignments": { "assignments": [ { "id": "p1", "name": "system_prompt", "type": "string", "value": "Ты — ассистент, превращающий транскрипт голосового сообщения (встречи, звонка, лекции, заметки вслух) в **очень детальные** структурированные заметки на русском.\n\nЦель: человек через месяц открывает заметки и **восстанавливает картину без перечитывания транскрипта**. Тот, кто не слушал, понимает что говорили, кто что предлагал, какие аргументы звучали, какие решения приняли и почему.\n\n## Имя файла\nВ САМОЙ ПЕРВОЙ строке ответа верни HTML-комментарий со slug на английском snake_case (до 60 символов, только латиница/цифры/подчёркивания, без расширения):\n<!-- filename: meeting_topic_here -->\nСразу после этой строки — `## О чём`, без пустых строк и без преамбулы.\n\n## Принципы\n1. **Объём ≈ 30–50% от транскрипта.** Это не саммари — плотный структурированный пересказ почти без потерь. Лучше слишком детально, чем слишком кратко.\n2. **Фиксируй, не пересказывай.** Каждое число, имя, продукт, цитата, метрика, дата, сумма, процент, версия — в заметки. Никаких «обсудили цены» — пиши конкретные цены и условия.\n3. **Сохраняй причинно-следственное.** Не «решили X» — а «решили X потому что (1)…, (2)…».\n4. **Сохраняй разногласия и сомнения.** Возражения и их аргументы фиксируй; компромиссные/сомнительные решения отмечай явно.\n5. **Структура адаптивная.** Не выдумывай разделов, которых не было. «Надо подумать / проверить / не уверен» → открытые вопросы.\n\n## Что обязательно сохранять\n- **Имена** людей, компаний, продуктов, инструментов — с минимальным контекстом.\n- **Числа** — деньги, проценты, сроки, версии, размеры, метрики — с единицами.\n- **Термины и определения**, когда их объясняют.\n- **Команды, код, URL, пути** — в блоках с тройными апострофами.\n- **Конкретные примеры** — с содержанием, не «привёл пример».\n- **Аргументы за/против** для решений, включая отвергнутые варианты.\n- **Сроки, дедлайны, договорённости** — буквально.\n\n## Структура\n### Обязательно\n- `## О чём` — 3–6 пунктов-оглавление: карта тем (не выводы).\n- Далее темы как `##`/`###`. Bullet-листы для независимых фактов, параграфы где важна логика.\n### При наличии (не выдумывай)\n- `## Решения и Action Items` — каждое отдельным пунктом. Ответственный → `→ Имя`. Срок → `(к пятнице)`. Условие → `(если …)`.\n- `## Открытые вопросы` — без ответа / отложено / надо проверить.\n- `## Сильные цитаты` — дословно, в формате цитаты, с автором если ясно.\n- `## Контекст / Бэкграунд` — важные детали о компании/проекте/истории.\n### Не делать\n- Без «Выводы / Заключение / Резюме / В итоге».\n- Без «Спикер сказал…» — факты как факты; автора указывай только когда важно.\n- Без «и так далее» — перечисляй явно.\n- Не добавляй неуверенности, которой не было; не размывай уверенные факты.\n- Не объединяй разные пункты — лучше десять чётких пунктов, чем три рыхлых.\n\n## Стиль\n- **Русский** основной. Англ. названия/термины — латиницей как звучали (`GitHub`, `RAG`), не транслитерируй.\n- **жирный** — имена, ключевые термины, ответственные. *курсив* — нюансы/тон. Моноширинный — команды/пути/код.\n- Плохо расслышанное → `[неразборчиво]`.\n\n## Что вернуть\nТолько содержимое заметок: строка с filename-комментарием, сразу за ней `## О чём`, далее блоки. Без вступлений вроде «Конечно», без обёртки в markdown-блок." } ] } }, "name": "Note Prompt", "type": "n8n-nodes-base.set", "typeVersion": 3.4, "position": [1376, 192], "executeOnce": true },
-    { "parameters": { "method": "POST", "url": "https://api.anthropic.com/v1/messages", "authentication": "predefinedCredentialType", "nodeCredentialType": "anthropicApi", "sendHeaders": true, "headerParameters": { "parameters": [ { "name": "anthropic-version", "value": "2023-06-01" } ] }, "sendBody": true, "specifyBody": "json", "jsonBody": "={ \"model\": \"claude-sonnet-4-6\", \"max_tokens\": 8192, \"system\": {{ JSON.stringify($json.system_prompt) }}, \"messages\": [ {\"role\": \"user\", \"content\": {{ JSON.stringify($json.user_content) }} } ] }", "options": {} }, "name": "claude-sonnet-4-6", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.4, "position": [1616, 192] },
-    { "parameters": { "mode": "markdownToHtml", "markdown": "={{ $(\"claude-sonnet-4-6\").item.json.content[0].text.replace(/^\\s*<!--\\s*filename:[^>]*-->\\s*\\n?/, \"\") }}", "options": { "completeHTMLDocument": true, "simpleLineBreaks": true, "strikethrough": true, "tables": true } }, "name": "MD to HTML", "type": "n8n-nodes-base.markdown", "typeVersion": 1, "position": [1856, 192] },
-    { "parameters": { "mode": "runOnceForEachItem", "jsCode": "const html=$json.data||\"\";const note=$(\"claude-sonnet-4-6\").item.json.content[0].text||\"\";const m=note.match(/filename:\\s*([A-Za-z0-9_-]+)/);const slug=(m&&m[1])?m[1]:\"note\";const boundary=\"n8nb\"+Math.random().toString(36).slice(2);const meta=JSON.stringify({name:slug,parents:[\"1o-8nIrmt7fSxkdc1iwxlFiCR1SkqiZqN\"],mimeType:\"application/vnd.google-apps.document\"});const CRLF=\"\\r\\n\";const body=\"--\"+boundary+CRLF+\"Content-Type: application/json; charset=UTF-8\"+CRLF+CRLF+meta+CRLF+\"--\"+boundary+CRLF+\"Content-Type: text/html; charset=UTF-8\"+CRLF+CRLF+html+CRLF+\"--\"+boundary+\"--\";return {json:{body:body,ct:\"multipart/related; boundary=\"+boundary}};" }, "name": "Build Upload Body", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [2096, 192] },
-    { "parameters": { "method": "POST", "url": "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true", "authentication": "predefinedCredentialType", "nodeCredentialType": "googleDriveOAuth2Api", "sendBody": true, "contentType": "raw", "rawContentType": "={{ $json.ct }}", "specifyBody": "string", "body": "={{ $json.body }}", "options": {} }, "name": "Upload to Drive", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.4, "position": [2336, 192] },
-    { "parameters": { "operation": "editMessageText", "chatId": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}", "messageId": "={{ $(\"Telegram Update\").item.json.callback_query.message.message_id }}", "text": "=✅ Заметка сохранена в Google Docs\nhttps://docs.google.com/document/d/{{ $(\"Upload to Drive\").item.json.id }}/edit", "additionalFields": {} }, "name": "Edit To Saved", "type": "n8n-nodes-base.telegram", "typeVersion": 1.2, "position": [2576, 192] },
-    { "parameters": { "operation": "deleteRows", "dataTableId": { "__rl": true, "mode": "id", "value": "bpwNfJwc15sqXgeU" }, "matchType": "allConditions", "filters": { "conditions": [ { "keyName": "session", "condition": "eq", "keyValue": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}:{{ $(\"Telegram Update\").item.json.callback_query.message.message_thread_id }}" }, { "keyName": "id", "condition": "lte", "keyValue": "={{ $(\"Get Draft For Save\").all().map(i => Number(i.json.id)).reduce((a, b) => b > a ? b : a, 0) }}" } ] } }, "name": "Clear Draft Row", "type": "n8n-nodes-base.dataTable", "typeVersion": 1.1, "position": [2816, 192] },
-    { "parameters": { "operation": "deleteRows", "dataTableId": { "__rl": true, "mode": "id", "value": "vZ74meVqtdYSt1j0" }, "matchType": "allConditions", "filters": { "conditions": [ { "keyName": "session", "condition": "eq", "keyValue": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}:{{ $(\"Telegram Update\").item.json.callback_query.message.message_thread_id }}" } ] } }, "name": "Clear Card Save", "type": "n8n-nodes-base.dataTable", "typeVersion": 1.1, "position": [3056, 192] },
-    { "parameters": { "resource": "callback", "operation": "answerQuery", "queryId": "={{ $json.callback_query.id }}", "additionalFields": { "text": "🗑 Отменяю…" } }, "name": "Answer Cancel", "type": "n8n-nodes-base.telegram", "typeVersion": 1.2, "position": [448, 400], "onError": "continueRegularOutput" },
-    { "parameters": { "operation": "editMessageText", "chatId": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}", "messageId": "={{ $(\"Telegram Update\").item.json.callback_query.message.message_id }}", "text": "❌ Черновик отменён. Голосовые сброшены — начни заново.", "additionalFields": {} }, "name": "Edit To Cancelled", "type": "n8n-nodes-base.telegram", "typeVersion": 1.2, "position": [672, 400], "onError": "continueRegularOutput" },
-    { "parameters": { "operation": "deleteRows", "dataTableId": { "__rl": true, "mode": "id", "value": "bpwNfJwc15sqXgeU" }, "matchType": "allConditions", "filters": { "conditions": [ { "keyName": "session", "condition": "eq", "keyValue": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}:{{ $(\"Telegram Update\").item.json.callback_query.message.message_thread_id }}" } ] } }, "name": "Cancel Clear Lines", "type": "n8n-nodes-base.dataTable", "typeVersion": 1.1, "position": [896, 400] },
-    { "parameters": { "operation": "deleteRows", "dataTableId": { "__rl": true, "mode": "id", "value": "vZ74meVqtdYSt1j0" }, "matchType": "allConditions", "filters": { "conditions": [ { "keyName": "session", "condition": "eq", "keyValue": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}:{{ $(\"Telegram Update\").item.json.callback_query.message.message_thread_id }}" } ] } }, "name": "Cancel Clear Card", "type": "n8n-nodes-base.dataTable", "typeVersion": 1.1, "position": [1120, 400] }
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "id": "4e21e15b-6892-4660-b0d2-134f082a4af6",
+      "name": "Telegram Update",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -336,
+        368
+      ],
+      "webhookId": "2c5611cd-8b5d-476d-8ec8-59dd9638e91e"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.voice?.file_id || $json.message.video_note?.file_id }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  },
+                  {
+                    "leftValue": "={{ $json.message.message_thread_id }}",
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    },
+                    "rightValue": 7
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "voice"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_query.data }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "rightValue": "save"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "save"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_query.data }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "rightValue": "cancel"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "cancel"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message?.text }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    },
+                    "rightValue": "/research"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "research_start"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_query?.data }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    },
+                    "rightValue": "rs:"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "research_run"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "id": "dac2bed9-31b7-4619-b277-5b03864f0e5e",
+      "name": "Route Update",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -112,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice?.file_id || $json.message.video_note?.file_id }}",
+        "additionalFields": {}
+      },
+      "id": "bb525403-2416-4501-b213-4cbafad5fe8a",
+      "name": "Get Voice File",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        -144
+      ],
+      "webhookId": "679f4277-59d5-439c-bc49-48f2ef83f98b"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/audio/transcriptions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "model",
+              "value": "voxtral-mini-2602"
+            },
+            {
+              "name": "timestamp_granularities",
+              "value": "segment"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "369b69bb-f5e9-4fbc-8032-a31925772208",
+      "name": "Transcribe Voxtral",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        672,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "bpwNfJwc15sqXgeU"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session",
+              "keyValue": "={{ $(\"Telegram Update\").item.json.message.chat.id }}:{{ $(\"Telegram Update\").item.json.message.message_thread_id }}"
+            }
+          ]
+        },
+        "returnAll": true,
+        "orderBy": true,
+        "orderByDirection": "ASC"
+      },
+      "id": "5728a55b-9ce7-4b95-82aa-22bf609e3b88",
+      "name": "Get Draft",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1792,
+        -144
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1",
+              "name": "session",
+              "type": "string",
+              "value": "={{ $(\"Telegram Update\").item.json.message.chat.id }}:{{ $(\"Telegram Update\").item.json.message.message_thread_id }}"
+            },
+            {
+              "id": "b2",
+              "name": "chat_id",
+              "type": "string",
+              "value": "={{ $(\"Telegram Update\").item.json.message.chat.id }}"
+            },
+            {
+              "id": "b3",
+              "name": "thread_id",
+              "type": "number",
+              "value": "={{ $(\"Telegram Update\").item.json.message.message_thread_id }}"
+            },
+            {
+              "id": "b4",
+              "name": "count",
+              "type": "number",
+              "value": "={{ $(\"Get Draft\").all().length }}"
+            },
+            {
+              "id": "b5",
+              "name": "old_card_id",
+              "type": "string",
+              "value": "={{ $(\"Get Card\").item.json.msg_id || 0 }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b28c4a2c-30ac-4d4e-a27f-b783f8004788",
+      "name": "Build Draft State",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2240,
+        -144
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "deleteMessage",
+        "chatId": "={{ $json.chat_id }}",
+        "messageId": "={{ $json.old_card_id }}"
+      },
+      "id": "1925bb14-c1b8-4e96-8613-3286dc805905",
+      "name": "Delete Old Draft Msg",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2464,
+        -144
+      ],
+      "webhookId": "9528b49e-121d-4733-8eaa-d6dd4ddfac2f",
+      "executeOnce": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $(\"Build Draft State\").item.json.chat_id }}",
+        "text": "=📝 Черновик заметки · {{ $(\"Build Draft State\").item.json.count }} голосовых\nНажми «✅ Сохранить заметку», когда всё запишешь.",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Сохранить",
+                    "additionalFields": {
+                      "callback_data": "save"
+                    }
+                  },
+                  {
+                    "text": "🗑 Отменить",
+                    "additionalFields": {
+                      "callback_data": "cancel"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "ℹ️ Как это работает",
+                    "additionalFields": {
+                      "url": "https://telegra.ph/Zametki-iz-golosovyh--kak-polzovatsya-06-23"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false,
+          "message_thread_id": "={{ $(\"Build Draft State\").item.json.thread_id }}"
+        }
+      },
+      "id": "b3a383e4-d629-4d78-9459-e11cd01cfe73",
+      "name": "Send Draft",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2688,
+        -144
+      ],
+      "webhookId": "4f6d85f3-e1a4-4a98-86dc-b4d40a8459b4",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "vZ74meVqtdYSt1j0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session",
+              "keyValue": "={{ $(\"Build Draft State\").item.json.session }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fe520b9d-083b-4016-b6fc-af5bf747a741",
+      "name": "Clear Old Row",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2912,
+        -144
+      ],
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "bpwNfJwc15sqXgeU"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "session": "={{ $(\"Telegram Update\").item.json.message.chat.id }}:{{ $(\"Telegram Update\").item.json.message.message_thread_id }}",
+            "transcript": "={{ $(\"Transcribe Voxtral\").item.json.text }}",
+            "chat_id": "={{ $(\"Telegram Update\").item.json.message.chat.id }}",
+            "thread_id": "={{ $(\"Telegram Update\").item.json.message.message_thread_id }}",
+            "voice_msg_id": "={{ $(\"Telegram Update\").item.json.message.message_id }}",
+            "segments": "={{ JSON.stringify($(\"Transcribe Voxtral\").item.json.segments || []) }}",
+            "duration": "={{ $json.message.voice?.duration || $json.message.video_note?.duration }}"
+          },
+          "schema": [
+            {
+              "id": "session",
+              "displayName": "session",
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "display": true,
+              "required": false,
+              "defaultMatch": false
+            },
+            {
+              "id": "transcript",
+              "displayName": "transcript",
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "display": true,
+              "required": false,
+              "defaultMatch": false
+            },
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "display": true,
+              "required": false,
+              "defaultMatch": false
+            },
+            {
+              "id": "thread_id",
+              "displayName": "thread_id",
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "display": true,
+              "required": false,
+              "defaultMatch": false
+            },
+            {
+              "id": "voice_msg_id",
+              "displayName": "voice_msg_id",
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "display": true,
+              "required": false,
+              "defaultMatch": false
+            },
+            {
+              "id": "segments",
+              "displayName": "segments",
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "display": true,
+              "required": false,
+              "defaultMatch": false
+            },
+            {
+              "id": "duration",
+              "displayName": "duration",
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "display": true,
+              "required": false,
+              "defaultMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e9516ec0-0cb4-496f-9739-f5174534784f",
+      "name": "Insert Draft Row",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $json.callback_query.id }}",
+        "additionalFields": {
+          "text": "⏳ Делаю заметку…"
+        }
+      },
+      "id": "765943b1-9f28-473c-bbe5-84901aa6c58c",
+      "name": "Answer Callback",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        112
+      ],
+      "webhookId": "b51b7b61-6776-4e20-b5d1-5455942c1b41",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "bpwNfJwc15sqXgeU"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session",
+              "keyValue": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}:{{ $(\"Telegram Update\").item.json.callback_query.message.message_thread_id }}"
+            }
+          ]
+        },
+        "returnAll": true,
+        "orderBy": true,
+        "orderByColumn": "voice_msg_id",
+        "orderByDirection": "ASC"
+      },
+      "id": "587dc713-fe4e-4e5f-9c43-8cc6a8dbefe8",
+      "name": "Get Draft For Save",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "editMessageText",
+        "chatId": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}",
+        "messageId": "={{ $(\"Telegram Update\").item.json.callback_query.message.message_id }}",
+        "text": "=✅ Заметка сохранена в Google Docs\nhttps://docs.google.com/document/d/{{ $(\"Upload to Drive\").item.json.id }}/edit",
+        "additionalFields": {}
+      },
+      "id": "2bbf7fd5-0643-4164-b9de-20b41964ead1",
+      "name": "Edit To Saved",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2464,
+        112
+      ],
+      "webhookId": "f7597116-2a76-4e87-9b95-56b830eae13e"
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "bpwNfJwc15sqXgeU"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session",
+              "keyValue": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}:{{ $(\"Telegram Update\").item.json.callback_query.message.message_thread_id }}"
+            },
+            {
+              "condition": "lte",
+              "keyValue": "={{ $(\"Get Draft For Save\").all().map(i => Number(i.json.id)).reduce((a, b) => b > a ? b : a, 0) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "94a7d411-706b-4bdb-b30e-1a0d8facab60",
+      "name": "Clear Draft Row",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2688,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "editMessageText",
+        "chatId": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}",
+        "messageId": "={{ $(\"Telegram Update\").item.json.callback_query.message.message_id }}",
+        "text": "⏳ Делаю заметку…",
+        "additionalFields": {}
+      },
+      "id": "e8193310-28b2-4363-bf4a-9932f645471b",
+      "name": "Edit To Processing",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        112
+      ],
+      "webhookId": "ab261f84-e65c-444e-9f5d-172b34933841",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "p1",
+              "name": "system_prompt",
+              "type": "string",
+              "value": "Ты — ассистент, превращающий транскрипт голосового сообщения (встречи, звонка, лекции, заметки вслух) в **очень детальные** структурированные заметки на русском.\n\nЦель: человек через месяц открывает заметки и **восстанавливает картину без перечитывания транскрипта**. Тот, кто не слушал, понимает что говорили, кто что предлагал, какие аргументы звучали, какие решения приняли и почему.\n\n## Имя файла\nВ САМОЙ ПЕРВОЙ строке ответа верни HTML-комментарий со slug на английском snake_case (до 60 символов, только латиница/цифры/подчёркивания, без расширения):\n<!-- filename: meeting_topic_here -->\nСразу после этой строки — `## О чём`, без пустых строк и без преамбулы.\n\n## Принципы\n1. **Объём ≈ 30–50% от транскрипта.** Это не саммари — плотный структурированный пересказ почти без потерь. Лучше слишком детально, чем слишком кратко.\n2. **Фиксируй, не пересказывай.** Каждое число, имя, продукт, цитата, метрика, дата, сумма, процент, версия — в заметки. Никаких «обсудили цены» — пиши конкретные цены и условия.\n3. **Сохраняй причинно-следственное.** Не «решили X» — а «решили X потому что (1)…, (2)…».\n4. **Сохраняй разногласия и сомнения.** Возражения и их аргументы фиксируй; компромиссные/сомнительные решения отмечай явно.\n5. **Структура адаптивная.** Не выдумывай разделов, которых не было. «Надо подумать / проверить / не уверен» → открытые вопросы.\n\n## Что обязательно сохранять\n- **Имена** людей, компаний, продуктов, инструментов — с минимальным контекстом.\n- **Числа** — деньги, проценты, сроки, версии, размеры, метрики — с единицами.\n- **Термины и определения**, когда их объясняют.\n- **Команды, код, URL, пути** — в блоках с тройными апострофами.\n- **Конкретные примеры** — с содержанием, не «привёл пример».\n- **Аргументы за/против** для решений, включая отвергнутые варианты.\n- **Сроки, дедлайны, договорённости** — буквально.\n\n## Структура\n### Обязательно\n- `## О чём` — 3–6 пунктов-оглавление: карта тем (не выводы).\n- Далее темы как `##`/`###`. Bullet-листы для независимых фактов, параграфы где важна логика.\n### При наличии (не выдумывай)\n- `## Решения и Action Items` — каждое отдельным пунктом. Ответственный → `→ Имя`. Срок → `(к пятнице)`. Условие → `(если …)`.\n- `## Открытые вопросы` — без ответа / отложено / надо проверить.\n- `## Сильные цитаты` — дословно, в формате цитаты, с автором если ясно.\n- `## Контекст / Бэкграунд` — важные детали о компании/проекте/истории.\n### Не делать\n- Без «Выводы / Заключение / Резюме / В итоге».\n- Без «Спикер сказал…» — факты как факты; автора указывай только когда важно.\n- Без «и так далее» — перечисляй явно.\n- Не добавляй неуверенности, которой не было; не размывай уверенные факты.\n- Не объединяй разные пункты — лучше десять чётких пунктов, чем три рыхлых.\n\n## Стиль\n- **Русский** основной. Англ. названия/термины — латиницей как звучали (`GitHub`, `RAG`), не транслитерируй.\n- **жирный** — имена, ключевые термины, ответственные. *курсив* — нюансы/тон. Моноширинный — команды/пути/код.\n- Плохо расслышанное → `[неразборчиво]`.\n\n## Что вернуть\nТолько содержимое заметок: строка с filename-комментарием, сразу за ней `## О чём`, далее блоки. Без вступлений вроде «Конечно», без обёртки в markdown-блок."
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "0dfd4a2e-21c0-4b1b-83d8-fac933f393a4",
+      "name": "Note Prompt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1344,
+        112
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"model\": \"claude-sonnet-4-6\", \"max_tokens\": 8192, \"system\": {{ JSON.stringify($json.system_prompt) }}, \"messages\": [ {\"role\": \"user\", \"content\": {{ JSON.stringify($json.user_content) }} } ] }",
+        "options": {}
+      },
+      "id": "36ba89d5-e424-4006-9086-60ada0119021",
+      "name": "claude-sonnet-4-6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1568,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "vZ74meVqtdYSt1j0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session",
+              "keyValue": "={{ $(\"Telegram Update\").item.json.message.chat.id }}:{{ $(\"Telegram Update\").item.json.message.message_thread_id }}"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "id": "492fef08-640f-496a-9745-12eba062e793",
+      "name": "Get Card",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2016,
+        -144
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "vZ74meVqtdYSt1j0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "session": "={{ $(\"Build Draft State\").item.json.session }}",
+            "msg_id": "={{ $(\"Send Draft\").item.json.result.message_id }}"
+          },
+          "schema": [
+            {
+              "id": "session",
+              "displayName": "session",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "msg_id",
+              "displayName": "msg_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1a65c8e6-b9fa-4b9e-aef0-463f9cbe4611",
+      "name": "Insert Card",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3136,
+        -144
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "vZ74meVqtdYSt1j0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session",
+              "keyValue": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}:{{ $(\"Telegram Update\").item.json.callback_query.message.message_thread_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a5673e8e-5c8c-46da-90e3-aa78edf0617d",
+      "name": "Clear Card Save",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2912,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "id": "57e526b6-76a5-4a3a-b054-9eae403124ba",
+      "name": "Wait Debounce",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        -144
+      ],
+      "webhookId": "c3f5a4f1-a6ac-4822-a383-dfc61b0f9384"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "bpwNfJwc15sqXgeU"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session",
+              "keyValue": "={{ $(\"Telegram Update\").item.json.message.chat.id }}:{{ $(\"Telegram Update\").item.json.message.message_thread_id }}"
+            }
+          ]
+        },
+        "limit": 1,
+        "orderBy": true
+      },
+      "id": "d0459840-e40a-42bf-bd35-6c5f0b1a0718",
+      "name": "Get Latest",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1344,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $(\"Get Latest\").item.json.id }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              },
+              "rightValue": "={{ $(\"Insert Draft Row\").item.json.id }}"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5184f71a-1598-470a-83b7-b7c03cd4b441",
+      "name": "Is Latest",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1568,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lines=$input.all().map(i=>i.json);let offset=0;const parts=[];const segs=[];for(const ln of lines){if(ln.transcript)parts.push(ln.transcript);let s=[];try{s=JSON.parse(ln.segments||\"[]\");}catch(e){s=[];}if(Array.isArray(s)){for(const seg of s){const t=((seg.text??\"\")+\"\").trim();if(t)segs.push({start:Math.round(offset+Number(seg.start||0)),text:t});}}offset+=Number(ln.duration||0);}let uc=parts.join(\"\\n\\n\");if(segs.length){uc+=\"\\n\\n---\\nСегменты с таймкодами (start = секунды от начала всей записи). Проставь [MM:SS] (или [H:MM:SS] если запись длиннее часа) рядом с заголовками подтем, ключевыми решениями и сильными цитатами — бери start ближайшего сегмента. Не ставь таймкод на каждом пункте.\\n```json\\n\"+JSON.stringify(segs)+\"\\n```\";}return[{json:{user_content:uc}}];"
+      },
+      "id": "6bffb4ea-3891-4fb1-a6f2-75b9346cf6ea",
+      "name": "Build Content",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $(\"claude-sonnet-4-6\").item.json.content[0].text.replace(/^\\s*<!--\\s*filename:[^>]*-->\\s*\\n?/, \"\") }}",
+        "options": {
+          "completeHTMLDocument": true,
+          "simpleLineBreaks": true,
+          "strikethrough": true,
+          "tables": true
+        }
+      },
+      "id": "b84edcbc-2813-4bd6-9045-093602922323",
+      "name": "MD to HTML",
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        1792,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const html=$json.data||\"\";const note=$(\"claude-sonnet-4-6\").item.json.content[0].text||\"\";const m=note.match(/filename:\\s*([A-Za-z0-9_-]+)/);const slug=(m&&m[1])?m[1]:\"note\";const boundary=\"n8nb\"+Math.random().toString(36).slice(2);const meta=JSON.stringify({name:slug,parents:[\"1o-8nIrmt7fSxkdc1iwxlFiCR1SkqiZqN\"],mimeType:\"application/vnd.google-apps.document\"});const CRLF=\"\\r\\n\";const body=\"--\"+boundary+CRLF+\"Content-Type: application/json; charset=UTF-8\"+CRLF+CRLF+meta+CRLF+\"--\"+boundary+CRLF+\"Content-Type: text/html; charset=UTF-8\"+CRLF+CRLF+html+CRLF+\"--\"+boundary+\"--\";return {json:{body:body,ct:\"multipart/related; boundary=\"+boundary}};"
+      },
+      "id": "50386319-68e5-4724-a13a-0b70dac6e880",
+      "name": "Build Upload Body",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "={{ $json.ct }}",
+        "body": "={{ $json.body }}",
+        "options": {}
+      },
+      "id": "fda41ef5-4f95-4223-bc1a-fbe02bdd7b6d",
+      "name": "Upload to Drive",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2240,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $json.callback_query.id }}",
+        "additionalFields": {
+          "text": "🗑 Отменяю…"
+        }
+      },
+      "id": "2b1aa22a-1701-4331-b158-7cbb1f3341cb",
+      "name": "Answer Cancel",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        368
+      ],
+      "webhookId": "268685e9-041b-4987-b00b-70a189e70bce",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "editMessageText",
+        "chatId": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}",
+        "messageId": "={{ $(\"Telegram Update\").item.json.callback_query.message.message_id }}",
+        "text": "❌ Черновик отменён. Голосовые сброшены — начни заново.",
+        "additionalFields": {}
+      },
+      "id": "05aad371-a82c-47ec-bfc7-7a5272c6fbdd",
+      "name": "Edit To Cancelled",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        368
+      ],
+      "webhookId": "686662cf-73bd-458e-80a1-47f3bcca136e",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "bpwNfJwc15sqXgeU"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session",
+              "keyValue": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}:{{ $(\"Telegram Update\").item.json.callback_query.message.message_thread_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "06fe00a0-b7c0-4ce8-bb94-fb2578f39123",
+      "name": "Cancel Clear Lines",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "vZ74meVqtdYSt1j0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session",
+              "keyValue": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}:{{ $(\"Telegram Update\").item.json.callback_query.message.message_thread_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "139b5cbf-418a-4a55-a8d9-e8e4687a28ac",
+      "name": "Cancel Clear Card",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const u=$(\"Telegram Update\").item.json;const m=u.message||{};const raw=m.text||\"\";const query=raw.replace(/^\\/research(@[A-Za-z0-9_]+)?\\s*/i,\"\").trim();const chat_id=String(m.chat&&m.chat.id!=null?m.chat.id:\"\");const thread_id=m.message_thread_id!=null?m.message_thread_id:0;const job_key=\"j\"+Date.now().toString(36)+Math.floor(Math.random()*1000000).toString(36);return[{json:{query,chat_id,thread_id,job_key,has_query:query.length>0}}];"
+      },
+      "id": "091d9323-4979-40db-88db-da3013508131",
+      "name": "RS Parse",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        704
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "q1",
+              "leftValue": "={{ $json.has_query }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "30809f7d-1f61-4827-8ce7-f48c30369e79",
+      "name": "RS Has Query",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        704
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "✍️ Напиши запрос после команды.\nНапример: /research конкурентный анализ компании Acme",
+        "additionalFields": {
+          "appendAttribution": false,
+          "message_thread_id": "={{ $json.thread_id }}"
+        }
+      },
+      "id": "6d0d48a2-4f4a-48bc-bff3-ff852f140d6a",
+      "name": "RS Ask Query",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        896,
+        800
+      ],
+      "webhookId": "961f45e7-51e8-4ab7-a160-b8a48a9677e1"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "3ky6zNtlCGsf57Dn"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "job_key": "={{ $(\"RS Parse\").item.json.job_key }}",
+            "chat_id": "={{ $(\"RS Parse\").item.json.chat_id }}",
+            "thread_id": "={{ $(\"RS Parse\").item.json.thread_id }}",
+            "query": "={{ $(\"RS Parse\").item.json.query }}"
+          },
+          "schema": [
+            {
+              "id": "job_key",
+              "displayName": "job_key",
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "display": true,
+              "required": false,
+              "defaultMatch": false
+            },
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "display": true,
+              "required": false,
+              "defaultMatch": false
+            },
+            {
+              "id": "thread_id",
+              "displayName": "thread_id",
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "display": true,
+              "required": false,
+              "defaultMatch": false
+            },
+            {
+              "id": "query",
+              "displayName": "query",
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "display": true,
+              "required": false,
+              "defaultMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "79c4e98a-98b5-4a40-b303-0f8c0892b916",
+      "name": "RS Insert Job",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $(\"RS Parse\").item.json.chat_id }}",
+        "text": "=🔬 Запрос принят:\n«{{ $(\"RS Parse\").item.json.query }}»\n\nВыбери модель для ресёрча:",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "⚡ Sonnet 4.6",
+                    "additionalFields": {
+                      "callback_data": "=rs:{{ $(\"RS Parse\").item.json.job_key }}:sonnet"
+                    }
+                  },
+                  {
+                    "text": "🧠 Opus 4.8",
+                    "additionalFields": {
+                      "callback_data": "=rs:{{ $(\"RS Parse\").item.json.job_key }}:opus"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false,
+          "message_thread_id": "={{ $(\"RS Parse\").item.json.thread_id }}"
+        }
+      },
+      "id": "3f826ade-d4d8-4896-a7e6-e589c115868a",
+      "name": "RS Send Buttons",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        608
+      ],
+      "webhookId": "a6125dd6-991d-4310-9e3a-a040ec48b05b"
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $json.callback_query.id }}",
+        "additionalFields": {
+          "text": "🔎 Запускаю ресёрч…"
+        }
+      },
+      "id": "1d5dfd61-7d40-4201-9627-c236d8a5041d",
+      "name": "RR Answer CB",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        1024
+      ],
+      "webhookId": "48143d6d-a021-4f7d-9c39-de8bfd87a1c9"
+    },
+    {
+      "parameters": {
+        "jsCode": "const cb=$(\"Telegram Update\").item.json.callback_query;const parts=String(cb.data||\"\").split(\":\");const job_key=parts[1]||\"\";const modelKey=parts[2]||\"sonnet\";const model=modelKey===\"opus\"?\"claude-opus-4-8\":\"claude-sonnet-4-6\";const label=modelKey===\"opus\"?\"Opus 4.8\":\"Sonnet 4.6\";const msg=cb.message||{};return[{json:{job_key,model,label,chat_id:String(msg.chat.id),message_id:msg.message_id,thread_id:msg.message_thread_id!=null?msg.message_thread_id:0}}];"
+      },
+      "id": "abee55f8-ffc0-4ca0-beb6-2b01b24e2c76",
+      "name": "RR Parse",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        1024
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "editMessageText",
+        "chatId": "={{ $(\"RR Parse\").item.json.chat_id }}",
+        "messageId": "={{ $(\"RR Parse\").item.json.message_id }}",
+        "text": "=🔎 Исследую через {{ $(\"RR Parse\").item.json.label }}…\nВеб-ресёрч идёт — это может занять от нескольких до 30+ минут. Пришлю ссылку, как будет готово — можно заниматься своими делами.",
+        "additionalFields": {}
+      },
+      "id": "461f6a58-6994-4f03-9a3e-e8a17213bf09",
+      "name": "RR Edit Running",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        896,
+        1024
+      ],
+      "webhookId": "36969e13-666b-439c-b890-7946bb17a7f9"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "3ky6zNtlCGsf57Dn"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "job_key",
+              "keyValue": "={{ $(\"RR Parse\").item.json.job_key }}"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "id": "d5c6fbf6-168a-4807-b6b9-66bde7e10745",
+      "name": "RR Get Job",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        1024
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"model\": {{ JSON.stringify($(\"RR Parse\").item.json.model) }}, \"max_tokens\": 16000, \"system\": {{ JSON.stringify($json.system_prompt) }}, \"messages\": [ {\"role\": \"user\", \"content\": {{ JSON.stringify($(\"RR Get Job\").item.json.query) }} } ], \"tools\": [ {\"type\": \"web_search_20260209\", \"name\": \"web_search\"}, {\"type\": \"web_fetch_20260309\", \"name\": \"web_fetch\"}, {\"type\": \"code_execution_20260120\", \"name\": \"code_execution\"} ] }",
+        "options": {
+          "timeout": 3600000
+        }
+      },
+      "id": "64f294a9-1da8-4721-8b6f-3ad5433b742b",
+      "name": "RR Claude Research",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1568,
+        1024
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const r=$(\"RR Claude Research\").item.json;const blocks=Array.isArray(r.content)?r.content:[];let md=blocks.filter(b=>b&&b.type===\"text\").map(b=>b.text||\"\").join(\"\").trim();const mm=md.match(/filename:\\s*([A-Za-z0-9_-]+)/);const slug=mm&&mm[1]?mm[1]:\"research\";md=md.replace(/^\\s*<!--\\s*filename:[^>]*-->\\s*\\n?/,\"\");return[{json:{md,slug}}];"
+      },
+      "id": "77fc101f-df47-490d-92af-21cd3c5ba21d",
+      "name": "RR Extract",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        1024
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $(\"RR Extract\").item.json.md }}",
+        "options": {
+          "completeHTMLDocument": true,
+          "simpleLineBreaks": true,
+          "strikethrough": true,
+          "tables": true
+        }
+      },
+      "id": "3f6a47ee-a015-4ced-9616-144531746888",
+      "name": "RR MD to HTML",
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        2016,
+        1024
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const html=$json.data||\"\";const slug=$(\"RR Extract\").item.json.slug||\"research\";const boundary=\"n8nb\"+Math.random().toString(36).slice(2);const meta=JSON.stringify({name:slug,parents:[\"1efSIYjsPJ9D0xi_0c1C2AJf6aM4PxKu5\"],mimeType:\"application/vnd.google-apps.document\"});const CRLF=\"\\r\\n\";const body=\"--\"+boundary+CRLF+\"Content-Type: application/json; charset=UTF-8\"+CRLF+CRLF+meta+CRLF+\"--\"+boundary+CRLF+\"Content-Type: text/html; charset=UTF-8\"+CRLF+CRLF+html+CRLF+\"--\"+boundary+\"--\";return{json:{body:body,ct:\"multipart/related; boundary=\"+boundary}};"
+      },
+      "id": "23db47dd-4b23-475f-88bd-7ba6e1c63064",
+      "name": "RR Build Upload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        1024
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "={{ $json.ct }}",
+        "body": "={{ $json.body }}",
+        "options": {}
+      },
+      "id": "a08082c9-72a0-444f-8f7d-e4e99c2656e5",
+      "name": "RR Upload Drive",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2464,
+        1024
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "editMessageText",
+        "chatId": "={{ $(\"RR Parse\").item.json.chat_id }}",
+        "messageId": "={{ $(\"RR Parse\").item.json.message_id }}",
+        "text": "=✅ Ресёрч готов ({{ $(\"RR Parse\").item.json.label }})\nhttps://docs.google.com/document/d/{{ $(\"RR Upload Drive\").item.json.id }}/edit",
+        "additionalFields": {}
+      },
+      "id": "f1b25fde-1bed-4741-87b8-aef121b79349",
+      "name": "RR Edit Done",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2688,
+        1024
+      ],
+      "webhookId": "bc44cd88-33d5-4361-94ef-735b01bef74a"
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "3ky6zNtlCGsf57Dn"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "job_key",
+              "keyValue": "={{ $(\"RR Parse\").item.json.job_key }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d5fc483c-3b57-4530-8fc0-6c05f9594c7d",
+      "name": "RR Clear Job",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2912,
+        1024
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const q=($(\"RR Get Job\").item.json.query||\"\");\nconst isRu=/[Ѐ-ӿ]/.test(q);\nconst RU=\"Ты — автономный research-аналитик. Проводишь веб-исследование по запросу и выдаёшь подробный структурированный отчёт с источниками НА РУССКОМ ЯЗЫКЕ.\\n\\n## Стратегия поиска\\n- Сначала спланируй: разбей запрос на 2–5 ключевых под-вопросов.\\n- Начинай с КОРОТКИХ, ШИРОКИХ запросов, оцени что есть — потом сужай. Не стартуй с длинных узких запросов: они дают мало.\\n- Веди поиск по разным под-вопросам, а не один за другим.\\n\\n## Сколько копать (калибруй под запрос)\\n- Простой факт / одна сущность: ~3–6 поисков.\\n- Сравнение / «ресёрч по компании или человеку»: ~10–15, вширь и вглубь.\\n- Большая составная тема: больше, с явным разбиением.\\nНе переинвестируй в простое и не бросай рано сложное. Стоп, когда под-вопросы закрыты и новые поиски не дают нового.\\n\\n## Качество источников\\n- Приоритет ПЕРВОИСТОЧНИКАМ и авторитетным: офиц. сайты, документация, отчёты, академические PDF, профили, качественные СМИ.\\n- НЕ доверяй SEO-фермам и агрегаторам только потому, что они вверху выдачи.\\n- web_fetch открывай ВЫБОРОЧНО — когда страница реально добавит (цифры, первоисточник, детали), не ради галочки.\\n- Свежесть важна: предпочитай актуальное, у фактов указывай дату.\\n- Перепроверяй ключевое по 2+ независимым источникам. Разделяй: факт / твой вывод / неподтверждённое. Чего не нашёл — скажи прямо, не выдумывай.\\n\\n## Формат (весь отчёт на русском)\\nПервая строка — <!-- filename: research_topic --> (всегда англ. snake_case, ≤60).\\nСразу за ней # Заголовок, без преамбул.\\n- TL;DR — 2–4 предложения с главным выводом.\\n- Тематические разделы ##/### с конкретикой: имена, числа, даты, суммы, цитаты — с контекстом.\\n- Маркеры [1], [2]… по тексту → в конце раздел ## Источники (нумерованный список URL с подписью).\\n- Точность важнее объёма. Без воды, без «Конечно, вот отчёт», без markdown-обёртки.\";\nconst EN=\"You are an autonomous research analyst. You research the query on the web and produce a detailed, structured report with sources IN ENGLISH.\\n\\n## Search strategy\\n- Plan first: break the query into 2-5 key sub-questions.\\n- Start with SHORT, BROAD queries, see what is available, then narrow. Do not start with long narrow queries: they return little.\\n- Search across different sub-questions rather than one after another.\\n\\n## How deep to go (scale to the query)\\n- Simple fact / single entity: ~3-6 searches.\\n- Comparison / research on a company or person: ~10-15, wide and deep.\\n- Large multi-part topic: more, with explicit decomposition.\\nDo not over-invest in simple queries and do not stop early on complex ones. Stop when the sub-questions are covered and new searches add nothing.\\n\\n## Source quality\\n- Prioritize PRIMARY and authoritative sources: official sites, documentation, filings, academic PDFs, profiles, quality media.\\n- Do NOT trust SEO content farms and aggregators just because they rank high.\\n- Use web_fetch SELECTIVELY — only when a page truly adds value (numbers, primary source, details), not for the sake of it.\\n- Freshness matters: prefer current sources and state the date of facts.\\n- Cross-check key claims against 2+ independent sources. Separate established fact / your inference / unconfirmed. If you cannot find something, say so plainly and do not fabricate.\\n\\n## Format (entire report in English)\\nFirst line: <!-- filename: research_topic --> (always English snake_case, max 60 chars).\\nImmediately followed by # Title, no preamble.\\n- TL;DR — 2-4 sentences with the main takeaway.\\n- Thematic sections ##/### with specifics: names, numbers, dates, amounts, quotes — with context.\\n- Inline markers [1], [2]… then a final ## Sources section (numbered list of URLs with a short label).\\n- Accuracy over length. No filler, no markdown code fence wrapper.\";\nreturn [{json:{system_prompt:isRu?RU:EN,lang:isRu?\"ru\":\"en\"}}];"
+      },
+      "id": "3013f463-7ec3-4a1e-8ca5-782f1acbb856",
+      "name": "RR Build Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        1024
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 7 * * *"
+            },
+            {
+              "field": "cronExpression",
+              "expression": "0 0 17 * * *"
+            }
+          ]
+        }
+      },
+      "id": "75564017-aa9f-4caf-b190-afcaed3b55f0",
+      "name": "Schedule 7 & 17 CET",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        448,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "cHUyEGAFsNnpqjC6"
+        },
+        "returnAll": true
+      },
+      "id": "20ec27c9-c2e8-41bd-9e2a-5d661b9fa78f",
+      "name": "Read Sources",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.active }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "abd3c88b-f53d-4f03-aa7f-3a0c2844ddda",
+      "name": "Only Active",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ Boolean($json.isoDate) && $json.isoDate >= $now.minus({ hours: 24 }).toISO() }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "4a252fff-d95f-4a2a-8779-f6d8aafafc5c",
+      "name": "Fresh & Dated",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        1344,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.url }}",
+        "options": {
+          "scope": "workflow",
+          "historySize": 10000
+        }
+      },
+      "id": "375eef23-0fbd-4b88-ac52-990245392b0c",
+      "name": "Dedup (seen before)",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().map(i => i.json).filter(x => x.url && x.title);\nitems.sort((a,b) => (b.isoDate||'').localeCompare(a.isoDate||''));\nconst capped = items.slice(0, 60);\nconst candidates = capped.map((x,i) => ({ idx: i, title: x.title, snippet: x.snippet, source: x.source, hint: x.industry, url: x.url, isoDate: x.isoDate }));\nif (candidates.length === 0) return [];\nreturn [{ json: { candidates, count: candidates.length } }];"
+      },
+      "id": "5f44c771-a2b3-4632-9697-6e4e7e9f552a",
+      "name": "Build Claude Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-6",
+          "cachedResultName": "Claude Sonnet 4.6"
+        },
+        "options": {
+          "maxTokensToSample": 8000
+        }
+      },
+      "id": "1e8fe826-509d-443a-9177-8bacb9038355",
+      "name": "News Claude Sonnet",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.5,
+      "position": [
+        2016,
+        1584
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{ \"results\": [ { \"idx\": 0, \"industry\": \"AI\", \"title\": \"Original article title\", \"summary_ru\": \"Краткое описание на русском.\" } ] }"
+      },
+      "id": "6c262f95-459b-4779-afe9-91c35f003dd6",
+      "name": "Verdict Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2160,
+        1584
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a news curator for Tryll Engine, a company building AI-powered games and AI NPC technology (voice AI agents, generative game content, real-time inference on its own server).\n\nFrom the candidate news items below (JSON array), select ONLY the ones genuinely valuable for the Tryll Engine team to know about. KEEP: notable AI/ML model or product releases, AI + gaming, generative content / NPC / voice-AI tooling, GPU/inference advances, and significant funding / investments / M&A in AI or games. REJECT: low-signal or minor posts, listicles, pure consumer-gadget news, generic marketing, opinion fluff, and anything off-topic for an AI-games company.\n\nFor each KEPT item: keep the original title EXACTLY as given (do NOT translate it), write a concise Russian description of 1-2 sentences (max 300 characters), and assign exactly one industry label from: \"AI\", \"AI+Game\", \"GameDev\", \"Investments\", \"Research\".\n\nReturn ONLY kept items, referencing each by its idx. If nothing is valuable, return an empty results array.\n\nCANDIDATES:\n{{ JSON.stringify($json.candidates) }}",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "id": "c5a1b53d-6d31-4e2e-b696-0f78fdcbc235",
+      "name": "Claude Value Filter",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        2016,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const out = $json.output || {};\nconst results = Array.isArray(out.results) ? out.results : [];\nconst cand = $('Build Claude Input').first().json.candidates || [];\nconst byIdx = {}; cand.forEach(c => { byIdx[c.idx] = c; });\nconst z = $now.setZone('Europe/Berlin');\nconst day = z.toFormat('yyyy-LL-dd');\nconst run = z.hour < 12 ? 'morning' : 'evening';\nconst sentAt = $now.toISO();\nconst esc = s => (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst labels = { 'AI':'🟢 AI', 'AI+Game':'🎮 AI+GAME', 'GameDev':'🕹 GAMEDEV', 'Investments':'💰 INVEST', 'Research':'🔬 RESEARCH' };\nconst outItems = [];\nfor (const r of results) {\n  const c = byIdx[r.idx];\n  if (!c) continue;\n  const industry = r.industry || c.hint || 'AI';\n  const title = (r.title || c.title || '').toString().trim();\n  const summary = (r.summary_ru || '').toString().trim();\n  const tag = labels[industry] || ('📰 ' + industry);\n  const safeUrl = (c.url||'').toString().replace(/&/g,'&amp;').replace(/\"/g,'%22');\n  const message = tag + ' · <b>' + esc(title) + '</b>\\n\\n' + esc(summary) + '\\n\\n🔗 <a href=\"' + safeUrl + '\">Source</a>';\n  outItems.push({ json: { url: c.url, title, industry, source: c.source, summary_ru: summary, day, run, sent_at: sentAt, message } });\n}\nreturn outItems;"
+      },
+      "id": "74bbfa91-8129-4435-8801-2a2570079faf",
+      "name": "Select Valuable",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2464,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1004406148635",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML",
+          "message_thread_id": 187
+        }
+      },
+      "id": "3e794c17-3466-40f9-9c9b-065e06f2c334",
+      "name": "Post News",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2688,
+        1264
+      ],
+      "webhookId": "0bdcd283-ce5c-4b4a-8b5b-2a84fe5a1671",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "mzGzfbnB18BVmM6h"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "url": "={{ $json.url }}",
+            "title": "={{ $json.title }}",
+            "industry": "={{ $json.industry }}",
+            "source": "={{ $json.source }}",
+            "summary_ru": "={{ $json.summary_ru }}",
+            "sent_at": "={{ $json.sent_at }}",
+            "day": "={{ $json.day }}",
+            "run": "={{ $json.run }}"
+          },
+          "schema": [
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "industry",
+              "displayName": "industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "summary_ru",
+              "displayName": "summary_ru",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sent_at",
+              "displayName": "sent_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "day",
+              "displayName": "day",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "run",
+              "displayName": "run",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f3620dc6-065f-4202-b4a2-c23c4b6267d3",
+      "name": "Record Seen",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2688,
+        1456
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 19 * * *"
+            }
+          ]
+        }
+      },
+      "id": "d23c4cd7-e44e-46b8-a7bf-bc7611c00d1e",
+      "name": "Schedule 19 CET",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        448,
+        1744
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "mzGzfbnB18BVmM6h"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "day",
+              "keyValue": "={{ $now.setZone('Europe/Berlin').toFormat('yyyy-LL-dd') }}"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "id": "c12c96e5-3489-4719-809f-d9ee87827d61",
+      "name": "Get Today",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        1744
+      ]
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "rows",
+        "options": {}
+      },
+      "id": "ec0f609e-e14a-4bae-8654-e57f2f20eb80",
+      "name": "Aggregate Day",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        896,
+        1744
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-6",
+          "cachedResultName": "Claude Sonnet 4.6"
+        },
+        "options": {
+          "maxTokensToSample": 5000
+        }
+      },
+      "id": "d8aa5da6-1b61-4a8e-af49-4cf0275d642e",
+      "name": "Summary Claude Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.5,
+      "position": [
+        1120,
+        1968
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Ты готовишь краткую сводку дня для команды Tryll Engine (компания делает AI-игры и AI-NPC: голосовые агенты, генеративный контент).\n\nНиже новости за сегодня (JSON-массив; поля: title, industry, summary_ru, url, source). Сделай компактный дайджест:\n- Первая строка — жирный заголовок (тег b): Сводка дня — {{ $now.setZone('Europe/Berlin').toFormat('dd.LL.yyyy') }}, и укажи всего сколько новостей.\n- Сгруппируй новости по индустрии (AI, AI+Game, GameDev, Investments, Research); заголовок группы — жирный.\n- Каждая новость = одна строка: оригинальный заголовок в теге b, затем тире и суть в 5-10 словах на русском, затем ссылка тегом a с атрибутом href на url (текст ссылки — слово источника из поля source).\n- Пиши без воды. Используй только Telegram-HTML теги b, i, a. Любой символ & заменяй на &amp;.\n\nНОВОСТИ:\n{{ JSON.stringify($json.rows) }}",
+        "batching": {}
+      },
+      "id": "7ceca694-caac-4110-85f3-a6eab38cc702",
+      "name": "News Claude Summary",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1120,
+        1744
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1004406148635",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_web_page_preview": true,
+          "parse_mode": "HTML",
+          "message_thread_id": 187
+        }
+      },
+      "id": "4e7c9180-7782-4515-9d9b-026d6622386a",
+      "name": "Post Summary",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1472,
+        1744
+      ],
+      "webhookId": "aad6a2a4-2572-4e20-8c18-8a23b8bb61de"
+    },
+    {
+      "parameters": {
+        "operation": "pinChatMessage",
+        "chatId": "-1004406148635",
+        "messageId": "={{ $('Post Summary').item.json.result.message_id }}",
+        "additionalFields": {
+          "disable_notification": true
+        }
+      },
+      "id": "24c36f81-33bf-4b53-9c3b-529fe28c86f6",
+      "name": "Pin Summary",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1696,
+        1744
+      ],
+      "webhookId": "3d53cb5d-4091-42dc-9bb5-4194728a7101"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "EMRQitOd1yxnqjxe"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message_id": "={{ $('Post Summary').item.json.result.message_id }}",
+            "pinned_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "message_id",
+              "displayName": "message_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pinned_at",
+              "displayName": "pinned_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "88482cb1-156e-42c8-bda3-fdadd57083c9",
+      "name": "Record Pin",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1920,
+        1744
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "EMRQitOd1yxnqjxe"
+        },
+        "returnAll": true,
+        "orderBy": true,
+        "orderByColumn": "pinned_at",
+        "orderByDirection": "ASC"
+      },
+      "id": "4aa6723d-1d76-4533-8e73-43a0e19fde82",
+      "name": "Get Pins",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2144,
+        1744
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const all = $input.all().map(i => i.json);\nall.sort((a,b) => (a.pinned_at||'').localeCompare(b.pinned_at||''));\nconst excess = all.slice(0, Math.max(0, all.length - 5));\nreturn excess.map(r => ({ json: r }));"
+      },
+      "id": "ae6963a4-21a9-4c4a-b781-9484e6ec2bc3",
+      "name": "Find Excess Pins",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2368,
+        1744
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "unpinChatMessage",
+        "chatId": "-1004406148635",
+        "messageId": "={{ $json.message_id }}"
+      },
+      "id": "528e17c1-79e6-4f1a-ab28-98db32531e03",
+      "name": "Unpin Old",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2592,
+        1744
+      ],
+      "webhookId": "799ace8d-56bf-42d2-88ba-a788281f0466",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "EMRQitOd1yxnqjxe"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "66f1dd56-c7a7-49ce-800b-055eb5bbe391",
+      "name": "Delete Old Pin",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2816,
+        1744
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const sources = $input.all().map(i => i.json);\nconst UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';\nconst dec = (s) => (s||'').replace(/<!\\[CDATA\\[([^]*?)\\]\\]>/g,'$1').replace(/&#(\\d+);/g, (m,n)=>String.fromCharCode(parseInt(n,10))).replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'\"').replace(/&apos;/g,\"'\").replace(/&nbsp;/g,' ').replace(/&amp;/g,'&');\nconst strip = (s) => dec(s||'').replace(/<[^>]*>/g,' ').replace(/\\s+/g,' ').trim();\nconst pick = (b, tags) => { for (const t of tags) { const m = b.match(new RegExp('<'+t+'[^>]*>([^]*?)<\\/'+t+'>','i')); if (m) return m[1]; } return ''; };\nconst out = [];\nfor (const s of sources) {\n  let body='';\n  try { const res = await this.helpers.httpRequest({ url:s.feed_url, returnFullResponse:true, timeout:20000, headers:{ 'User-Agent':UA, 'Accept':'application/rss+xml, application/atom+xml, application/xml, text/xml, */*', 'Accept-Language':'en-US,en;q=0.9' } }); body=(res.body||'').toString(); } catch(e) { continue; }\n  const isAtom = /<entry[\\s>]/.test(body) && !/<item[\\s>]/.test(body);\n  let blocks = body.match(isAtom ? /<entry[\\s>][^]*?<\\/entry>/gi : /<item[\\s>][^]*?<\\/item>/gi) || [];\n  blocks = blocks.slice(0, 25);\n  for (const b of blocks) {\n    const title = strip(pick(b,['title']));\n    let link = strip(pick(b,['link']));\n    if (!link) { const lm = b.match(/<link[^>]*href=[\"']([^\"']+)[\"']/i); if (lm) link = lm[1]; }\n    if (!link) link = strip(pick(b,['guid','id']));\n    const rawd = strip(pick(b,['pubDate','published','updated','dc:date','date']));\n    let iso=null; if (rawd) { const d=new Date(rawd); if (!isNaN(d.getTime())) iso=d.toISOString(); }\n    let snip = strip(pick(b,['description','summary','content'])); if (snip.length>300) snip=snip.slice(0,300);\n    let url=(link||'').trim();\n    try { const u=new URL(url); u.hash=''; u.search=''; url=u.toString().replace(/\\/$/,''); } catch(e){}\n    if (!title || !url) continue;\n    out.push({ json:{ title, url, isoDate:iso, snippet:snip, source:s.name, industry:s.industry } });\n  }\n}\nreturn out;"
+      },
+      "id": "0d86c5ef-7ee5-4aea-b2ea-7d17f8fbb5de",
+      "name": "Fetch & Parse Feeds",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Ряд 2 - Voice→Notes: сохранение заметки\nПо кнопке «✅ Сохранить»: собирает заметку из всех голосовых через Claude, конвертит в HTML, заливает Google Doc на Drive",
+        "height": 192,
+        "width": 304
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        80,
+        80
+      ],
+      "id": "7d576888-b268-47fe-9533-e42aa6a178f7",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Ряд 1 - Voice→Notes: приём голосовых\nЛовит голосовые/кружки в топике Notes, транскрибирует (Voxtral), копит в черновик и перерисовывает карточку-черновик с кнопками",
+        "height": 192,
+        "width": 304
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        80,
+        -176
+      ],
+      "id": "ac84e29c-b2aa-4a88-8612-e6b5d0c16575",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "Ряд 3 - Voice→Notes: отмена\nПо кнопке «Отмена»: чистит буфер черновика и удаляет карточку.",
+        "height": 192,
+        "width": 304
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        80,
+        336
+      ],
+      "id": "991a1169-588d-4cac-ad7f-386e4318b559",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "Ряд 4 - Research: команда /research\nПарсит запрос, сохраняет job в таблицу, шлёт кнопки выбора модели (Sonnet / Opus).",
+        "height": 192,
+        "width": 304
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        80,
+        656
+      ],
+      "id": "c9f4289a-8aab-40ca-9c88-8f6f01e84405",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "Ряд 5 - Research: запуск ресёрча\nПо выбору модели: Claude с web-search/fetch проводит исследование → отчёт в Google Doc → ссылка в чат.",
+        "height": 192,
+        "width": 304
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        80,
+        976
+      ],
+      "id": "072ff80c-ef58-4731-8fee-29fa697f8f3b",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "Ряд 6 - News: сбор новостей (07:00 и 17:00 CET)\nТянет RSS-ленты из таблицы источников, берёт свежее (<24ч), отсеивает дубли, Claude отбирает ценное для Tryll Engine и пишет RU-описание → бот постит в топик News AI.",
+        "height": 208,
+        "width": 304
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        80,
+        1312
+      ],
+      "id": "81c2bdc2-c2ee-495d-a02a-c1d27aad2fea",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "Ряд 7 - News: сводка дня (19:00 CET)\nСобирает все отправленные за день новости, Claude делает выжимку по индустриям → бот постит и закрепляет",
+        "height": 192,
+        "width": 304
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        80,
+        1696
+      ],
+      "id": "743c9315-8bbd-4b35-b854-5ad2c6b4ca29",
+      "name": "Sticky Note6"
+    }
   ],
   "connections": {
-    "Telegram Update": { "main": [[{ "node": "Route Update", "type": "main", "index": 0 }]] },
-    "Route Update": { "main": [[{ "node": "Get Voice File", "type": "main", "index": 0 }], [{ "node": "Answer Callback", "type": "main", "index": 0 }], [{ "node": "Answer Cancel", "type": "main", "index": 0 }]] },
-    "Answer Cancel": { "main": [[{ "node": "Edit To Cancelled", "type": "main", "index": 0 }]] },
-    "Edit To Cancelled": { "main": [[{ "node": "Cancel Clear Lines", "type": "main", "index": 0 }]] },
-    "Cancel Clear Lines": { "main": [[{ "node": "Cancel Clear Card", "type": "main", "index": 0 }]] },
-    "Get Voice File": { "main": [[{ "node": "Transcribe Voxtral", "type": "main", "index": 0 }]] },
-    "Transcribe Voxtral": { "main": [[{ "node": "Insert Draft Row", "type": "main", "index": 0 }]] },
-    "Insert Draft Row": { "main": [[{ "node": "Wait Debounce", "type": "main", "index": 0 }]] },
-    "Wait Debounce": { "main": [[{ "node": "Get Latest", "type": "main", "index": 0 }]] },
-    "Get Latest": { "main": [[{ "node": "Is Latest", "type": "main", "index": 0 }]] },
-    "Is Latest": { "main": [[{ "node": "Get Draft", "type": "main", "index": 0 }]] },
-    "Get Draft": { "main": [[{ "node": "Get Card", "type": "main", "index": 0 }]] },
-    "Get Card": { "main": [[{ "node": "Build Draft State", "type": "main", "index": 0 }]] },
-    "Build Draft State": { "main": [[{ "node": "Delete Old Draft Msg", "type": "main", "index": 0 }]] },
-    "Delete Old Draft Msg": { "main": [[{ "node": "Send Draft", "type": "main", "index": 0 }]] },
-    "Send Draft": { "main": [[{ "node": "Clear Old Row", "type": "main", "index": 0 }]] },
-    "Clear Old Row": { "main": [[{ "node": "Insert Card", "type": "main", "index": 0 }]] },
-    "Answer Callback": { "main": [[{ "node": "Edit To Processing", "type": "main", "index": 0 }]] },
-    "Edit To Processing": { "main": [[{ "node": "Get Draft For Save", "type": "main", "index": 0 }]] },
-    "Get Draft For Save": { "main": [[{ "node": "Build Content", "type": "main", "index": 0 }]] },
-    "Build Content": { "main": [[{ "node": "Note Prompt", "type": "main", "index": 0 }]] },
-    "Note Prompt": { "main": [[{ "node": "claude-sonnet-4-6", "type": "main", "index": 0 }]] },
-    "claude-sonnet-4-6": { "main": [[{ "node": "MD to HTML", "type": "main", "index": 0 }]] },
-    "MD to HTML": { "main": [[{ "node": "Build Upload Body", "type": "main", "index": 0 }]] },
-    "Build Upload Body": { "main": [[{ "node": "Upload to Drive", "type": "main", "index": 0 }]] },
-    "Upload to Drive": { "main": [[{ "node": "Edit To Saved", "type": "main", "index": 0 }]] },
-    "Edit To Saved": { "main": [[{ "node": "Clear Draft Row", "type": "main", "index": 0 }]] },
-    "Clear Draft Row": { "main": [[{ "node": "Clear Card Save", "type": "main", "index": 0 }]] }
+    "Telegram Update": {
+      "main": [
+        [
+          {
+            "node": "Route Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Update": {
+      "main": [
+        [
+          {
+            "node": "Get Voice File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Answer Callback",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Answer Cancel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "RS Parse",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "RR Answer CB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Voice File": {
+      "main": [
+        [
+          {
+            "node": "Transcribe Voxtral",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Draft State": {
+      "main": [
+        [
+          {
+            "node": "Delete Old Draft Msg",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Old Draft Msg": {
+      "main": [
+        [
+          {
+            "node": "Send Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Draft": {
+      "main": [
+        [
+          {
+            "node": "Clear Old Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit To Saved": {
+      "main": [
+        [
+          {
+            "node": "Clear Draft Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer Callback": {
+      "main": [
+        [
+          {
+            "node": "Edit To Processing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit To Processing": {
+      "main": [
+        [
+          {
+            "node": "Get Draft For Save",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Note Prompt": {
+      "main": [
+        [
+          {
+            "node": "claude-sonnet-4-6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe Voxtral": {
+      "main": [
+        [
+          {
+            "node": "Insert Draft Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Draft": {
+      "main": [
+        [
+          {
+            "node": "Get Card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Card": {
+      "main": [
+        [
+          {
+            "node": "Build Draft State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear Old Row": {
+      "main": [
+        [
+          {
+            "node": "Insert Card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear Draft Row": {
+      "main": [
+        [
+          {
+            "node": "Clear Card Save",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Draft Row": {
+      "main": [
+        [
+          {
+            "node": "Wait Debounce",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Debounce": {
+      "main": [
+        [
+          {
+            "node": "Get Latest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Latest": {
+      "main": [
+        [
+          {
+            "node": "Is Latest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Latest": {
+      "main": [
+        [
+          {
+            "node": "Get Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Draft For Save": {
+      "main": [
+        [
+          {
+            "node": "Build Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Content": {
+      "main": [
+        [
+          {
+            "node": "Note Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "claude-sonnet-4-6": {
+      "main": [
+        [
+          {
+            "node": "MD to HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MD to HTML": {
+      "main": [
+        [
+          {
+            "node": "Build Upload Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Upload Body": {
+      "main": [
+        [
+          {
+            "node": "Upload to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Drive": {
+      "main": [
+        [
+          {
+            "node": "Edit To Saved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer Cancel": {
+      "main": [
+        [
+          {
+            "node": "Edit To Cancelled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit To Cancelled": {
+      "main": [
+        [
+          {
+            "node": "Cancel Clear Lines",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel Clear Lines": {
+      "main": [
+        [
+          {
+            "node": "Cancel Clear Card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RS Parse": {
+      "main": [
+        [
+          {
+            "node": "RS Has Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RS Has Query": {
+      "main": [
+        [
+          {
+            "node": "RS Insert Job",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "RS Ask Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RS Insert Job": {
+      "main": [
+        [
+          {
+            "node": "RS Send Buttons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RR Answer CB": {
+      "main": [
+        [
+          {
+            "node": "RR Parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RR Parse": {
+      "main": [
+        [
+          {
+            "node": "RR Edit Running",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RR Edit Running": {
+      "main": [
+        [
+          {
+            "node": "RR Get Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RR Claude Research": {
+      "main": [
+        [
+          {
+            "node": "RR Extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RR Extract": {
+      "main": [
+        [
+          {
+            "node": "RR MD to HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RR MD to HTML": {
+      "main": [
+        [
+          {
+            "node": "RR Build Upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RR Build Upload": {
+      "main": [
+        [
+          {
+            "node": "RR Upload Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RR Upload Drive": {
+      "main": [
+        [
+          {
+            "node": "RR Edit Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RR Edit Done": {
+      "main": [
+        [
+          {
+            "node": "RR Clear Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RR Get Job": {
+      "main": [
+        [
+          {
+            "node": "RR Build Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RR Build Request": {
+      "main": [
+        [
+          {
+            "node": "RR Claude Research",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule 7 & 17 CET": {
+      "main": [
+        [
+          {
+            "node": "Read Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Sources": {
+      "main": [
+        [
+          {
+            "node": "Only Active",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fresh & Dated": {
+      "main": [
+        [
+          {
+            "node": "Dedup (seen before)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedup (seen before)": {
+      "main": [
+        [
+          {
+            "node": "Build Claude Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Claude Input": {
+      "main": [
+        [
+          {
+            "node": "Claude Value Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Value Filter": {
+      "main": [
+        [
+          {
+            "node": "Select Valuable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Valuable": {
+      "main": [
+        [
+          {
+            "node": "Post News",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Record Seen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "News Claude Sonnet": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Claude Value Filter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verdict Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Claude Value Filter",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule 19 CET": {
+      "main": [
+        [
+          {
+            "node": "Get Today",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Today": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Day",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Day": {
+      "main": [
+        [
+          {
+            "node": "News Claude Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "News Claude Summary": {
+      "main": [
+        [
+          {
+            "node": "Post Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Summary": {
+      "main": [
+        [
+          {
+            "node": "Pin Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pin Summary": {
+      "main": [
+        [
+          {
+            "node": "Record Pin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Pin": {
+      "main": [
+        [
+          {
+            "node": "Get Pins",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Pins": {
+      "main": [
+        [
+          {
+            "node": "Find Excess Pins",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Excess Pins": {
+      "main": [
+        [
+          {
+            "node": "Unpin Old",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unpin Old": {
+      "main": [
+        [
+          {
+            "node": "Delete Old Pin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summary Claude Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "News Claude Summary",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only Active": {
+      "main": [
+        [
+          {
+            "node": "Fetch & Parse Feeds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch & Parse Feeds": {
+      "main": [
+        [
+          {
+            "node": "Fresh & Dated",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "binaryMode": "separate"
   }
 }
