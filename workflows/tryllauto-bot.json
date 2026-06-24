@@ -7,7 +7,7 @@
     "features": {
       "voiceToNotes": "Telegram Trigger -> buffer voices -> Voxtral transcribe -> Mistral note -> Google Doc (topic Notes, thread 7)",
       "research": "/research command -> Sonnet/Opus pick -> Claude web research -> Google Doc (Research topic)",
-      "newsCollector": "Schedule 07:00 & 17:00 CET -> RSS sources -> fresh <24h -> dedup -> Claude value filter (+RU summary) -> post to News AI topic (thread 187) -> record in news_seen",
+      "newsCollector": "Schedule 07:00 & 17:00 CET -> load already-sent (news_seen) -> RSS sources -> fresh <24h -> URL dedup -> Claude value filter (semantic dedup vs already-sent + within-batch, +RU summary) -> post to News AI topic (thread 187) -> record in news_seen",
       "newsSummary": "Schedule 19:00 CET -> today news_seen -> Claude digest -> post + pin (keep 5 latest pinned)"
     },
     "dataTables": {
@@ -1482,7 +1482,7 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
-        672,
+        1120,
         1360
       ]
     },
@@ -1515,7 +1515,7 @@
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.3,
       "position": [
-        896,
+        1344,
         1360
       ]
     },
@@ -1548,7 +1548,7 @@
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.3,
       "position": [
-        1344,
+        1792,
         1360
       ]
     },
@@ -1566,20 +1566,20 @@
       "type": "n8n-nodes-base.removeDuplicates",
       "typeVersion": 2,
       "position": [
-        1568,
+        2016,
         1360
       ]
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all().map(i => i.json).filter(x => x.url && x.title);\nitems.sort((a,b) => (b.isoDate||'').localeCompare(a.isoDate||''));\nconst capped = items.slice(0, 60);\nconst candidates = capped.map((x,i) => ({ idx: i, title: x.title, snippet: x.snippet, source: x.source, hint: x.industry, url: x.url, isoDate: x.isoDate }));\nif (candidates.length === 0) return [];\nreturn [{ json: { candidates, count: candidates.length } }];"
+        "jsCode": "const items = $input.all().map(i => i.json).filter(x => x.url && x.title);\nitems.sort((a,b) => (b.isoDate||'').localeCompare(a.isoDate||''));\nconst capped = items.slice(0, 60);\nconst candidates = capped.map((x,i) => ({ idx: i, title: x.title, snippet: x.snippet, source: x.source, hint: x.industry, url: x.url, isoDate: x.isoDate }));\nif (candidates.length === 0) return [];\nconst z = $now.setZone('Europe/Berlin');\nconst today = z.toFormat('yyyy-LL-dd');\nconst yest = z.minus({ days: 1 }).toFormat('yyyy-LL-dd');\nlet sentRows = [];\ntry { sentRows = $('Aggregate Recent').first().json.sent || []; } catch(e) { sentRows = []; }\nconst recent_sent = (Array.isArray(sentRows) ? sentRows : [])\n  .filter(r => r && (r.day === today || r.day === yest) && r.title)\n  .map(r => ({ title: r.title, source: r.source }))\n  .slice(0, 80);\nreturn [{ json: { candidates, recent_sent, count: candidates.length } }];"
       },
       "id": "5f44c771-a2b3-4632-9697-6e4e7e9f552a",
       "name": "Build Claude Input",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1792,
+        2240,
         1360
       ]
     },
@@ -1600,7 +1600,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
       "typeVersion": 1.5,
       "position": [
-        2016,
+        2464,
         1584
       ]
     },
@@ -1613,14 +1613,14 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        2160,
+        2608,
         1584
       ]
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "=You are a news curator for Tryll Engine, a company building AI-powered games and AI NPC technology (voice AI agents, generative game content, real-time inference on its own server).\n\nFrom the candidate news items below (JSON array), select ONLY the ones genuinely valuable for the Tryll Engine team to know about. KEEP: notable AI/ML model or product releases, AI + gaming, generative content / NPC / voice-AI tooling, GPU/inference advances, and significant funding / investments / M&A in AI or games. REJECT: low-signal or minor posts, listicles, pure consumer-gadget news, generic marketing, opinion fluff, and anything off-topic for an AI-games company.\n\nFor each KEPT item: keep the original title EXACTLY as given (do NOT translate it), write a concise Russian description of 1-2 sentences (max 300 characters), and assign exactly one industry label from: \"AI\", \"AI+Game\", \"GameDev\", \"Investments\", \"Research\".\n\nReturn ONLY kept items, referencing each by its idx. If nothing is valuable, return an empty results array.\n\nCANDIDATES:\n{{ JSON.stringify($json.candidates) }}",
+        "text": "=You are a news curator for Tryll Engine, a company building AI-powered games and AI NPC technology (voice AI agents, generative game content, real-time inference on its own server).\n\nFrom the candidate news items below (JSON array), select ONLY the ones genuinely valuable for the Tryll Engine team to know about. KEEP: notable AI/ML model or product releases, AI + gaming, generative content / NPC / voice-AI tooling, GPU/inference advances, and significant funding / investments / M&A in AI or games. REJECT: low-signal or minor posts, listicles, pure consumer-gadget news, generic marketing, opinion fluff, and anything off-topic for an AI-games company.\n\nDEDUPLICATION (important):\n- Among the candidates, if several items cover the SAME event or announcement, keep only ONE (prefer the most original or authoritative source) and drop the rest.\n- You are also given ALREADY_SENT: stories already posted in the last ~2 days. If a candidate covers the same event/story as any ALREADY_SENT item — even from a different source or with different wording — DROP it (do not include it in results).\n\nFor each KEPT item: keep the original title EXACTLY as given (do NOT translate it), write a concise Russian description of 1-2 sentences (max 300 characters), and assign exactly one industry label from: \"AI\", \"AI+Game\", \"GameDev\", \"Investments\", \"Research\".\n\nReturn ONLY kept items, referencing each by its idx. If nothing is valuable, return an empty results array.\n\nALREADY_SENT:\n{{ JSON.stringify($json.recent_sent) }}\n\nCANDIDATES:\n{{ JSON.stringify($json.candidates) }}",
         "hasOutputParser": true,
         "batching": {}
       },
@@ -1629,7 +1629,7 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.9,
       "position": [
-        2016,
+        2464,
         1360
       ]
     },
@@ -1642,7 +1642,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2464,
+        2912,
         1360
       ]
     },
@@ -1661,7 +1661,7 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        2688,
+        3136,
         1264
       ],
       "webhookId": "0bdcd283-ce5c-4b4a-8b5b-2a84fe5a1671",
@@ -1768,7 +1768,7 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
-        2688,
+        3136,
         1456
       ]
     },
@@ -2042,7 +2042,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1120,
+        1568,
         1360
       ]
     },
@@ -2150,6 +2150,41 @@
       ],
       "id": "743c9315-8bbd-4b35-b854-5ad2c6b4ca29",
       "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "mzGzfbnB18BVmM6h"
+        },
+        "returnAll": true
+      },
+      "id": "1d5bd656-c0c0-4f89-a5cc-d12367d36d2b",
+      "name": "Get Recent Sent",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        1360
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "sent",
+        "options": {}
+      },
+      "id": "f9fe85eb-735e-47c7-bcfc-0ecfe1aee396",
+      "name": "Aggregate Recent",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        896,
+        1360
+      ]
     }
   ],
   "connections": {
@@ -2650,17 +2685,6 @@
         ]
       ]
     },
-    "Schedule 7 & 17 CET": {
-      "main": [
-        [
-          {
-            "node": "Read Sources",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Read Sources": {
       "main": [
         [
@@ -2891,6 +2915,39 @@
         [
           {
             "node": "Fresh & Dated",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule 7 & 17 CET": {
+      "main": [
+        [
+          {
+            "node": "Get Recent Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Recent Sent": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Recent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Recent": {
+      "main": [
+        [
+          {
+            "node": "Read Sources",
             "type": "main",
             "index": 0
           }
