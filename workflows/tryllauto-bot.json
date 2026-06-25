@@ -7,28 +7,31 @@
     "features": {
       "voiceToNotes": "Telegram Trigger -> buffer voices -> Voxtral transcribe -> Mistral note -> Google Doc (topic Notes, thread 7)",
       "research": "/research command -> Sonnet/Opus pick -> Claude web research -> Google Doc (Research topic)",
-      "newsCollector": "Schedule 07:00 & 17:00 CET -> load already-sent (news_seen) -> RSS sources -> fresh <24h -> URL dedup -> Claude value filter (semantic dedup vs already-sent + within-batch, +RU summary) -> post to News AI topic (thread 187) -> record in news_seen",
-      "newsSummary": "Schedule 19:00 CET -> today news_seen -> Claude digest -> post + pin (keep 5 latest pinned)"
+      "newsCollector": "Schedule 07:00 & 17:00 CET -> load already-sent (news_seen) -> RSS sources -> fresh <24h -> URL dedup -> Claude value filter (semantic dedup + RU summary) -> post to News AI topic (thread 187) -> record news_seen",
+      "newsSummary": "Schedule 19:00 CET -> today news_seen -> Claude digest -> post + pin (keep 5 latest pinned)",
+      "itchAiScanner": "Schedule 01:00 CET -> itch.io newest games under tag-artificial-intelligence (2 pages) -> dedup vs itch_seen -> scan up to 40 game pages (desc+tags) -> Claude keeps only games using in-game AI tech (LLM/chat NPCs, AI dialogue, live ML, voice AI; NOT just AI-generated assets or classic enemy-AI) -> record all in itch_seen -> post AI games to itch.io-AI topic (thread 184)"
     },
     "dataTables": {
       "notes_draft": "bpwNfJwc15sqXgeU",
       "notes_card": "vZ74meVqtdYSt1j0",
       "research_jobs": "3ky6zNtlCGsf57Dn",
-      "news_sources": "cHUyEGAFsNnpqjC6 (editable list: name, feed_url, industry, active)",
-      "news_seen": "mzGzfbnB18BVmM6h (dedup + daily-summary source)",
-      "news_pins": "EMRQitOd1yxnqjxe (pinned-summary rotation, keep 5)"
+      "news_sources": "cHUyEGAFsNnpqjC6",
+      "news_seen": "mzGzfbnB18BVmM6h",
+      "news_pins": "EMRQitOd1yxnqjxe",
+      "itch_seen": "UcLnrCrKEdZpk7kL"
     },
     "telegram": {
       "chatId": "-1004406148635",
       "topics": {
         "Notes": 7,
-        "NewsAI": 187
+        "NewsAI": 187,
+        "itchAI": 184
       },
       "bot": "@Tryllauto_bot"
     },
     "models": {
       "notesResearch": "Mistral + Claude",
-      "news": "claude-sonnet-4-6"
+      "newsAndItch": "claude-sonnet-4-6"
     }
   },
   "nodes": [
@@ -1852,7 +1855,7 @@
       "typeVersion": 1.5,
       "position": [
         1120,
-        1968
+        1936
       ]
     },
     {
@@ -2185,6 +2188,298 @@
         896,
         1360
       ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 1 * * *"
+            }
+          ]
+        }
+      },
+      "id": "e460f5cf-ff68-4e43-8dae-b4328e8add9e",
+      "name": "Schedule itch 01 CET",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        448,
+        2144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';\nconst pages = ['https://itch.io/games/newest/tag-artificial-intelligence', 'https://itch.io/games/newest/tag-artificial-intelligence?page=2'];\nconst out = [];\nconst seen = new Set();\nfor (const purl of pages) {\n  let body = '';\n  try { const res = await this.helpers.httpRequest({ url: purl, returnFullResponse: true, timeout: 20000, headers: { 'User-Agent': UA, 'Accept-Language': 'en-US,en;q=0.9' } }); body = (res.body || '').toString(); } catch (e) { continue; }\n  const re = /<a\\b[^>]*class=\"title game_link\"[^>]*>([^]*?)<\\/a>/gi;\n  let m;\n  while ((m = re.exec(body))) {\n    const hm = m[0].match(/href=\"([^\"]+)\"/i);\n    if (!hm) continue;\n    let url = hm[1];\n    try { const u = new URL(url); u.hash=''; u.search=''; url = u.toString().replace(/\\/$/,''); } catch(e) {}\n    if (!/\\.itch\\.io\\//.test(url)) continue;\n    if (seen.has(url)) continue; seen.add(url);\n    const title = m[1].replace(/<[^>]*>/g,'').replace(/&amp;/g,'&').replace(/&#39;/g,\"'\").replace(/&#(\\d+);/g,(x,n)=>String.fromCharCode(parseInt(n,10))).replace(/\\s+/g,' ').trim();\n    out.push({ json: { url, title } });\n  }\n  if (out.length >= 70) break;\n}\nreturn out;"
+      },
+      "id": "502ba1f4-4d41-4fc5-8045-cdeaf697cf7c",
+      "name": "Fetch itch Newest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        2144
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "rowNotExists",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "UcLnrCrKEdZpk7kL"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "url",
+              "keyValue": "={{ $json.url }}"
+            }
+          ]
+        }
+      },
+      "id": "2742c020-5b51-4991-805f-a2cfa124465c",
+      "name": "New Games Only",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        2144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';\nconst games = $input.all().map(i => i.json).slice(0, 40);\nconst clean = (s) => (s||'').replace(/<[^>]*>/g,' ').replace(/&amp;/g,'&').replace(/&quot;/g,'\"').replace(/&#39;/g,\"'\").replace(/&#(\\d+);/g,(x,n)=>String.fromCharCode(parseInt(n,10))).replace(/\\s+/g,' ').trim();\nconst out = [];\nfor (const g of games) {\n  let b = '';\n  try { const r = await this.helpers.httpRequest({ url: g.url, returnFullResponse: true, timeout: 20000, headers: { 'User-Agent': UA, 'Accept-Language': 'en-US,en;q=0.9' } }); b = (r.body||'').toString(); } catch (e) { continue; }\n  if (/content is marked as adult|tag-nsfw|tag-adult/i.test(b)) continue;\n  let desc = '';\n  const di = b.indexOf('formatted_description');\n  if (di >= 0) { const gt = b.indexOf('>', di); desc = clean(b.slice(gt+1, di+2600)); }\n  if (!desc) { const om = b.match(/<meta\\s+(?:property=\"og:description\"|name=\"description\")\\s+content=\"([^\"]*)\"/i); desc = clean(om ? om[1] : ''); }\n  const mi = desc.indexOf('More information'); if (mi > 20) desc = desc.slice(0, mi).trim();\n  desc = desc.slice(0, 650);\n  const tags = (b.match(/\\/games\\/tag-[a-z0-9-]+/gi) || []).map(t => t.replace('/games/tag-','')).filter((v,i,a)=>a.indexOf(v)===i).slice(0, 15).join(', ');\n  out.push({ json: { url: g.url, title: g.title, desc, tags } });\n}\nreturn out;"
+      },
+      "id": "0e9faa66-b3eb-4030-99eb-4c333757ffa7",
+      "name": "Scan itch Games",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        2144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().map(i => i.json).filter(x => x.url && x.title);\nconst candidates = items.slice(0, 40).map((x,i) => ({ idx: i, title: x.title, desc: x.desc, tags: x.tags, url: x.url }));\nif (candidates.length === 0) return [];\nreturn [{ json: { candidates, count: candidates.length } }];"
+      },
+      "id": "4a90e769-f9ba-42eb-905d-e5bbce657d8b",
+      "name": "Build itch Claude Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        2144
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-6",
+          "cachedResultName": "Claude Sonnet 4.6"
+        },
+        "options": {
+          "maxTokensToSample": 6000
+        }
+      },
+      "id": "bca50a83-b7c9-4159-8a58-d5479c0d26be",
+      "name": "itch Claude Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.5,
+      "position": [
+        1568,
+        2336
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{ \"results\": [ { \"idx\": 0, \"used_ai\": false, \"title\": \"Game Title\", \"ai_note\": \"\" } ] }"
+      },
+      "id": "139977d3-d65a-493a-97d5-92d27a09209a",
+      "name": "itch Verdict Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1712,
+        2336
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You analyze indie games from itch.io to find games that USE AI as an in-game TECHNOLOGY at runtime — i.e. AI is part of how the game actually works or is played. KEEP (used_ai = true) ONLY when the game itself uses AI during play, e.g.: LLM / chatbot NPCs or characters the player can talk to in natural language, AI-driven dialogue or storytelling, content generated live by ML models during play, voice AI (speech-to-text / text-to-speech) interaction, or on-device/cloud ML models powering mechanics. Cloud or local both count.\n\nDO NOT count (used_ai = false):\n- games merely MADE WITH AI-generated assets (AI art, AI music, AI textures) when AI is NOT part of gameplay — asset generation alone does NOT qualify;\n- classic game AI (pathfinding, finite-state-machine enemies, behavior trees, \"smart\" bots);\n- marketing buzzwords with no real AI technology behind them.\n\nRead each candidate's title, desc (developer description) and tags carefully, looking for explicit mentions of talking / AI NPCs, AI dialogue, chatbots, LLMs, on-the-fly generated content, voice interaction, or ML models used during play. Note: itch's \"AI generated content\" disclosure usually refers to ASSETS, not gameplay tech — do not treat it as proof by itself.\n\nFor EVERY candidate decide used_ai (true/false). For used_ai = true, write a short Russian note (1 sentence, <=200 chars) describing WHAT in-game AI technology it uses. Keep the original title exactly. Be strict: with no concrete evidence of in-game AI technology, set used_ai = false.\n\nReturn results for ALL candidates (both true and false), referencing each by idx.\n\nCANDIDATES:\n{{ JSON.stringify($json.candidates) }}",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "id": "66f59200-032d-4759-a432-1641c8f94745",
+      "name": "itch Claude Filter",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1568,
+        2144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const out = $json.output || {};\nconst results = Array.isArray(out.results) ? out.results : [];\nconst cand = $('Build itch Claude Input').first().json.candidates || [];\nconst z = $now.setZone('Europe/Berlin');\nconst day = z.toFormat('yyyy-LL-dd');\nconst sentAt = $now.toISO();\nconst esc = s => (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst outItems = [];\nfor (const c of cand) {\n  const r = results.find(x => x && x.idx === c.idx) || {};\n  const used = r.used_ai === true;\n  const title = (r.title || c.title || '').toString().trim();\n  const note = (r.ai_note || '').toString().trim();\n  const safeUrl = (c.url||'').toString().replace(/&/g,'&amp;').replace(/\"/g,'%22');\n  const message = used ? ('🎮 itch.io · <b>' + esc(title) + '</b>\\n\\n' + esc(note) + '\\n\\n🔗 <a href=\"' + safeUrl + '\">Source</a>') : '';\n  outItems.push({ json: { url: c.url, title, used_ai: used, ai_note: note, day, sent_at: sentAt, message } });\n}\nreturn outItems;"
+      },
+      "id": "e9a4e71e-6f9b-479f-b72b-759668ab5c13",
+      "name": "Select itch",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        2144
+      ]
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "UcLnrCrKEdZpk7kL"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "url": "={{ $json.url }}",
+            "title": "={{ $json.title }}",
+            "used_ai": "={{ $json.used_ai }}",
+            "day": "={{ $json.day }}",
+            "sent_at": "={{ $json.sent_at }}"
+          },
+          "schema": [
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "used_ai",
+              "displayName": "used_ai",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "day",
+              "displayName": "day",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sent_at",
+              "displayName": "sent_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "64ffdeee-6cfc-423a-9b40-cb60b926f5e5",
+      "name": "Record itch Seen",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2160,
+        2064
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.used_ai }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ae9df10a-4fb1-4508-ae3e-752085372273",
+      "name": "Filter Only AI",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        2160,
+        2240
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1004406148635",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML",
+          "message_thread_id": 184
+        }
+      },
+      "id": "d334dd6f-1e10-4ab7-8f33-5e097aca0f5b",
+      "name": "Post itch",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2384,
+        2240
+      ],
+      "webhookId": "c3566a9c-84f2-423c-bf42-1d52a924fef2",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "Ряд 8 - itch.io AI-сканер (01:00 CET): ночью сканит свежие игры itch.io, Claude ищет те, что используют генеративный/LLM/ML AI, и бот шлёт их в топик itch.io-AI. Дедуп через БД",
+        "height": 192,
+        "width": 304
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        80,
+        2112
+      ],
+      "id": "a96efe0e-a103-4b4e-80ab-2417ff36ec38",
+      "name": "Sticky Note7"
     }
   ],
   "connections": {
@@ -2949,6 +3244,121 @@
           {
             "node": "Read Sources",
             "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule itch 01 CET": {
+      "main": [
+        [
+          {
+            "node": "Fetch itch Newest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch itch Newest": {
+      "main": [
+        [
+          {
+            "node": "New Games Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Games Only": {
+      "main": [
+        [
+          {
+            "node": "Scan itch Games",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scan itch Games": {
+      "main": [
+        [
+          {
+            "node": "Build itch Claude Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build itch Claude Input": {
+      "main": [
+        [
+          {
+            "node": "itch Claude Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "itch Claude Filter": {
+      "main": [
+        [
+          {
+            "node": "Select itch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select itch": {
+      "main": [
+        [
+          {
+            "node": "Record itch Seen",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Filter Only AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Only AI": {
+      "main": [
+        [
+          {
+            "node": "Post itch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "itch Claude Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "itch Claude Filter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "itch Verdict Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "itch Claude Filter",
+            "type": "ai_outputParser",
             "index": 0
           }
         ]
