@@ -1,5 +1,5 @@
 {
-  "name": "TryllAuto · Voice → Notes",
+  "name": "TryllAuto ·",
   "meta": {
     "n8nWorkflowId": "WFarxoRPXfxnrqsV",
     "exportedFrom": "n8n (source of truth) — credentials are not exported",
@@ -7,9 +7,9 @@
     "features": {
       "voiceToNotes": "Telegram Trigger -> buffer voices -> Voxtral -> Mistral note -> Google Doc (topic Notes, thread 7)",
       "research": "/research -> Sonnet/Opus -> Claude web research -> Google Doc (Research topic)",
-      "newsCollector": "Schedule 07:00 & 17:00 CET -> already-sent + RSS -> fresh<24h -> dedup -> Claude value filter (+RU summary) -> post News AI (187) -> news_seen",
+      "newsCollector": "Schedule 07:00 & 17:00 CET -> already-sent + RSS -> fresh<24h -> dedup -> Claude value filter: per-candidate keep flag (+RU summary; keep=false drops dups/low-value; code filters keep===true + meta-text guard) -> post News AI (187) -> news_seen",
       "newsSummary": "Schedule 19:00 CET -> today news_seen -> Claude digest -> post + pin (keep 5)",
-      "itchAiScanner": "Schedule 01:00 CET -> itch.io newest tag-artificial-intelligence (2p) -> dedup vs itch_seen -> Scan up to 40 pages in parallel (10 at a time, 8s timeout, ~1000-char desc) -> Claude keeps ONLY in-game AI running LOCALLY/on-device (GGUF/llama.cpp/Ollama; cloud-only or unknown dropped) -> record all in itch_seen -> post itch.io-AI topic (184), preview disabled. Docs: features/itch-ai-scanner.md"
+      "itchAiScanner": "Schedule 01:00 CET -> itch.io newest tag-artificial-intelligence (2p) -> dedup vs itch_seen -> Scan up to 40 pages parallel (10 at a time, 8s, ~1000-char desc) -> Claude keeps ONLY in-game AI running LOCALLY/on-device -> record all itch_seen -> post itch.io-AI (184), preview off. Docs: features/itch-ai-scanner.md"
     },
     "dataTables": {
       "notes_draft": "bpwNfJwc15sqXgeU",
@@ -1609,7 +1609,7 @@
     },
     {
       "parameters": {
-        "jsonSchemaExample": "{ \"results\": [ { \"idx\": 0, \"industry\": \"AI\", \"title\": \"Original article title\", \"summary_ru\": \"Краткое описание на русском.\" } ] }"
+        "jsonSchemaExample": "{ \"results\": [ { \"idx\": 0, \"keep\": true, \"industry\": \"AI\", \"title\": \"Original article title\", \"summary_ru\": \"Краткое описание на русском.\" } ] }"
       },
       "id": "6c262f95-459b-4779-afe9-91c35f003dd6",
       "name": "Verdict Parser",
@@ -1623,7 +1623,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=You are a news curator for Tryll Engine, a company building AI-powered games and AI NPC technology (voice AI agents, generative game content, real-time inference on its own server).\n\nFrom the candidate news items below (JSON array), select ONLY the ones genuinely valuable for the Tryll Engine team to know about. KEEP: notable AI/ML model or product releases, AI + gaming, generative content / NPC / voice-AI tooling, GPU/inference advances, and significant funding / investments / M&A in AI or games. REJECT: low-signal or minor posts, listicles, pure consumer-gadget news, generic marketing, opinion fluff, and anything off-topic for an AI-games company.\n\nDEDUPLICATION (important):\n- Among the candidates, if several items cover the SAME event or announcement, keep only ONE (prefer the most original or authoritative source) and drop the rest.\n- You are also given ALREADY_SENT: stories already posted in the last ~2 days. If a candidate covers the same event/story as any ALREADY_SENT item — even from a different source or with different wording — DROP it (do not include it in results).\n\nFor each KEPT item: keep the original title EXACTLY as given (do NOT translate it), write a concise Russian description of 1-2 sentences (max 300 characters), and assign exactly one industry label from: \"AI\", \"AI+Game\", \"GameDev\", \"Investments\", \"Research\".\n\nReturn ONLY kept items, referencing each by its idx. If nothing is valuable, return an empty results array.\n\nALREADY_SENT:\n{{ JSON.stringify($json.recent_sent) }}\n\nCANDIDATES:\n{{ JSON.stringify($json.candidates) }}",
+        "text": "=You are a news curator for Tryll Engine, a company building AI-powered games and AI NPC technology (voice AI agents, generative game content, real-time inference on its own server).\n\nDecide which candidate news items are worth posting to the team. A candidate is worth posting (keep=true) when it is genuinely valuable: notable AI/ML model or product releases, AI + gaming, generative content / NPC / voice-AI tooling, GPU/inference advances, and significant funding / investments / M&A in AI or games. Reject (keep=false): low-signal or minor posts, listicles, pure consumer-gadget news, generic marketing, opinion fluff, and anything off-topic for an AI-games company.\n\nDEDUPLICATION — set keep=false when:\n- another candidate covers the SAME event (keep only ONE, the most original/authoritative source, as keep=true; the rest keep=false);\n- the candidate covers the same event/story as any item in ALREADY_SENT (already posted in the last ~2 days), even from a different source or wording.\n\nFor EVERY candidate return an object with: idx; keep (true/false); industry (one of \"AI\",\"AI+Game\",\"GameDev\",\"Investments\",\"Research\"); title (the ORIGINAL title, unchanged); summary_ru.\n- summary_ru must be a clean Russian description of the news for readers (1-2 sentences, <=300 chars) — ONLY for keep=true items.\n- For keep=false, summary_ru must be an empty string.\n- NEVER put your reasoning, verdicts, or words like \"ALREADY_SENT\", \"DROP\", \"ОТКЛОНИТЬ\", \"дубликат\" into title or summary_ru — those fields are shown directly to users.\n\nReturn results for ALL candidates.\n\nALREADY_SENT:\n{{ JSON.stringify($json.recent_sent) }}\n\nCANDIDATES:\n{{ JSON.stringify($json.candidates) }}",
         "hasOutputParser": true,
         "batching": {}
       },
@@ -1638,7 +1638,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const out = $json.output || {};\nconst results = Array.isArray(out.results) ? out.results : [];\nconst cand = $('Build Claude Input').first().json.candidates || [];\nconst byIdx = {}; cand.forEach(c => { byIdx[c.idx] = c; });\nconst z = $now.setZone('Europe/Berlin');\nconst day = z.toFormat('yyyy-LL-dd');\nconst run = z.hour < 12 ? 'morning' : 'evening';\nconst sentAt = $now.toISO();\nconst esc = s => (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst labels = { 'AI':'🟢 AI', 'AI+Game':'🎮 AI+GAME', 'GameDev':'🕹 GAMEDEV', 'Investments':'💰 INVEST', 'Research':'🔬 RESEARCH' };\nconst outItems = [];\nfor (const r of results) {\n  const c = byIdx[r.idx];\n  if (!c) continue;\n  const industry = r.industry || c.hint || 'AI';\n  const title = (r.title || c.title || '').toString().trim();\n  const summary = (r.summary_ru || '').toString().trim();\n  const tag = labels[industry] || ('📰 ' + industry);\n  const safeUrl = (c.url||'').toString().replace(/&/g,'&amp;').replace(/\"/g,'%22');\n  const message = tag + ' · <b>' + esc(title) + '</b>\\n\\n' + esc(summary) + '\\n\\n🔗 <a href=\"' + safeUrl + '\">Source</a>';\n  outItems.push({ json: { url: c.url, title, industry, source: c.source, summary_ru: summary, day, run, sent_at: sentAt, message } });\n}\nreturn outItems;"
+        "jsCode": "const out = $json.output || {};\nconst results = Array.isArray(out.results) ? out.results : [];\nconst cand = $('Build Claude Input').first().json.candidates || [];\nconst byIdx = {}; cand.forEach(c => { byIdx[c.idx] = c; });\nconst z = $now.setZone('Europe/Berlin');\nconst day = z.toFormat('yyyy-LL-dd');\nconst run = z.hour < 12 ? 'morning' : 'evening';\nconst sentAt = $now.toISO();\nconst esc = s => (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst labels = { 'AI':'🟢 AI', 'AI+Game':'🎮 AI+GAME', 'GameDev':'🕹 GAMEDEV', 'Investments':'💰 INVEST', 'Research':'🔬 RESEARCH' };\nconst bad = /ALREADY_SENT|ОТКЛОН|дубл|\\bDROP\\b|duplicate/i;\nconst outItems = [];\nfor (const r of results) {\n  if (!r || r.keep !== true) continue;\n  const c = byIdx[r.idx]; if (!c) continue;\n  const summary = (r.summary_ru || '').toString().trim();\n  if (!summary || bad.test(summary)) continue;\n  const industry = r.industry || c.hint || 'AI';\n  const title = (r.title || c.title || '').toString().trim();\n  const tag = labels[industry] || ('📰 ' + industry);\n  const safeUrl = (c.url||'').toString().replace(/&/g,'&amp;').replace(/\"/g,'%22');\n  const message = tag + ' · <b>' + esc(title) + '</b>\\n\\n' + esc(summary) + '\\n\\n🔗 <a href=\"' + safeUrl + '\">Source</a>';\n  outItems.push({ json: { url: c.url, title, industry, source: c.source, summary_ru: summary, day, run, sent_at: sentAt, message } });\n}\nreturn outItems;"
       },
       "id": "74bbfa91-8129-4435-8801-2a2570079faf",
       "name": "Select Valuable",
@@ -2451,9 +2451,9 @@
         "text": "={{ $json.message }}",
         "additionalFields": {
           "appendAttribution": false,
+          "disable_web_page_preview": true,
           "parse_mode": "HTML",
-          "message_thread_id": 184,
-          "disable_web_page_preview": true
+          "message_thread_id": 184
         }
       },
       "id": "d334dd6f-1e10-4ab7-8f33-5e097aca0f5b",
