@@ -5,7 +5,8 @@
     "exportedFrom": "n8n (source of truth) — credentials are not exported",
     "note": "Single TryllAuto bot workflow — several independent trigger-chains on one canvas.",
     "features": {
-      "voiceToNotes": "Telegram Trigger -> buffer voices -> Voxtral -> Mistral note -> Google Doc (topic Notes, thread 7)",
+      "vercelPreFilter": "Telegram -> Vercel serverless (api/tg.js, repo Skizziik/tryllauto-tg-filter) forwards ONLY relevant updates to n8n Webhook (path tg-filter) -> TG Adapter (re-roots $json.body) -> Route Update. Drops group chatter to save n8n executions. Old Telegram Trigger ('Telegram Update') node is disabled.",
+      "voiceToNotes": "Webhook(tg-filter) -> TG Adapter -> buffer voices/video-notes -> Voxtral -> Mistral note -> Google Doc. Topics: TryllAuto Notes (chat -1004406148635, thread 7) AND Tryll Engine Events (chat -1002699410666, thread 14347)",
       "research": "/research -> Sonnet/Opus -> Claude web research -> Google Doc (Research topic)",
       "newsCollector": "Schedule 07:00 & 17:00 CET -> already-sent + RSS -> fresh<24h -> dedup -> Claude value filter (keep flag + RU summary) -> Resolve Image (og:image) -> IF Has Image: Post News Photo (sendPhoto card) else Post News (text+preview) -> news_seen. Topic News AI (187).",
       "newsSummary": "Schedule 19:00 CET -> today news_seen -> Claude digest -> post + pin (keep 5)",
@@ -21,13 +22,24 @@
       "itch_seen": "UcLnrCrKEdZpk7kL"
     },
     "telegram": {
-      "chatId": "-1004406148635",
-      "topics": {
-        "Notes": 7,
-        "NewsAI": 187,
-        "itchAI": 184
+      "groups": {
+        "TryllAuto": {
+          "chatId": "-1004406148635",
+          "topics": {
+            "Notes": 7,
+            "NewsAI": 187,
+            "itchAI": 184
+          }
+        },
+        "TryllEngine": {
+          "chatId": "-1002699410666",
+          "topics": {
+            "Events": 14347
+          }
+        }
       },
-      "bot": "@Tryllauto_bot"
+      "bot": "@Tryllauto_bot",
+      "inboundVia": "Vercel pre-filter (https://tryllauto-tg-filter.vercel.app/api/tg) -> n8n webhook path tg-filter"
     },
     "models": {
       "notesResearch": "Mistral + Claude",
@@ -49,9 +61,10 @@
       "typeVersion": 1.3,
       "position": [
         -336,
-        368
+        144
       ],
-      "webhookId": "2c5611cd-8b5d-476d-8ec8-59dd9638e91e"
+      "webhookId": "2c5611cd-8b5d-476d-8ec8-59dd9638e91e",
+      "disabled": true
     },
     {
       "parameters": {
@@ -67,20 +80,12 @@
                 },
                 "conditions": [
                   {
-                    "leftValue": "={{ $json.message.voice?.file_id || $json.message.video_note?.file_id }}",
+                    "leftValue": "={{ Boolean($json.message.voice?.file_id || $json.message.video_note?.file_id) && ( ($json.message.chat.id == -1004406148635 && $json.message.message_thread_id == 7) || ($json.message.chat.id == -1002699410666 && $json.message.message_thread_id == 14347) ) }}",
                     "operator": {
-                      "type": "string",
-                      "operation": "exists",
+                      "type": "boolean",
+                      "operation": "true",
                       "singleValue": true
                     }
-                  },
-                  {
-                    "leftValue": "={{ $json.message.message_thread_id }}",
-                    "operator": {
-                      "type": "number",
-                      "operation": "equals"
-                    },
-                    "rightValue": 7
                   }
                 ],
                 "combinator": "and"
@@ -260,7 +265,7 @@
           "conditions": [
             {
               "keyName": "session",
-              "keyValue": "={{ $(\"Telegram Update\").item.json.message.chat.id }}:{{ $(\"Telegram Update\").item.json.message.message_thread_id }}"
+              "keyValue": "={{ $(\"TG Adapter\").item.json.message.chat.id }}:{{ $(\"TG Adapter\").item.json.message.message_thread_id }}"
             }
           ]
         },
@@ -286,19 +291,19 @@
               "id": "b1",
               "name": "session",
               "type": "string",
-              "value": "={{ $(\"Telegram Update\").item.json.message.chat.id }}:{{ $(\"Telegram Update\").item.json.message.message_thread_id }}"
+              "value": "={{ $(\"TG Adapter\").item.json.message.chat.id }}:{{ $(\"TG Adapter\").item.json.message.message_thread_id }}"
             },
             {
               "id": "b2",
               "name": "chat_id",
               "type": "string",
-              "value": "={{ $(\"Telegram Update\").item.json.message.chat.id }}"
+              "value": "={{ $(\"TG Adapter\").item.json.message.chat.id }}"
             },
             {
               "id": "b3",
               "name": "thread_id",
               "type": "number",
-              "value": "={{ $(\"Telegram Update\").item.json.message.message_thread_id }}"
+              "value": "={{ $(\"TG Adapter\").item.json.message.message_thread_id }}"
             },
             {
               "id": "b4",
@@ -439,11 +444,11 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "session": "={{ $(\"Telegram Update\").item.json.message.chat.id }}:{{ $(\"Telegram Update\").item.json.message.message_thread_id }}",
+            "session": "={{ $(\"TG Adapter\").item.json.message.chat.id }}:{{ $(\"TG Adapter\").item.json.message.message_thread_id }}",
             "transcript": "={{ $(\"Transcribe Voxtral\").item.json.text }}",
-            "chat_id": "={{ $(\"Telegram Update\").item.json.message.chat.id }}",
-            "thread_id": "={{ $(\"Telegram Update\").item.json.message.message_thread_id }}",
-            "voice_msg_id": "={{ $(\"Telegram Update\").item.json.message.message_id }}",
+            "chat_id": "={{ $(\"TG Adapter\").item.json.message.chat.id }}",
+            "thread_id": "={{ $(\"TG Adapter\").item.json.message.message_thread_id }}",
+            "voice_msg_id": "={{ $(\"TG Adapter\").item.json.message.message_id }}",
             "segments": "={{ JSON.stringify($(\"Transcribe Voxtral\").item.json.segments || []) }}",
             "duration": "={{ $json.message.voice?.duration || $json.message.video_note?.duration }}"
           },
@@ -556,7 +561,7 @@
           "conditions": [
             {
               "keyName": "session",
-              "keyValue": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}:{{ $(\"Telegram Update\").item.json.callback_query.message.message_thread_id }}"
+              "keyValue": "={{ $(\"TG Adapter\").item.json.callback_query.message.chat.id }}:{{ $(\"TG Adapter\").item.json.callback_query.message.message_thread_id }}"
             }
           ]
         },
@@ -577,8 +582,8 @@
     {
       "parameters": {
         "operation": "editMessageText",
-        "chatId": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}",
-        "messageId": "={{ $(\"Telegram Update\").item.json.callback_query.message.message_id }}",
+        "chatId": "={{ $(\"TG Adapter\").item.json.callback_query.message.chat.id }}",
+        "messageId": "={{ $(\"TG Adapter\").item.json.callback_query.message.message_id }}",
         "text": "=✅ Заметка сохранена в Google Docs\nhttps://docs.google.com/document/d/{{ $(\"Upload to Drive\").item.json.id }}/edit",
         "additionalFields": {}
       },
@@ -605,7 +610,7 @@
           "conditions": [
             {
               "keyName": "session",
-              "keyValue": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}:{{ $(\"Telegram Update\").item.json.callback_query.message.message_thread_id }}"
+              "keyValue": "={{ $(\"TG Adapter\").item.json.callback_query.message.chat.id }}:{{ $(\"TG Adapter\").item.json.callback_query.message.message_thread_id }}"
             },
             {
               "condition": "lte",
@@ -627,8 +632,8 @@
     {
       "parameters": {
         "operation": "editMessageText",
-        "chatId": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}",
-        "messageId": "={{ $(\"Telegram Update\").item.json.callback_query.message.message_id }}",
+        "chatId": "={{ $(\"TG Adapter\").item.json.callback_query.message.chat.id }}",
+        "messageId": "={{ $(\"TG Adapter\").item.json.callback_query.message.message_id }}",
         "text": "⏳ Делаю заметку…",
         "additionalFields": {}
       },
@@ -710,7 +715,7 @@
           "conditions": [
             {
               "keyName": "session",
-              "keyValue": "={{ $(\"Telegram Update\").item.json.message.chat.id }}:{{ $(\"Telegram Update\").item.json.message.message_thread_id }}"
+              "keyValue": "={{ $(\"TG Adapter\").item.json.message.chat.id }}:{{ $(\"TG Adapter\").item.json.message.message_thread_id }}"
             }
           ]
         },
@@ -786,7 +791,7 @@
           "conditions": [
             {
               "keyName": "session",
-              "keyValue": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}:{{ $(\"Telegram Update\").item.json.callback_query.message.message_thread_id }}"
+              "keyValue": "={{ $(\"TG Adapter\").item.json.callback_query.message.chat.id }}:{{ $(\"TG Adapter\").item.json.callback_query.message.message_thread_id }}"
             }
           ]
         },
@@ -828,7 +833,7 @@
           "conditions": [
             {
               "keyName": "session",
-              "keyValue": "={{ $(\"Telegram Update\").item.json.message.chat.id }}:{{ $(\"Telegram Update\").item.json.message.message_thread_id }}"
+              "keyValue": "={{ $(\"TG Adapter\").item.json.message.chat.id }}:{{ $(\"TG Adapter\").item.json.message.message_thread_id }}"
             }
           ]
         },
@@ -967,8 +972,8 @@
     {
       "parameters": {
         "operation": "editMessageText",
-        "chatId": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}",
-        "messageId": "={{ $(\"Telegram Update\").item.json.callback_query.message.message_id }}",
+        "chatId": "={{ $(\"TG Adapter\").item.json.callback_query.message.chat.id }}",
+        "messageId": "={{ $(\"TG Adapter\").item.json.callback_query.message.message_id }}",
         "text": "❌ Черновик отменён. Голосовые сброшены — начни заново.",
         "additionalFields": {}
       },
@@ -996,7 +1001,7 @@
           "conditions": [
             {
               "keyName": "session",
-              "keyValue": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}:{{ $(\"Telegram Update\").item.json.callback_query.message.message_thread_id }}"
+              "keyValue": "={{ $(\"TG Adapter\").item.json.callback_query.message.chat.id }}:{{ $(\"TG Adapter\").item.json.callback_query.message.message_thread_id }}"
             }
           ]
         },
@@ -1024,7 +1029,7 @@
           "conditions": [
             {
               "keyName": "session",
-              "keyValue": "={{ $(\"Telegram Update\").item.json.callback_query.message.chat.id }}:{{ $(\"Telegram Update\").item.json.callback_query.message.message_thread_id }}"
+              "keyValue": "={{ $(\"TG Adapter\").item.json.callback_query.message.chat.id }}:{{ $(\"TG Adapter\").item.json.callback_query.message.message_thread_id }}"
             }
           ]
         },
@@ -1041,7 +1046,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const u=$(\"Telegram Update\").item.json;const m=u.message||{};const raw=m.text||\"\";const query=raw.replace(/^\\/research(@[A-Za-z0-9_]+)?\\s*/i,\"\").trim();const chat_id=String(m.chat&&m.chat.id!=null?m.chat.id:\"\");const thread_id=m.message_thread_id!=null?m.message_thread_id:0;const job_key=\"j\"+Date.now().toString(36)+Math.floor(Math.random()*1000000).toString(36);return[{json:{query,chat_id,thread_id,job_key,has_query:query.length>0}}];"
+        "jsCode": "const u=$(\"TG Adapter\").item.json;const m=u.message||{};const raw=m.text||\"\";const query=raw.replace(/^\\/research(@[A-Za-z0-9_]+)?\\s*/i,\"\").trim();const chat_id=String(m.chat&&m.chat.id!=null?m.chat.id:\"\");const thread_id=m.message_thread_id!=null?m.message_thread_id:0;const job_key=\"j\"+Date.now().toString(36)+Math.floor(Math.random()*1000000).toString(36);return[{json:{query,chat_id,thread_id,job_key,has_query:query.length>0}}];"
       },
       "id": "091d9323-4979-40db-88db-da3013508131",
       "name": "RS Parse",
@@ -1231,7 +1236,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const cb=$(\"Telegram Update\").item.json.callback_query;const parts=String(cb.data||\"\").split(\":\");const job_key=parts[1]||\"\";const modelKey=parts[2]||\"sonnet\";const model=modelKey===\"opus\"?\"claude-opus-4-8\":\"claude-sonnet-4-6\";const label=modelKey===\"opus\"?\"Opus 4.8\":\"Sonnet 4.6\";const msg=cb.message||{};return[{json:{job_key,model,label,chat_id:String(msg.chat.id),message_id:msg.message_id,thread_id:msg.message_thread_id!=null?msg.message_thread_id:0}}];"
+        "jsCode": "const cb=$(\"TG Adapter\").item.json.callback_query;const parts=String(cb.data||\"\").split(\":\");const job_key=parts[1]||\"\";const modelKey=parts[2]||\"sonnet\";const model=modelKey===\"opus\"?\"claude-opus-4-8\":\"claude-sonnet-4-6\";const label=modelKey===\"opus\"?\"Opus 4.8\":\"Sonnet 4.6\";const msg=cb.message||{};return[{json:{job_key,model,label,chat_id:String(msg.chat.id),message_id:msg.message_id,thread_id:msg.message_thread_id!=null?msg.message_thread_id:0}}];"
       },
       "id": "abee55f8-ffc0-4ca0-beb6-2b01b24e2c76",
       "name": "RR Parse",
@@ -2545,24 +2550,44 @@
       "typeVersion": 1.2,
       "position": [
         3696,
-        1360
+        1344
       ],
       "webhookId": "09ef0da6-6b18-4a8a-b353-01bc0f398721",
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tg-filter",
+        "options": {
+          "noResponseBody": true
+        }
+      },
+      "id": "f8ed374f-07a8-4acd-a2f7-0e25053991c3",
+      "name": "TG Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -608,
+        368
+      ],
+      "webhookId": "e6efd31c-e3ea-4229-9e0b-b8a1ef333d7f"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => ({ json: item.json.body || {} }));"
+      },
+      "id": "cc731e71-fe12-47e6-af28-fb9c393cdf43",
+      "name": "TG Adapter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -336,
+        368
+      ]
     }
   ],
   "connections": {
-    "Telegram Update": {
-      "main": [
-        [
-          {
-            "node": "Route Update",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Route Update": {
       "main": [
         [
@@ -3456,6 +3481,28 @@
         [
           {
             "node": "Post News",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TG Webhook": {
+      "main": [
+        [
+          {
+            "node": "TG Adapter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TG Adapter": {
+      "main": [
+        [
+          {
+            "node": "Route Update",
             "type": "main",
             "index": 0
           }
