@@ -1580,7 +1580,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all().map(i => i.json).filter(x => x.url && x.title);\nitems.sort((a,b) => (b.isoDate||'').localeCompare(a.isoDate||''));\nconst capped = items.slice(0, 60);\nconst candidates = capped.map((x,i) => ({ idx: i, title: x.title, snippet: x.snippet, source: x.source, hint: x.industry, url: x.url, isoDate: x.isoDate }));\nif (candidates.length === 0) return [];\nconst z = $now.setZone('Europe/Berlin');\nconst today = z.toFormat('yyyy-LL-dd');\nconst yest = z.minus({ days: 1 }).toFormat('yyyy-LL-dd');\nlet sentRows = [];\ntry { sentRows = $('Aggregate Recent').first().json.sent || []; } catch(e) { sentRows = []; }\nconst recent_sent = (Array.isArray(sentRows) ? sentRows : [])\n  .filter(r => r && (r.day === today || r.day === yest) && r.title)\n  .map(r => ({ title: r.title, source: r.source }))\n  .slice(0, 80);\nreturn [{ json: { candidates, recent_sent, count: candidates.length } }];"
+        "jsCode": "const items = $input.all().map(i => i.json).filter(x => x.url && x.title);\nitems.sort((a,b) => (b.isoDate||'').localeCompare(a.isoDate||''));\nconst capped = items.slice(0, 60);\nconst candidates = capped.map((x,i) => ({ idx: i, title: x.title, snippet: x.snippet, source: x.source, hint: x.industry, url: x.url, isoDate: x.isoDate }));\nif (candidates.length === 0) return [];\nconst z = $now.setZone('Europe/Berlin');\nconst today = z.toFormat('yyyy-LL-dd');\nconst yest = z.minus({ days: 1 }).toFormat('yyyy-LL-dd');\nlet sentRows = [];\ntry { sentRows = $('Aggregate Recent').first().json.sent || []; } catch(e) { sentRows = []; }\nconst recent = (Array.isArray(sentRows) ? sentRows : []).filter(r => r && (r.day === today || r.day === yest));\nconst recent_sent = recent.filter(r => r.title).map(r => ({ title: r.title, source: r.source })).slice(0, 80);\nconst recent_keys = recent.filter(r => r.event_key).map(r => r.event_key.toString().toLowerCase());\nreturn [{ json: { candidates, recent_sent, recent_keys, count: candidates.length } }];"
       },
       "id": "5f44c771-a2b3-4632-9697-6e4e7e9f552a",
       "name": "Build Claude Input",
@@ -1614,7 +1614,7 @@
     },
     {
       "parameters": {
-        "jsonSchemaExample": "{ \"results\": [ { \"idx\": 0, \"keep\": true, \"industry\": \"AI\", \"title\": \"Original article title\", \"summary_ru\": \"Краткое описание на русском.\" } ] }"
+        "jsonSchemaExample": "{ \"results\": [ { \"idx\": 0, \"keep\": true, \"event_key\": \"openai-gpt-5.6\", \"industry\": \"AI\", \"title\": \"Original article title\", \"summary_ru\": \"Краткое описание на русском.\" } ] }"
       },
       "id": "6c262f95-459b-4779-afe9-91c35f003dd6",
       "name": "Verdict Parser",
@@ -1628,7 +1628,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=You are a news curator for Tryll Engine, a company building AI-powered games and AI NPC technology (voice AI agents, generative game content, real-time inference on its own server).\n\nDecide which candidate news items are worth posting to the team. A candidate is worth posting (keep=true) when it is genuinely valuable: notable AI/ML model or product releases, AI + gaming, generative content / NPC / voice-AI tooling, GPU/inference advances, and significant funding / investments / M&A in AI or games. Reject (keep=false): low-signal or minor posts, listicles, pure consumer-gadget news, generic marketing, opinion fluff, and anything off-topic for an AI-games company.\n\nDEDUPLICATION — set keep=false when:\n- another candidate covers the SAME event (keep only ONE, the most original/authoritative source, as keep=true; the rest keep=false);\n- the candidate covers the same event/story as any item in ALREADY_SENT (already posted in the last ~2 days), even from a different source or wording.\n\nFor EVERY candidate return an object with: idx; keep (true/false); industry (one of \"AI\",\"AI+Game\",\"GameDev\",\"Investments\",\"Research\"); title (the ORIGINAL title, unchanged); summary_ru.\n- summary_ru must be a clean Russian description of the news for readers (1-2 sentences, <=300 chars) — ONLY for keep=true items.\n- For keep=false, summary_ru must be an empty string.\n- NEVER put your reasoning, verdicts, or words like \"ALREADY_SENT\", \"DROP\", \"ОТКЛОНИТЬ\", \"дубликат\" into title or summary_ru — those fields are shown directly to users.\n\nReturn results for ALL candidates.\n\nALREADY_SENT:\n{{ JSON.stringify($json.recent_sent) }}\n\nCANDIDATES:\n{{ JSON.stringify($json.candidates) }}",
+        "text": "=You are a news curator for Tryll Engine, a company building AI-powered games and AI NPC technology (voice AI agents, generative game content, real-time inference on its own server).\n\nDecide which candidate news items are worth posting to the team. A candidate is worth posting (keep=true) when it is genuinely valuable: notable AI/ML model or product releases, AI + gaming, generative content / NPC / voice-AI tooling, GPU/inference advances, and significant funding / investments / M&A in AI or games. Reject (keep=false): low-signal or minor posts, listicles, pure consumer-gadget news, generic marketing, opinion fluff, and anything off-topic for an AI-games company.\n\nEVENT GROUPING — for EVERY candidate assign event_key: a short lowercase kebab-case slug naming the CORE underlying event/announcement (the specific product launch, paper, funding round, deal — NOT the topic in general). Candidates about the SAME underlying event MUST get the IDENTICAL event_key, regardless of source, wording, language, or angle. Examples: several different articles about the GPT-5.6 preview ALL get \"openai-gpt-5.6\"; two articles about one studio's Series B both get \"studioname-series-b\". Different events about the same company get different keys.\n\nDEDUPLICATION — set keep=false when:\n- another candidate shares the same event_key (keep only ONE — the most original/authoritative source — as keep=true; the rest keep=false);\n- the candidate covers the same event/story as any item in ALREADY_SENT (already posted in the last ~2 days), even from a different source or wording.\n\nFor EVERY candidate return an object with: idx; keep (true/false); event_key; industry (one of \"AI\",\"AI+Game\",\"GameDev\",\"Investments\",\"Research\"); title (the ORIGINAL title, unchanged); summary_ru.\n- event_key is REQUIRED for every candidate (both keep=true and keep=false).\n- summary_ru must be a clean Russian description of the news for readers (1-2 sentences, <=300 chars) — ONLY for keep=true items.\n- For keep=false, summary_ru must be an empty string.\n- NEVER put your reasoning, verdicts, or words like \"ALREADY_SENT\", \"DROP\", \"ОТКЛОНИТЬ\", \"дубликат\" into title or summary_ru — those fields are shown directly to users.\n\nReturn results for ALL candidates.\n\nALREADY_SENT:\n{{ JSON.stringify($json.recent_sent) }}\n\nCANDIDATES:\n{{ JSON.stringify($json.candidates) }}",
         "hasOutputParser": true,
         "batching": {}
       },
@@ -1643,7 +1643,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const out = $json.output || {};\nconst results = Array.isArray(out.results) ? out.results : [];\nconst cand = $('Build Claude Input').first().json.candidates || [];\nconst byIdx = {}; cand.forEach(c => { byIdx[c.idx] = c; });\nconst z = $now.setZone('Europe/Berlin');\nconst day = z.toFormat('yyyy-LL-dd');\nconst run = z.hour < 12 ? 'morning' : 'evening';\nconst sentAt = $now.toISO();\nconst esc = s => (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst labels = { 'AI':'🟢 AI', 'AI+Game':'🎮 AI+GAME', 'GameDev':'🕹 GAMEDEV', 'Investments':'💰 INVEST', 'Research':'🔬 RESEARCH' };\nconst bad = /ALREADY_SENT|ОТКЛОН|дубл|\\bDROP\\b|duplicate/i;\nconst outItems = [];\nfor (const r of results) {\n  if (!r || r.keep !== true) continue;\n  const c = byIdx[r.idx]; if (!c) continue;\n  const summary = (r.summary_ru || '').toString().trim();\n  if (!summary || bad.test(summary)) continue;\n  const industry = r.industry || c.hint || 'AI';\n  const title = (r.title || c.title || '').toString().trim();\n  const tag = labels[industry] || ('📰 ' + industry);\n  const safeUrl = (c.url||'').toString().replace(/&/g,'&amp;').replace(/\"/g,'%22');\n  const message = tag + ' · <b>' + esc(title) + '</b>\\n\\n' + esc(summary) + '\\n\\n🔗 <a href=\"' + safeUrl + '\">Source</a>';\n  outItems.push({ json: { url: c.url, title, industry, source: c.source, summary_ru: summary, day, run, sent_at: sentAt, message } });\n}\nreturn outItems;"
+        "jsCode": "const out = $json.output || {};\nconst results = Array.isArray(out.results) ? out.results : [];\nconst bi = $('Build Claude Input').first().json;\nconst cand = bi.candidates || [];\nconst byIdx = {}; cand.forEach(c => { byIdx[c.idx] = c; });\nconst recentKeys = new Set((bi.recent_keys || []).map(k => k.toString().toLowerCase()));\nconst z = $now.setZone('Europe/Berlin');\nconst day = z.toFormat('yyyy-LL-dd');\nconst run = z.hour < 12 ? 'morning' : 'evening';\nconst sentAt = $now.toISO();\nconst esc = s => (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst labels = { 'AI':'🟢 AI', 'AI+Game':'🎮 AI+GAME', 'GameDev':'🕹 GAMEDEV', 'Investments':'💰 INVEST', 'Research':'🔬 RESEARCH' };\nconst bad = /ALREADY_SENT|ОТКЛОН|дубл|\\bDROP\\b|duplicate/i;\nconst norm = s => (s||'').toString().toLowerCase().replace(/[^a-z0-9а-я ]+/gi,'').replace(/\\s+/g,' ').trim();\nconst seenKeys = new Set();\nconst outItems = [];\nfor (const r of results) {\n  if (!r || r.keep !== true) continue;\n  const c = byIdx[r.idx]; if (!c) continue;\n  const summary = (r.summary_ru || '').toString().trim();\n  if (!summary || bad.test(summary)) continue;\n  const industry = r.industry || c.hint || 'AI';\n  const title = (r.title || c.title || '').toString().trim();\n  let key = norm(r.event_key);\n  if (!key) key = norm(title).slice(0, 40);\n  if (recentKeys.has(key) || seenKeys.has(key)) continue;\n  seenKeys.add(key);\n  const tag = labels[industry] || ('📰 ' + industry);\n  const safeUrl = (c.url||'').toString().replace(/&/g,'&amp;').replace(/\"/g,'%22');\n  const message = tag + ' · <b>' + esc(title) + '</b>\\n\\n' + esc(summary) + '\\n\\n🔗 <a href=\"' + safeUrl + '\">Source</a>';\n  outItems.push({ json: { url: c.url, title, industry, source: c.source, summary_ru: summary, event_key: key, day, run, sent_at: sentAt, message } });\n}\nreturn outItems;"
       },
       "id": "74bbfa91-8129-4435-8801-2a2570079faf",
       "name": "Select Valuable",
@@ -1692,7 +1692,8 @@
             "summary_ru": "={{ $json.summary_ru }}",
             "sent_at": "={{ $json.sent_at }}",
             "day": "={{ $json.day }}",
-            "run": "={{ $json.run }}"
+            "run": "={{ $json.run }}",
+            "event_key": "={{ $json.event_key }}"
           },
           "schema": [
             {
@@ -1761,6 +1762,15 @@
             {
               "id": "run",
               "displayName": "run",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "event_key",
+              "displayName": "event_key",
               "required": false,
               "defaultMatch": false,
               "display": true,
