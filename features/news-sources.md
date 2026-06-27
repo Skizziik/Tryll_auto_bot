@@ -30,6 +30,8 @@
 | MarkTechPost | https://www.marktechpost.com/feed/ | ✅ |
 | Import AI (Substack) | https://importai.substack.com/feed | ⚠️ 403 с сервера n8n |
 | Habr — AI/ML | https://habr.com/ru/rss/flows/ai_and_ml/articles/ | ✅ |
+| Forbes — Innovation | https://www.forbes.com/innovation/feed2/ | ✅ |
+| Engadget | https://www.engadget.com/rss.xml | ✅ |
 
 ### Лаборатории / компании
 | name | feed_url | active |
@@ -62,11 +64,20 @@
 | The Game Business | https://www.thegamebusiness.com/feed | ✅ |
 | MCV/Develop | https://mcvuk.com/feed/ | ✅ |
 | GamesIndustry.biz | https://www.gamesindustry.biz/feed/ | ✅ |
+| GameWorldObserver | https://gameworldobserver.com/feed | ✅ |
+| PCGamesInsider | https://www.pcgamesinsider.biz/rss/ | ✅ |
+| Mobidictum | https://mobidictum.com/feed/ | ✅ |
+| DigitalTrends — Gaming | https://www.digitaltrends.com/gaming/feed/ | ✅ потреб., шумно |
+| GameSpot — News | https://www.gamespot.com/feeds/news/ | ✅ потреб., шумно |
+| IGN Italia | https://it.ign.com/feed.xml | ✅ потреб./IT, шумно |
 
 ### Инвестиции
 | name | feed_url | active |
 |---|---|---|
 | InvestGame | https://investgame.net/news/feed/ | ✅ |
+| Tech in Asia | https://www.techinasia.com/feed | ✅ |
+| EU-Startups | https://www.eu-startups.com/feed/ | ✅ |
+| Silicon Canals | https://siliconcanals.com/feed/ | ✅ |
 
 ## Как редактировать
 
