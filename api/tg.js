@@ -1,9 +1,6 @@
 // Telegram webhook pre-filter (Vercel serverless function).
 // Forwards ONLY relevant updates to n8n; drops group chatter so it doesn't
 // burn n8n executions. Env: N8N_WEBHOOK_URL, TG_SECRET (optional).
-//
-// NOTE: a copy of this lives at the repo root (api/tg.js) so it works whether
-// the Vercel "Root Directory" is blank or set to vercel-tg-filter. Keep both in sync.
 
 const NOTE_TOPICS = [
   { chat: -1004406148635, thread: 7 },      // TryllAuto · Notes
