@@ -1,5 +1,5 @@
 {
-  "name": "TryllAuto ·",
+  "name": "TryllAuto Bot",
   "meta": {
     "n8nWorkflowId": "WFarxoRPXfxnrqsV",
     "exportedFrom": "n8n (source of truth) — credentials are not exported",
@@ -7,9 +7,9 @@
     "features": {
       "voiceToNotes": "Telegram Trigger -> buffer voices -> Voxtral -> Mistral note -> Google Doc (topic Notes, thread 7)",
       "research": "/research -> Sonnet/Opus -> Claude web research -> Google Doc (Research topic)",
-      "newsCollector": "Schedule 07:00 & 17:00 CET -> already-sent + RSS -> fresh<24h -> dedup -> Claude value filter: per-candidate keep flag (+RU summary; keep=false drops dups/low-value; code filters keep===true + meta-text guard) -> post News AI (187) -> news_seen",
+      "newsCollector": "Schedule 07:00 & 17:00 CET -> already-sent + RSS -> fresh<24h -> dedup -> Claude value filter (keep flag + RU summary) -> Resolve Image (og:image) -> IF Has Image: Post News Photo (sendPhoto card) else Post News (text+preview) -> news_seen. Topic News AI (187).",
       "newsSummary": "Schedule 19:00 CET -> today news_seen -> Claude digest -> post + pin (keep 5)",
-      "itchAiScanner": "Schedule 01:00 CET -> itch.io newest tag-artificial-intelligence (2p) -> dedup vs itch_seen -> Scan up to 40 pages parallel (10 at a time, 8s, ~1000-char desc) -> Claude keeps ONLY in-game AI running LOCALLY/on-device -> record all itch_seen -> post itch.io-AI (184), preview off. Docs: features/itch-ai-scanner.md"
+      "itchAiScanner": "Schedule 01:00 CET -> itch.io newest tag-artificial-intelligence (2p) -> dedup itch_seen -> Scan up to 40 pages parallel -> Claude keeps ONLY in-game AI running LOCALLY/on-device -> post itch.io-AI (184), preview off. Docs: features/itch-ai-scanner.md"
     },
     "dataTables": {
       "notes_draft": "bpwNfJwc15sqXgeU",
@@ -1645,7 +1645,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2912,
+        2960,
         1360
       ]
     },
@@ -1664,8 +1664,8 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        3136,
-        1264
+        3648,
+        1552
       ],
       "webhookId": "0bdcd283-ce5c-4b4a-8b5b-2a84fe5a1671",
       "onError": "continueRegularOutput"
@@ -1771,8 +1771,8 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
-        3136,
-        1456
+        3200,
+        1552
       ]
     },
     {
@@ -2481,6 +2481,74 @@
       ],
       "id": "a96efe0e-a103-4b4e-80ab-2417ff36ec38",
       "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "jsCode": "const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';\nconst items = $input.all().map(i => i.json);\nconst getImg = async (it) => {\n  let image = '';\n  try { const r = await this.helpers.httpRequest({ url: it.url, returnFullResponse: true, timeout: 8000, headers: { 'User-Agent': UA } }); const b = (r.body||'').toString(); const m = b.match(/<meta[^>]+property=\"og:image\"[^>]+content=\"([^\"]+)\"/i) || b.match(/<meta[^>]+content=\"([^\"]+)\"[^>]+property=\"og:image\"/i) || b.match(/<meta[^>]+name=\"twitter:image(?::src)?\"[^>]+content=\"([^\"]+)\"/i); image = m ? m[1] : ''; } catch (e) {}\n  return Object.assign({}, it, { image });\n};\nconst out = [];\nconst CONC = 8;\nfor (let i = 0; i < items.length; i += CONC) { const ch = items.slice(i, i + CONC); const res = await Promise.all(ch.map(getImg)); for (const r of res) out.push({ json: r }); }\nreturn out;"
+      },
+      "id": "39bf1e54-8888-4929-b271-eeadc71acea3",
+      "name": "Resolve Image",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3200,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.image }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "4450f594-b0c1-4dbf-9580-6d03f26ebb95",
+      "name": "Has Image",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3424,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "-1004406148635",
+        "file": "={{ $json.image }}",
+        "additionalFields": {
+          "caption": "={{ $json.message }}",
+          "parse_mode": "HTML",
+          "message_thread_id": 187
+        }
+      },
+      "id": "cfb0cc07-f776-4b59-bc49-c6f26e90e817",
+      "name": "Post News Photo",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3696,
+        1360
+      ],
+      "webhookId": "09ef0da6-6b18-4a8a-b353-01bc0f398721",
+      "onError": "continueRegularOutput"
     }
   ],
   "connections": {
@@ -3040,12 +3108,12 @@
       "main": [
         [
           {
-            "node": "Post News",
+            "node": "Record Seen",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Record Seen",
+            "node": "Resolve Image",
             "type": "main",
             "index": 0
           }
@@ -3360,6 +3428,35 @@
           {
             "node": "itch Claude Filter",
             "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve Image": {
+      "main": [
+        [
+          {
+            "node": "Has Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Image": {
+      "main": [
+        [
+          {
+            "node": "Post News Photo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Post News",
+            "type": "main",
             "index": 0
           }
         ]
