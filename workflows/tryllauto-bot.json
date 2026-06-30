@@ -6,7 +6,7 @@
     "note": "Single TryllAuto bot workflow — several independent trigger-chains on one canvas.",
     "features": {
       "vercelPreFilter": "Telegram -> Vercel serverless (api/tg.js, repo Skizziik/tryllauto-tg-filter) forwards ONLY relevant updates to n8n Webhook (path tg-filter) -> TG Adapter (re-roots $json.body) -> Route Update. Drops group chatter to save n8n executions. Old Telegram Trigger ('Telegram Update') node is disabled.",
-      "voiceToNotes": "Webhook(tg-filter) -> TG Adapter -> buffer voices/video-notes -> Voxtral -> Mistral note -> Google Doc. Topics: TryllAuto Notes (chat -1004406148635, thread 7) AND Tryll Engine Events (chat -1002699410666, thread 14347)",
+      "voiceToNotes": "Webhook(tg-filter) -> TG Adapter -> buffer voices/video-notes -> Voxtral -> Claude (structured JSON, ENGLISH notes) -> Build Doc Requests -> Docs API (Create Doc + Move To Folder + Style Doc batchUpdate) = Gemini-style Google Doc (headings/font/date-chip/checkboxes/bullets + Quotes section). Topics: TryllAuto Notes (chat -1004406148635, thread 7) AND Tryll Engine Events (chat -1002699410666, thread 14347). NOTE: new HTTP nodes need Google cred assigned in UI + Google Docs API enabled in GCP.",
       "research": "/research -> Sonnet/Opus -> Claude web research -> Google Doc (Research topic)",
       "newsCollector": "Schedule 07:00 & 17:00 CET -> already-sent + RSS -> fresh<24h -> dedup -> Claude value filter (keep flag + RU summary) -> Resolve Image (og:image) -> IF Has Image: Post News Photo (sendPhoto card) else Post News (text+preview) -> news_seen. Topic News AI (187).",
       "newsSummary": "Schedule 19:00 CET -> today news_seen -> Claude digest -> post + pin (keep 5)",
@@ -584,7 +584,7 @@
         "operation": "editMessageText",
         "chatId": "={{ $(\"TG Adapter\").item.json.callback_query.message.chat.id }}",
         "messageId": "={{ $(\"TG Adapter\").item.json.callback_query.message.message_id }}",
-        "text": "=✅ Заметка сохранена в Google Docs\nhttps://docs.google.com/document/d/{{ $(\"Upload to Drive\").item.json.id }}/edit",
+        "text": "=✅ Note saved to Google Docs\nhttps://docs.google.com/document/d/{{ $(\"Create Doc\").item.json.documentId }}/edit",
         "additionalFields": {}
       },
       "id": "2bbf7fd5-0643-4164-b9de-20b41964ead1",
@@ -592,7 +592,7 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        2464,
+        2704,
         112
       ],
       "webhookId": "f7597116-2a76-4e87-9b95-56b830eae13e"
@@ -625,7 +625,7 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
-        2688,
+        2928,
         112
       ]
     },
@@ -656,7 +656,7 @@
               "id": "p1",
               "name": "system_prompt",
               "type": "string",
-              "value": "Ты — ассистент, превращающий транскрипт голосового сообщения (встречи, звонка, лекции, заметки вслух) в **очень детальные** структурированные заметки на русском.\n\nЦель: человек через месяц открывает заметки и **восстанавливает картину без перечитывания транскрипта**. Тот, кто не слушал, понимает что говорили, кто что предлагал, какие аргументы звучали, какие решения приняли и почему.\n\n## Имя файла\nВ САМОЙ ПЕРВОЙ строке ответа верни HTML-комментарий со slug на английском snake_case (до 60 символов, только латиница/цифры/подчёркивания, без расширения):\n<!-- filename: meeting_topic_here -->\nСразу после этой строки — `## О чём`, без пустых строк и без преамбулы.\n\n## Принципы\n1. **Объём ≈ 30–50% от транскрипта.** Это не саммари — плотный структурированный пересказ почти без потерь. Лучше слишком детально, чем слишком кратко.\n2. **Фиксируй, не пересказывай.** Каждое число, имя, продукт, цитата, метрика, дата, сумма, процент, версия — в заметки. Никаких «обсудили цены» — пиши конкретные цены и условия.\n3. **Сохраняй причинно-следственное.** Не «решили X» — а «решили X потому что (1)…, (2)…».\n4. **Сохраняй разногласия и сомнения.** Возражения и их аргументы фиксируй; компромиссные/сомнительные решения отмечай явно.\n5. **Структура адаптивная.** Не выдумывай разделов, которых не было. «Надо подумать / проверить / не уверен» → открытые вопросы.\n\n## Что обязательно сохранять\n- **Имена** людей, компаний, продуктов, инструментов — с минимальным контекстом.\n- **Числа** — деньги, проценты, сроки, версии, размеры, метрики — с единицами.\n- **Термины и определения**, когда их объясняют.\n- **Команды, код, URL, пути** — в блоках с тройными апострофами.\n- **Конкретные примеры** — с содержанием, не «привёл пример».\n- **Аргументы за/против** для решений, включая отвергнутые варианты.\n- **Сроки, дедлайны, договорённости** — буквально.\n\n## Структура\n### Обязательно\n- `## О чём` — 3–6 пунктов-оглавление: карта тем (не выводы).\n- Далее темы как `##`/`###`. Bullet-листы для независимых фактов, параграфы где важна логика.\n### При наличии (не выдумывай)\n- `## Решения и Action Items` — каждое отдельным пунктом. Ответственный → `→ Имя`. Срок → `(к пятнице)`. Условие → `(если …)`.\n- `## Открытые вопросы` — без ответа / отложено / надо проверить.\n- `## Сильные цитаты` — дословно, в формате цитаты, с автором если ясно.\n- `## Контекст / Бэкграунд` — важные детали о компании/проекте/истории.\n### Не делать\n- Без «Выводы / Заключение / Резюме / В итоге».\n- Без «Спикер сказал…» — факты как факты; автора указывай только когда важно.\n- Без «и так далее» — перечисляй явно.\n- Не добавляй неуверенности, которой не было; не размывай уверенные факты.\n- Не объединяй разные пункты — лучше десять чётких пунктов, чем три рыхлых.\n\n## Стиль\n- **Русский** основной. Англ. названия/термины — латиницей как звучали (`GitHub`, `RAG`), не транслитерируй.\n- **жирный** — имена, ключевые термины, ответственные. *курсив* — нюансы/тон. Моноширинный — команды/пути/код.\n- Плохо расслышанное → `[неразборчиво]`.\n\n## Что вернуть\nТолько содержимое заметок: строка с filename-комментарием, сразу за ней `## О чём`, далее блоки. Без вступлений вроде «Конечно», без обёртки в markdown-блок."
+              "value": "You are a meeting-notes assistant for Tryll Engine. You receive an auto-transcript of a voice message / call / meeting (may contain ASR errors — recover meaning from context, never invent facts).\n\nWrite notes in ENGLISH ALWAYS, even if the recording was in another language (translate). Match the style of Google \"Notes by Gemini\": concise, neutral, third-person, well-organized — but keep concrete details (names, numbers, products, decisions, arguments, commitments).\n\nReturn ONLY valid JSON (no markdown, no commentary, no ``` fences), exactly this shape:\n{\n  \"title\": \"short title, 3-6 words (for the file name)\",\n  \"summary_intro\": \"1-2 sentence overview\",\n  \"summary_sections\": [{\"heading\": \"Theme (3-6 words)\", \"text\": \"1-3 sentences\"}],\n  \"decisions_aligned\": [{\"title\": \"...\", \"desc\": \"what was agreed\"}],\n  \"decisions_open\":    [{\"title\": \"...\", \"desc\": \"what's undecided / needs discussion\"}],\n  \"next_steps\": [{\"owner\": \"Person or Team\", \"title\": \"1-3 words\", \"task\": \"the task\"}],\n  \"details\": [{\"topic\": \"...\", \"text\": \"2-5 sentence paragraph: what was discussed, who said/proposed what\"}],\n  \"quotes\": [{\"quote\": \"verbatim memorable line\", \"author\": \"Person or empty\"}]\n}\n\nRules:\n- 2-4 summary_sections.\n- Split decisions into aligned (agreed) vs open (undecided / needs discussion); either array may be empty [].\n- next_steps with a real owner; if unclear from context, owner: \"Team\".\n- details = one bullet per discussion topic, in order; this is the most detailed block — don't lose substance.\n- If it's a short solo voice note (one speaker, no decisions/tasks), return decisions_* and next_steps as [], and put the substance in summary + details.\n- quotes = only genuinely strong / memorable / quotable lines, VERBATIM (keep the original wording and language as actually spoken — do NOT translate quotes); author = who said it, or \"\" if unclear. [] if there are no standout lines — don't pad with filler.\n- Always fill summary_intro and summary_sections.\n- Keep names, brands, product/tool names, and technical terms as-is (e.g. GitHub, Unreal, RAG). Numbers/amounts/dates/versions verbatim.\n- No fields other than those listed. JSON only."
             }
           ]
         },
@@ -802,7 +802,7 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
-        2912,
+        3152,
         112
       ]
     },
@@ -884,7 +884,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const lines=$input.all().map(i=>i.json);let offset=0;const parts=[];const segs=[];for(const ln of lines){if(ln.transcript)parts.push(ln.transcript);let s=[];try{s=JSON.parse(ln.segments||\"[]\");}catch(e){s=[];}if(Array.isArray(s)){for(const seg of s){const t=((seg.text??\"\")+\"\").trim();if(t)segs.push({start:Math.round(offset+Number(seg.start||0)),text:t});}}offset+=Number(ln.duration||0);}let uc=parts.join(\"\\n\\n\");if(segs.length){uc+=\"\\n\\n---\\nСегменты с таймкодами (start = секунды от начала всей записи). Проставь [MM:SS] (или [H:MM:SS] если запись длиннее часа) рядом с заголовками подтем, ключевыми решениями и сильными цитатами — бери start ближайшего сегмента. Не ставь таймкод на каждом пункте.\\n```json\\n\"+JSON.stringify(segs)+\"\\n```\";}return[{json:{user_content:uc}}];"
+        "jsCode": "const lines = $input.all().map(i => i.json);\nconst parts = [];\nfor (const ln of lines) { if (ln.transcript) parts.push(ln.transcript); }\nreturn [{ json: { user_content: parts.join(\"\\n\\n\") } }];"
       },
       "id": "6bffb4ea-3891-4fb1-a6f2-75b9346cf6ea",
       "name": "Build Content",
@@ -892,61 +892,6 @@
       "typeVersion": 2,
       "position": [
         1120,
-        112
-      ]
-    },
-    {
-      "parameters": {
-        "mode": "markdownToHtml",
-        "markdown": "={{ $(\"claude-sonnet-4-6\").item.json.content[0].text.replace(/^\\s*<!--\\s*filename:[^>]*-->\\s*\\n?/, \"\") }}",
-        "options": {
-          "completeHTMLDocument": true,
-          "simpleLineBreaks": true,
-          "strikethrough": true,
-          "tables": true
-        }
-      },
-      "id": "b84edcbc-2813-4bd6-9045-093602922323",
-      "name": "MD to HTML",
-      "type": "n8n-nodes-base.markdown",
-      "typeVersion": 1,
-      "position": [
-        1792,
-        112
-      ]
-    },
-    {
-      "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "const html=$json.data||\"\";const note=$(\"claude-sonnet-4-6\").item.json.content[0].text||\"\";const m=note.match(/filename:\\s*([A-Za-z0-9_-]+)/);const slug=(m&&m[1])?m[1]:\"note\";const boundary=\"n8nb\"+Math.random().toString(36).slice(2);const meta=JSON.stringify({name:slug,parents:[\"1o-8nIrmt7fSxkdc1iwxlFiCR1SkqiZqN\"],mimeType:\"application/vnd.google-apps.document\"});const CRLF=\"\\r\\n\";const body=\"--\"+boundary+CRLF+\"Content-Type: application/json; charset=UTF-8\"+CRLF+CRLF+meta+CRLF+\"--\"+boundary+CRLF+\"Content-Type: text/html; charset=UTF-8\"+CRLF+CRLF+html+CRLF+\"--\"+boundary+\"--\";return {json:{body:body,ct:\"multipart/related; boundary=\"+boundary}};"
-      },
-      "id": "50386319-68e5-4724-a13a-0b70dac6e880",
-      "name": "Build Upload Body",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        2016,
-        112
-      ]
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "googleDriveOAuth2Api",
-        "sendBody": true,
-        "contentType": "raw",
-        "rawContentType": "={{ $json.ct }}",
-        "body": "={{ $json.body }}",
-        "options": {}
-      },
-      "id": "fda41ef5-4f95-4223-bc1a-fbe02bdd7b6d",
-      "name": "Upload to Drive",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [
-        2240,
         112
       ]
     },
@@ -1690,10 +1635,10 @@
             "industry": "={{ $json.industry }}",
             "source": "={{ $json.source }}",
             "summary_ru": "={{ $json.summary_ru }}",
+            "event_key": "={{ $json.event_key }}",
             "sent_at": "={{ $json.sent_at }}",
             "day": "={{ $json.day }}",
-            "run": "={{ $json.run }}",
-            "event_key": "={{ $json.event_key }}"
+            "run": "={{ $json.run }}"
           },
           "schema": [
             {
@@ -1742,6 +1687,15 @@
               "canBeUsedToMatch": true
             },
             {
+              "id": "event_key",
+              "displayName": "event_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
               "id": "sent_at",
               "displayName": "sent_at",
               "required": false,
@@ -1762,15 +1716,6 @@
             {
               "id": "run",
               "displayName": "run",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "event_key",
-              "displayName": "event_key",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -2068,7 +2013,8 @@
       "parameters": {
         "content": "Ряд 2 - Voice→Notes: сохранение заметки\nПо кнопке «✅ Сохранить»: собирает заметку из всех голосовых через Claude, конвертит в HTML, заливает Google Doc на Drive",
         "height": 192,
-        "width": 304
+        "width": 304,
+        "color": 4
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -2083,7 +2029,8 @@
       "parameters": {
         "content": "Ряд 1 - Voice→Notes: приём голосовых\nЛовит голосовые/кружки в топике Notes, транскрибирует (Voxtral), копит в черновик и перерисовывает карточку-черновик с кнопками",
         "height": 192,
-        "width": 304
+        "width": 304,
+        "color": 4
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -2098,7 +2045,8 @@
       "parameters": {
         "content": "Ряд 3 - Voice→Notes: отмена\nПо кнопке «Отмена»: чистит буфер черновика и удаляет карточку.",
         "height": 192,
-        "width": 304
+        "width": 304,
+        "color": 4
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -2113,7 +2061,8 @@
       "parameters": {
         "content": "Ряд 4 - Research: команда /research\nПарсит запрос, сохраняет job в таблицу, шлёт кнопки выбора модели (Sonnet / Opus).",
         "height": 192,
-        "width": 304
+        "width": 304,
+        "color": 3
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -2128,7 +2077,8 @@
       "parameters": {
         "content": "Ряд 5 - Research: запуск ресёрча\nПо выбору модели: Claude с web-search/fetch проводит исследование → отчёт в Google Doc → ссылка в чат.",
         "height": 192,
-        "width": 304
+        "width": 304,
+        "color": 3
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -2143,7 +2093,8 @@
       "parameters": {
         "content": "Ряд 6 - News: сбор новостей (07:00 и 17:00 CET)\nТянет RSS-ленты из таблицы источников, берёт свежее (<24ч), отсеивает дубли, Claude отбирает ценное для Tryll Engine и пишет RU-описание → бот постит в топик News AI.",
         "height": 208,
-        "width": 304
+        "width": 304,
+        "color": 4
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -2158,7 +2109,8 @@
       "parameters": {
         "content": "Ряд 7 - News: сводка дня (19:00 CET)\nСобирает все отправленные за день новости, Claude делает выжимку по индустриям → бот постит и закрепляет",
         "height": 192,
-        "width": 304
+        "width": 304,
+        "color": 4
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -2486,7 +2438,8 @@
       "parameters": {
         "content": "Ряд 8 - itch.io AI-сканер (01:00 CET): ночью сканит свежие игры itch.io, Claude ищет те, что используют генеративный/LLM/ML AI, и бот шлёт их в топик itch.io-AI. Дедуп через БД",
         "height": 192,
-        "width": 304
+        "width": 304,
+        "color": 4
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -2594,6 +2547,76 @@
       "position": [
         -336,
         368
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Claude JSON note -> Google Docs batchUpdate requests (Gemini-style layout)\nconst raw = (($(\"claude-sonnet-4-6\").item.json.content || [{}])[0].text || \"\").trim();\nlet j;\ntry {\n  const a = raw.indexOf(\"{\"), b = raw.lastIndexOf(\"}\");\n  j = JSON.parse(raw.slice(a, b + 1));\n} catch (err) {\n  j = { title: \"Заметка\", summary_intro: raw, summary_sections: [], decisions_aligned: [], decisions_open: [], next_steps: [], details: [] };\n}\n\nconst z = $now.setZone(\"Europe/Berlin\");\nconst dateStr = z.toFormat(\"dd.LL.yyyy\");\nconst titleText = (j.title || \"Заметка\").toString().trim() || \"Заметка\";\n\nconst C_HEAD = { red: 0.122, green: 0.122, blue: 0.122 };\nconst C_BODY = { red: 0.188, green: 0.188, blue: 0.188 };\nconst C_CHIP = { red: 0.824, green: 0.890, blue: 0.988 };\n\nlet text = \"\";\nconst paras = [];\nconst bullets = [];\nconst runs = [];\n\nfunction heading(str, named, size) {\n  const s = text.length; text += str + \"\\n\"; const e = text.length;\n  paras.push({ start: s, end: e, named: named });\n  runs.push({ start: s, end: e - 1, bold: true, size: size, fg: C_HEAD });\n}\nfunction bodyPara(str) {\n  const s = text.length; text += str + \"\\n\"; const e = text.length;\n  runs.push({ start: s, end: e - 1, size: 11, fg: C_BODY });\n}\nfunction leadPara(lead, rest, preset) {\n  const s = text.length; text += lead; const le = text.length;\n  text += rest + \"\\n\"; const e = text.length;\n  runs.push({ start: s, end: le, bold: true, size: 11, fg: C_BODY });\n  if (rest) runs.push({ start: le, end: e - 1, size: 11, fg: C_BODY });\n  if (preset) bullets.push({ start: s, end: e, preset: preset });\n}\n\n// TITLE\n{\n  const s = text.length; text += \"🎙 \" + titleText + \"\\n\"; const e = text.length;\n  paras.push({ start: s, end: e, named: \"HEADING_2\" });\n  runs.push({ start: s, end: e - 1, bold: true, size: 26, fg: C_HEAD });\n}\n// DATE chip\n{\n  const s = text.length; text += dateStr; const e = text.length; text += \"\\n\";\n  runs.push({ start: s, end: e, size: 11, fg: C_HEAD, bg: C_CHIP });\n}\ntext += \"\\n\";\n\n// SUMMARY\nheading(\"Summary\", \"HEADING_3\", 20);\nif (j.summary_intro) bodyPara(j.summary_intro.toString().trim());\n(j.summary_sections || []).filter(Boolean).forEach(function (sec) {\n  leadPara((sec.heading || \"\").toString().trim() + \"  \", (sec.text || \"\").toString().trim(), null);\n});\n\n// DECISIONS\nconst da = (j.decisions_aligned || []).filter(Boolean);\nconst dop = (j.decisions_open || []).filter(Boolean);\nif (da.length || dop.length) {\n  heading(\"Decisions\", \"HEADING_3\", 20);\n  if (dop.length) {\n    heading(\"Needs Further Discussion\", \"SUBTITLE\", 14);\n    dop.forEach(function (d) { leadPara((d.title || \"\").toString().trim() + \"  \", (d.desc || \"\").toString().trim(), \"BULLET_DISC_CIRCLE_SQUARE\"); });\n  }\n  if (da.length) {\n    heading(\"Aligned\", \"SUBTITLE\", 14);\n    da.forEach(function (d) { leadPara((d.title || \"\").toString().trim() + \"  \", (d.desc || \"\").toString().trim(), \"BULLET_DISC_CIRCLE_SQUARE\"); });\n  }\n}\n\n// NEXT STEPS\nconst ns = (j.next_steps || []).filter(Boolean);\nif (ns.length) {\n  heading(\"Next steps\", \"HEADING_3\", 20);\n  ns.forEach(function (n) {\n    const owner = (n.owner || \"\").toString().trim();\n    const ttl = (n.title || \"\").toString().trim();\n    const task = (n.task || \"\").toString().trim();\n    const lead = (owner ? (\"[\" + owner + \"] \") : \"\") + ttl + (task ? \": \" : \"\");\n    leadPara(lead, task, \"BULLET_CHECKBOX\");\n  });\n}\n\n// DETAILS\nconst det = (j.details || []).filter(Boolean);\nif (det.length) {\n  heading(\"Details\", \"HEADING_3\", 20);\n  det.forEach(function (d) { leadPara((d.topic || \"\").toString().trim() + \": \", (d.text || \"\").toString().trim(), \"BULLET_DISC_CIRCLE_SQUARE\"); });\n}\n\n// QUOTES (always last)\nconst qs = (j.quotes || []).filter(Boolean);\nif (qs.length) {\n  heading(\"Quotes\", \"HEADING_3\", 20);\n  qs.forEach(function (q) {\n    const quote = (q.quote || \"\").toString().trim();\n    if (!quote) return;\n    const author = (q.author || \"\").toString().trim();\n    const s = text.length;\n    text += \"«\" + quote + \"»\";\n    const qe = text.length;\n    if (author) text += \" — \" + author;\n    text += \"\\n\";\n    const e = text.length;\n    runs.push({ start: s, end: qe, italic: true, size: 11, fg: C_BODY });\n    if (author) runs.push({ start: qe, end: e - 1, size: 11, fg: C_BODY });\n    bullets.push({ start: s, end: e, preset: \"BULLET_DISC_CIRCLE_SQUARE\" });\n  });\n}\n\n// Build requests (Docs index = textOffset + 1; insertText first, then bullets, paragraph styles, global font, per-run)\nconst reqs = [];\nreqs.push({ insertText: { location: { index: 1 }, text: text } });\nbullets.forEach(function (b) {\n  reqs.push({ createParagraphBullets: { range: { startIndex: b.start + 1, endIndex: b.end + 1 }, bulletPreset: b.preset } });\n});\nparas.forEach(function (p) {\n  reqs.push({ updateParagraphStyle: { range: { startIndex: p.start + 1, endIndex: p.end + 1 }, paragraphStyle: { namedStyleType: p.named }, fields: \"namedStyleType\" } });\n});\nreqs.push({ updateTextStyle: { range: { startIndex: 1, endIndex: text.length + 1 }, textStyle: { weightedFontFamily: { fontFamily: \"Google Sans Flex Normal\" } }, fields: \"weightedFontFamily\" } });\nruns.forEach(function (r) {\n  if (r.end <= r.start) return;\n  const ts = {}; let fields = \"\";\n  function addf(name) { fields += (fields ? \",\" : \"\") + name; }\n  if (r.bold) { ts.bold = true; addf(\"bold\"); }\n  if (r.italic) { ts.italic = true; addf(\"italic\"); }\n  if (r.size) { ts.fontSize = { magnitude: r.size, unit: \"PT\" }; addf(\"fontSize\"); }\n  if (r.fg) { ts.foregroundColor = { color: { rgbColor: r.fg } }; addf(\"foregroundColor\"); }\n  if (r.bg) { ts.backgroundColor = { color: { rgbColor: r.bg } }; addf(\"backgroundColor\"); }\n  if (!fields) return;\n  reqs.push({ updateTextStyle: { range: { startIndex: r.start + 1, endIndex: r.end + 1 }, textStyle: ts, fields: fields } });\n});\n\nconst docTitle = titleText + \" — \" + z.toFormat(\"yyyy/LL/dd HH:mm\") + \" CEST — Notes by Tryll\";\nreturn [{ json: { documentTitle: docTitle, requests: reqs } }];"
+      },
+      "id": "60c1be84-8ba6-46b0-afa4-eec13e9d1f15",
+      "name": "Build Doc Requests",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1808,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://docs.googleapis.com/v1/documents",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"title\": {{ JSON.stringify($json.documentTitle) }} }",
+        "options": {}
+      },
+      "id": "f3ccd8f5-eb13-46da-bc8e-86bb050584f4",
+      "name": "Create Doc",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2032,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://www.googleapis.com/drive/v3/files/{{ $(\"Create Doc\").item.json.documentId }}?addParents=1o-8nIrmt7fSxkdc1iwxlFiCR1SkqiZqN&removeParents=root&supportsAllDrives=true",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "options": {}
+      },
+      "id": "4b2e90e3-e398-4358-9e9c-9a2d685f6193",
+      "name": "Move To Folder",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2256,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://docs.googleapis.com/v1/documents/{{ $(\"Create Doc\").item.json.documentId }}:batchUpdate",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"requests\": {{ JSON.stringify($(\"Build Doc Requests\").item.json.requests) }} }",
+        "options": {}
+      },
+      "id": "68f8ca75-959e-4727-8c84-65cdc5685ef2",
+      "name": "Style Doc",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2480,
+        112
       ]
     }
   ],
@@ -2840,50 +2863,6 @@
         [
           {
             "node": "Note Prompt",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "claude-sonnet-4-6": {
-      "main": [
-        [
-          {
-            "node": "MD to HTML",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "MD to HTML": {
-      "main": [
-        [
-          {
-            "node": "Build Upload Body",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Build Upload Body": {
-      "main": [
-        [
-          {
-            "node": "Upload to Drive",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Upload to Drive": {
-      "main": [
-        [
-          {
-            "node": "Edit To Saved",
             "type": "main",
             "index": 0
           }
@@ -3513,6 +3492,61 @@
         [
           {
             "node": "Route Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "claude-sonnet-4-6": {
+      "main": [
+        [
+          {
+            "node": "Build Doc Requests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Doc Requests": {
+      "main": [
+        [
+          {
+            "node": "Create Doc",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Doc": {
+      "main": [
+        [
+          {
+            "node": "Move To Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move To Folder": {
+      "main": [
+        [
+          {
+            "node": "Style Doc",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Style Doc": {
+      "main": [
+        [
+          {
+            "node": "Edit To Saved",
             "type": "main",
             "index": 0
           }
