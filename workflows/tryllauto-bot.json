@@ -1601,10 +1601,11 @@
     },
     {
       "parameters": {
+        "operation": "sendPhoto",
         "chatId": "-1004406148635",
-        "text": "={{ $json.message }}",
+        "file": "=https://tryllauto-tg-filter.vercel.app/api/card?title={{ encodeURIComponent($json.title) }}",
         "additionalFields": {
-          "appendAttribution": false,
+          "caption": "={{ $json.message }}",
           "parse_mode": "HTML",
           "message_thread_id": 187
         }
