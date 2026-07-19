@@ -1,51 +1,5 @@
 {
   "name": "TryllAuto Bot",
-  "meta": {
-    "n8nWorkflowId": "WFarxoRPXfxnrqsV",
-    "exportedFrom": "n8n (source of truth) — credentials are not exported",
-    "note": "Single TryllAuto bot workflow — several independent trigger-chains on one canvas.",
-    "features": {
-      "vercelPreFilter": "Telegram -> Vercel serverless (api/tg.js, repo Skizziik/tryllauto-tg-filter) forwards ONLY relevant updates to n8n Webhook (path tg-filter) -> TG Adapter (re-roots $json.body) -> Route Update. Drops group chatter to save n8n executions. Old Telegram Trigger ('Telegram Update') node is disabled.",
-      "voiceToNotes": "Webhook(tg-filter) -> TG Adapter -> buffer voices/video-notes -> Voxtral -> Claude (structured JSON, ENGLISH notes) -> Build Doc Requests -> Docs API (Create Doc + Move To Folder + Style Doc batchUpdate) = Gemini-style Google Doc (headings/font/date-chip/checkboxes/bullets + Quotes section). Topics: TryllAuto Notes (chat -1004406148635, thread 7) AND Tryll Engine Events (chat -1002699410666, thread 14347). NOTE: new HTTP nodes need Google cred assigned in UI + Google Docs API enabled in GCP.",
-      "research": "/research -> Sonnet/Opus -> Claude web research -> Google Doc (Research topic)",
-      "newsCollector": "Schedule 07:00 & 17:00 CET -> already-sent + RSS -> fresh<24h -> dedup -> Claude value filter (keep flag + RU summary) -> Resolve Image (og:image) -> IF Has Image: Post News Photo (sendPhoto card) else Post News (text+preview) -> news_seen. Topic News AI (187).",
-      "newsSummary": "Schedule 19:00 CET -> today news_seen -> Claude digest -> post + pin (keep 5)",
-      "itchAiScanner": "Schedule 01:00 CET -> itch.io newest tag-artificial-intelligence (2p) -> dedup itch_seen -> Scan up to 40 pages parallel -> Claude keeps ONLY in-game AI running LOCALLY/on-device -> post itch.io-AI (184), preview off. Docs: features/itch-ai-scanner.md"
-    },
-    "dataTables": {
-      "notes_draft": "bpwNfJwc15sqXgeU",
-      "notes_card": "vZ74meVqtdYSt1j0",
-      "research_jobs": "3ky6zNtlCGsf57Dn",
-      "news_sources": "cHUyEGAFsNnpqjC6",
-      "news_seen": "mzGzfbnB18BVmM6h",
-      "news_pins": "EMRQitOd1yxnqjxe",
-      "itch_seen": "UcLnrCrKEdZpk7kL"
-    },
-    "telegram": {
-      "groups": {
-        "TryllAuto": {
-          "chatId": "-1004406148635",
-          "topics": {
-            "Notes": 7,
-            "NewsAI": 187,
-            "itchAI": 184
-          }
-        },
-        "TryllEngine": {
-          "chatId": "-1002699410666",
-          "topics": {
-            "Events": 14347
-          }
-        }
-      },
-      "bot": "@Tryllauto_bot",
-      "inboundVia": "Vercel pre-filter (https://tryllauto-tg-filter.vercel.app/api/tg) -> n8n webhook path tg-filter"
-    },
-    "models": {
-      "notesResearch": "Mistral + Claude",
-      "newsAndItch": "claude-sonnet-4-6"
-    }
-  },
   "nodes": [
     {
       "parameters": {
@@ -184,6 +138,75 @@
               },
               "renameOutput": true,
               "outputKey": "research_run"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ Boolean($json.message.voice?.file_id || $json.message.video_note?.file_id) && ($json.message.chat.id == -1002699410666 && $json.message.message_thread_id == 18190) }}",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "voice_n"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_query.data }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "rightValue": "save_n"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "save_n"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_query.data }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "rightValue": "cancel_n"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "cancel_n"
             }
           ]
         },
@@ -584,7 +607,7 @@
         "operation": "editMessageText",
         "chatId": "={{ $(\"TG Adapter\").item.json.callback_query.message.chat.id }}",
         "messageId": "={{ $(\"TG Adapter\").item.json.callback_query.message.message_id }}",
-        "text": "=✅ Note saved to Google Docs\nhttps://docs.google.com/document/d/{{ $(\"Create Doc\").item.json.documentId }}/edit",
+        "text": "=✅ Note saved to Google Docs — {{ $(\"Build Doc Requests\").item.json.documentTitle.split(\" CEST\")[0].split(\" \").slice(0, -1).join(\" \") }}\nhttps://docs.google.com/document/d/{{ $(\"Create Doc\").item.json.documentId }}/edit",
         "additionalFields": {}
       },
       "id": "2bbf7fd5-0643-4164-b9de-20b41964ead1",
@@ -1417,7 +1440,7 @@
       "typeVersion": 1.3,
       "position": [
         448,
-        1360
+        2192
       ]
     },
     {
@@ -1436,7 +1459,7 @@
       "typeVersion": 1.1,
       "position": [
         1120,
-        1360
+        2192
       ]
     },
     {
@@ -1469,7 +1492,7 @@
       "typeVersion": 2.3,
       "position": [
         1344,
-        1360
+        2192
       ]
     },
     {
@@ -1502,7 +1525,7 @@
       "typeVersion": 2.3,
       "position": [
         1792,
-        1360
+        2192
       ]
     },
     {
@@ -1520,7 +1543,7 @@
       "typeVersion": 2,
       "position": [
         2016,
-        1360
+        2192
       ]
     },
     {
@@ -1533,7 +1556,7 @@
       "typeVersion": 2,
       "position": [
         2240,
-        1360
+        2192
       ]
     },
     {
@@ -1554,7 +1577,7 @@
       "typeVersion": 1.5,
       "position": [
         2464,
-        1584
+        2416
       ]
     },
     {
@@ -1567,7 +1590,7 @@
       "typeVersion": 1.3,
       "position": [
         2608,
-        1584
+        2416
       ]
     },
     {
@@ -1583,7 +1606,7 @@
       "typeVersion": 1.9,
       "position": [
         2464,
-        1360
+        2192
       ]
     },
     {
@@ -1595,8 +1618,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2960,
-        1360
+        2928,
+        2192
       ]
     },
     {
@@ -1615,8 +1638,8 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        3648,
-        1552
+        3616,
+        2384
       ],
       "webhookId": "0bdcd283-ce5c-4b4a-8b5b-2a84fe5a1671",
       "onError": "continueRegularOutput"
@@ -1732,8 +1755,8 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
-        3200,
-        1552
+        3168,
+        2384
       ]
     },
     {
@@ -1753,7 +1776,7 @@
       "typeVersion": 1.3,
       "position": [
         448,
-        1744
+        2576
       ]
     },
     {
@@ -1780,7 +1803,7 @@
       "typeVersion": 1.1,
       "position": [
         672,
-        1744
+        2576
       ]
     },
     {
@@ -1795,7 +1818,7 @@
       "typeVersion": 1,
       "position": [
         896,
-        1744
+        2576
       ]
     },
     {
@@ -1816,7 +1839,7 @@
       "typeVersion": 1.5,
       "position": [
         1120,
-        1936
+        2768
       ]
     },
     {
@@ -1831,7 +1854,7 @@
       "typeVersion": 1.9,
       "position": [
         1120,
-        1744
+        2576
       ]
     },
     {
@@ -1851,7 +1874,7 @@
       "typeVersion": 1.2,
       "position": [
         1472,
-        1744
+        2576
       ],
       "webhookId": "aad6a2a4-2572-4e20-8c18-8a23b8bb61de"
     },
@@ -1870,7 +1893,7 @@
       "typeVersion": 1.2,
       "position": [
         1696,
-        1744
+        2576
       ],
       "webhookId": "3d53cb5d-4091-42dc-9bb5-4194728a7101"
     },
@@ -1916,7 +1939,7 @@
       "typeVersion": 1.1,
       "position": [
         1920,
-        1744
+        2576
       ]
     },
     {
@@ -1938,7 +1961,7 @@
       "typeVersion": 1.1,
       "position": [
         2144,
-        1744
+        2576
       ]
     },
     {
@@ -1951,7 +1974,7 @@
       "typeVersion": 2,
       "position": [
         2368,
-        1744
+        2576
       ]
     },
     {
@@ -1966,7 +1989,7 @@
       "typeVersion": 1.2,
       "position": [
         2592,
-        1744
+        2576
       ],
       "webhookId": "799ace8d-56bf-42d2-88ba-a788281f0466",
       "onError": "continueRegularOutput"
@@ -1994,7 +2017,7 @@
       "typeVersion": 1.1,
       "position": [
         2816,
-        1744
+        2576
       ]
     },
     {
@@ -2007,7 +2030,7 @@
       "typeVersion": 2,
       "position": [
         1568,
-        1360
+        2192
       ]
     },
     {
@@ -2101,7 +2124,7 @@
       "typeVersion": 1,
       "position": [
         80,
-        1312
+        2160
       ],
       "id": "81c2bdc2-c2ee-495d-a02a-c1d27aad2fea",
       "name": "Sticky Note5"
@@ -2117,7 +2140,7 @@
       "typeVersion": 1,
       "position": [
         80,
-        1696
+        2544
       ],
       "id": "743c9315-8bbd-4b35-b854-5ad2c6b4ca29",
       "name": "Sticky Note6"
@@ -2138,7 +2161,7 @@
       "typeVersion": 1.1,
       "position": [
         672,
-        1360
+        2192
       ],
       "alwaysOutputData": true
     },
@@ -2154,7 +2177,7 @@
       "typeVersion": 1,
       "position": [
         896,
-        1360
+        2192
       ]
     },
     {
@@ -2174,7 +2197,7 @@
       "typeVersion": 1.3,
       "position": [
         448,
-        2144
+        2976
       ]
     },
     {
@@ -2187,7 +2210,7 @@
       "typeVersion": 2,
       "position": [
         672,
-        2144
+        2976
       ]
     },
     {
@@ -2213,7 +2236,7 @@
       "typeVersion": 1.1,
       "position": [
         896,
-        2144
+        2976
       ]
     },
     {
@@ -2226,7 +2249,7 @@
       "typeVersion": 2,
       "position": [
         1120,
-        2144
+        2976
       ]
     },
     {
@@ -2239,7 +2262,7 @@
       "typeVersion": 2,
       "position": [
         1328,
-        2144
+        2976
       ]
     },
     {
@@ -2260,7 +2283,7 @@
       "typeVersion": 1.5,
       "position": [
         1568,
-        2336
+        3168
       ]
     },
     {
@@ -2273,7 +2296,7 @@
       "typeVersion": 1.3,
       "position": [
         1712,
-        2336
+        3168
       ]
     },
     {
@@ -2289,7 +2312,7 @@
       "typeVersion": 1.9,
       "position": [
         1568,
-        2144
+        2976
       ]
     },
     {
@@ -2302,7 +2325,7 @@
       "typeVersion": 2,
       "position": [
         1920,
-        2144
+        2976
       ]
     },
     {
@@ -2377,7 +2400,7 @@
       "typeVersion": 1.1,
       "position": [
         2160,
-        2064
+        2896
       ]
     },
     {
@@ -2410,7 +2433,7 @@
       "typeVersion": 2.3,
       "position": [
         2160,
-        2240
+        3072
       ]
     },
     {
@@ -2430,7 +2453,7 @@
       "typeVersion": 1.2,
       "position": [
         2384,
-        2240
+        3072
       ],
       "webhookId": "c3566a9c-84f2-423c-bf42-1d52a924fef2",
       "onError": "continueRegularOutput"
@@ -2446,7 +2469,7 @@
       "typeVersion": 1,
       "position": [
         80,
-        2112
+        2944
       ],
       "id": "a96efe0e-a103-4b4e-80ab-2417ff36ec38",
       "name": "Sticky Note7"
@@ -2460,8 +2483,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3200,
-        1360
+        3168,
+        2192
       ]
     },
     {
@@ -2493,8 +2516,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        3424,
-        1360
+        3392,
+        2192
       ]
     },
     {
@@ -2513,8 +2536,8 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        3696,
-        1344
+        3664,
+        2176
       ],
       "webhookId": "09ef0da6-6b18-4a8a-b353-01bc0f398721",
       "onError": "continueRegularOutput"
@@ -2619,6 +2642,977 @@
         2480,
         112
       ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice?.file_id || $json.message.video_note?.file_id }}",
+        "additionalFields": {}
+      },
+      "id": "nt-1",
+      "name": "NT Get Voice File",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        1264
+      ],
+      "webhookId": "63a0c78f-55da-474e-8d88-bb958d861d33"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/audio/transcriptions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "model",
+              "value": "voxtral-mini-2602"
+            },
+            {
+              "name": "timestamp_granularities",
+              "value": "segment"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "nt-2",
+      "name": "NT Transcribe Voxtral",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        672,
+        1264
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "bpwNfJwc15sqXgeU"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session",
+              "keyValue": "={{ $(\"TG Adapter\").item.json.message.chat.id }}:{{ $(\"TG Adapter\").item.json.message.message_thread_id }}"
+            }
+          ]
+        },
+        "returnAll": true,
+        "orderBy": true,
+        "orderByDirection": "ASC"
+      },
+      "id": "nt-3",
+      "name": "NT Get Draft",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1792,
+        1264
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1",
+              "name": "session",
+              "type": "string",
+              "value": "={{ $(\"TG Adapter\").item.json.message.chat.id }}:{{ $(\"TG Adapter\").item.json.message.message_thread_id }}"
+            },
+            {
+              "id": "b2",
+              "name": "chat_id",
+              "type": "string",
+              "value": "={{ $(\"TG Adapter\").item.json.message.chat.id }}"
+            },
+            {
+              "id": "b3",
+              "name": "thread_id",
+              "type": "number",
+              "value": "={{ $(\"TG Adapter\").item.json.message.message_thread_id }}"
+            },
+            {
+              "id": "b4",
+              "name": "count",
+              "type": "number",
+              "value": "={{ $(\"NT Get Draft\").all().length }}"
+            },
+            {
+              "id": "b5",
+              "name": "old_card_id",
+              "type": "string",
+              "value": "={{ $(\"NT Get Card\").item.json.msg_id || 0 }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "nt-4",
+      "name": "NT Build Draft State",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2240,
+        1264
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "deleteMessage",
+        "chatId": "={{ $json.chat_id }}",
+        "messageId": "={{ $json.old_card_id }}"
+      },
+      "id": "nt-5",
+      "name": "NT Delete Old Draft Msg",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2464,
+        1264
+      ],
+      "webhookId": "7413a0ba-ff6a-4272-9240-6e19477cdff7",
+      "onError": "continueRegularOutput",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $(\"NT Build Draft State\").item.json.chat_id }}",
+        "text": "=📝 Черновик заметки · {{ $(\"NT Build Draft State\").item.json.count }} голосовых\nНажми «✅ Сохранить заметку», когда всё запишешь.",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Сохранить",
+                    "additionalFields": {
+                      "callback_data": "save_n"
+                    }
+                  },
+                  {
+                    "text": "🗑 Отменить",
+                    "additionalFields": {
+                      "callback_data": "cancel_n"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "ℹ️ Как это работает",
+                    "additionalFields": {
+                      "url": "https://telegra.ph/Zametki-iz-golosovyh--kak-polzovatsya-06-23"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false,
+          "message_thread_id": "={{ $(\"NT Build Draft State\").item.json.thread_id }}"
+        }
+      },
+      "id": "nt-6",
+      "name": "NT Send Draft",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2688,
+        1264
+      ],
+      "webhookId": "6fbe5bdf-24a7-4339-bee0-0a75cd41e985",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "vZ74meVqtdYSt1j0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session",
+              "keyValue": "={{ $(\"NT Build Draft State\").item.json.session }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "nt-7",
+      "name": "NT Clear Old Row",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2912,
+        1264
+      ],
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "bpwNfJwc15sqXgeU"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "session": "={{ $(\"TG Adapter\").item.json.message.chat.id }}:{{ $(\"TG Adapter\").item.json.message.message_thread_id }}",
+            "transcript": "={{ $(\"NT Transcribe Voxtral\").item.json.text }}",
+            "chat_id": "={{ $(\"TG Adapter\").item.json.message.chat.id }}",
+            "thread_id": "={{ $(\"TG Adapter\").item.json.message.message_thread_id }}",
+            "voice_msg_id": "={{ $(\"TG Adapter\").item.json.message.message_id }}",
+            "segments": "={{ JSON.stringify($(\"NT Transcribe Voxtral\").item.json.segments || []) }}",
+            "duration": "={{ $json.message.voice?.duration || $json.message.video_note?.duration }}"
+          },
+          "schema": [
+            {
+              "id": "session",
+              "displayName": "session",
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "display": true,
+              "required": false,
+              "defaultMatch": false
+            },
+            {
+              "id": "transcript",
+              "displayName": "transcript",
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "display": true,
+              "required": false,
+              "defaultMatch": false
+            },
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "display": true,
+              "required": false,
+              "defaultMatch": false
+            },
+            {
+              "id": "thread_id",
+              "displayName": "thread_id",
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "display": true,
+              "required": false,
+              "defaultMatch": false
+            },
+            {
+              "id": "voice_msg_id",
+              "displayName": "voice_msg_id",
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "display": true,
+              "required": false,
+              "defaultMatch": false
+            },
+            {
+              "id": "segments",
+              "displayName": "segments",
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "display": true,
+              "required": false,
+              "defaultMatch": false
+            },
+            {
+              "id": "duration",
+              "displayName": "duration",
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "display": true,
+              "required": false,
+              "defaultMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "nt-8",
+      "name": "NT Insert Draft Row",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        1264
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $json.callback_query.id }}",
+        "additionalFields": {
+          "text": "⏳ Делаю заметку…"
+        }
+      },
+      "id": "nt-9",
+      "name": "NT Answer Callback",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        1568
+      ],
+      "webhookId": "4ee66e65-a570-4c57-acfb-eed64ec262f4",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "bpwNfJwc15sqXgeU"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session",
+              "keyValue": "={{ $(\"TG Adapter\").item.json.callback_query.message.chat.id }}:{{ $(\"TG Adapter\").item.json.callback_query.message.message_thread_id }}"
+            }
+          ]
+        },
+        "returnAll": true,
+        "orderBy": true,
+        "orderByColumn": "voice_msg_id",
+        "orderByDirection": "ASC"
+      },
+      "id": "nt-10",
+      "name": "NT Get Draft For Save",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        1568
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "editMessageText",
+        "chatId": "={{ $(\"TG Adapter\").item.json.callback_query.message.chat.id }}",
+        "messageId": "={{ $(\"TG Adapter\").item.json.callback_query.message.message_id }}",
+        "text": "=✅ Note saved to Google Docs — {{ $(\"NT Build Doc Requests\").item.json.documentTitle.split(\" CEST\")[0].split(\" \").slice(0, -1).join(\" \") }}\nhttps://docs.google.com/document/d/{{ $(\"NT Create Doc\").item.json.documentId }}/edit",
+        "additionalFields": {}
+      },
+      "id": "nt-11",
+      "name": "NT Edit To Saved",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2688,
+        1568
+      ],
+      "webhookId": "7f98525c-7aea-42c7-afc3-0cc85d65bcfd"
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "bpwNfJwc15sqXgeU"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session",
+              "keyValue": "={{ $(\"TG Adapter\").item.json.callback_query.message.chat.id }}:{{ $(\"TG Adapter\").item.json.callback_query.message.message_thread_id }}"
+            },
+            {
+              "condition": "lte",
+              "keyValue": "={{ $(\"NT Get Draft For Save\").all().map(i => Number(i.json.id)).reduce((a, b) => b > a ? b : a, 0) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "nt-12",
+      "name": "NT Clear Draft Row",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2912,
+        1568
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "editMessageText",
+        "chatId": "={{ $(\"TG Adapter\").item.json.callback_query.message.chat.id }}",
+        "messageId": "={{ $(\"TG Adapter\").item.json.callback_query.message.message_id }}",
+        "text": "⏳ Делаю заметку…",
+        "additionalFields": {}
+      },
+      "id": "nt-13",
+      "name": "NT Edit To Processing",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        1568
+      ],
+      "webhookId": "d3944b1e-ad2f-4343-9661-004f3646dfeb",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "p1",
+              "name": "system_prompt",
+              "type": "string",
+              "value": "You are a meeting-notes assistant for Tryll Engine. You receive an auto-transcript of a voice message / call / meeting (may contain ASR errors — recover meaning from context, never invent facts).\n\nWrite notes in ENGLISH ALWAYS, even if the recording was in another language (translate). Match the style of Google \"Notes by Gemini\": concise, neutral, third-person, well-organized — but keep concrete details (names, numbers, products, decisions, arguments, commitments).\n\nReturn ONLY valid JSON (no markdown, no commentary, no ``` fences), exactly this shape:\n{\n  \"title\": \"short title, 3-6 words (for the file name)\",\n  \"summary_intro\": \"1-2 sentence overview\",\n  \"summary_sections\": [{\"heading\": \"Theme (3-6 words)\", \"text\": \"1-3 sentences\"}],\n  \"decisions_aligned\": [{\"title\": \"...\", \"desc\": \"what was agreed\"}],\n  \"decisions_open\":    [{\"title\": \"...\", \"desc\": \"what's undecided / needs discussion\"}],\n  \"next_steps\": [{\"owner\": \"Person or Team\", \"title\": \"1-3 words\", \"task\": \"the task\"}],\n  \"details\": [{\"topic\": \"...\", \"text\": \"2-5 sentence paragraph: what was discussed, who said/proposed what\"}],\n  \"quotes\": [{\"quote\": \"verbatim memorable line\", \"author\": \"Person or empty\"}]\n}\n\nRules:\n- 2-4 summary_sections.\n- Split decisions into aligned (agreed) vs open (undecided / needs discussion); either array may be empty [].\n- next_steps with a real owner; if unclear from context, owner: \"Team\".\n- details = one bullet per discussion topic, in order; this is the most detailed block — don't lose substance.\n- If it's a short solo voice note (one speaker, no decisions/tasks), return decisions_* and next_steps as [], and put the substance in summary + details.\n- quotes = only genuinely strong / memorable / quotable lines, VERBATIM (keep the original wording and language as actually spoken — do NOT translate quotes); author = who said it, or \"\" if unclear. [] if there are no standout lines — don't pad with filler.\n- Always fill summary_intro and summary_sections.\n- Keep names, brands, product/tool names, and technical terms as-is (e.g. GitHub, Unreal, RAG). Numbers/amounts/dates/versions verbatim.\n- No fields other than those listed. JSON only.\n\nCONTEXT (background about the company and team — use ONLY to resolve who/what and fill in roles/background; NEVER output this section verbatim, and never flag a listed person as \"unknown\" or \"no context\"):\n\nCompany — Tryll Engine Inc.: on-device AI middleware for game developers. Runs LLMs directly on the player's own hardware (CPU/GPU) instead of the cloud — removing cloud costs, token fees, and third-party live dependencies, and keeping player data local. Engine-agnostic, with Unreal Engine and Unity plugins; branded \"Tryll Engine\" for developers and \"Tryll Assistant\" for end users. A ~10-month-old US (Delaware) startup with a Belgian subsidiary; Epic MegaGrant recipient; currently in closed beta with several studios. Business model: revenue share (~0.5% of game revenue).\n\nKey people:\n- Sasha (Aleksandr) Glotov — CEO, co-founder. Esports-data background, serial entrepreneur, founded a B2B machine-vision startup. Based in Germany.\n- Alex Riabov — CBDO, co-founder. Founded a game-dev outsourcing studio (~110 people, China); well-connected East & West. Met Sasha at a Dota tournament in Kuala Lumpur.\n- Vladimir Beliaev — CTO. 25+ years in real-time graphics, game engines, complex systems; scaled a production C++ game engine from 3 to 85 engineers. Based in Malaysia.\n- Maksim Makevich — Head of Applied AI, co-founder. Builds AI content-generation pipelines at scale (TikTok/YouTube, 100k+ subs). Based in Italy.\n- Gennadii Potapov — Games Tech Lead. Cross-platform game development, co-dev studio founder. Based in Malaysia.\n- Andrei Morozov — Engineering Lead. Game and enterprise engineering, co-dev studio founder. Based in Malaysia.\n- Lidia Kozlova — Creative Strategy Lead. Creative strategy and design, game-art studio founder.\n- Nikolay Andreev — Marketing / PR (press releases, LinkedIn, Gamescom networking, customer development).\n- Bohdan Kuzmenko — Business development / publishing.\n- Alexander — AI Strategic Advisor. VP at Microsoft NEXT AI R&D; ex-CTO of AI and ML at Oracle, Cisco, eBay; AI investor.\n- Pierre Moisan — Gamedev Strategic Advisor. Ex-VP at Megatoon and Frima Studio, founder of Artmedia Studio. Based in Canada.\n- Samuel Mungy, Miloš Petković — engineering contributors (via General Arcade) on the Unity and Unreal integrations.\n\nIf a mentioned person or term isn't in this list, describe them by what the transcript says; don't flag them as \"unknown\"."
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "nt-14",
+      "name": "NT Note Prompt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1344,
+        1568
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"model\": \"claude-sonnet-4-6\", \"max_tokens\": 8192, \"system\": {{ JSON.stringify($json.system_prompt) }}, \"messages\": [ {\"role\": \"user\", \"content\": {{ JSON.stringify($json.user_content) }} } ] }",
+        "options": {}
+      },
+      "id": "nt-15",
+      "name": "NT claude-sonnet-4-6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1568,
+        1568
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "vZ74meVqtdYSt1j0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session",
+              "keyValue": "={{ $(\"TG Adapter\").item.json.message.chat.id }}:{{ $(\"TG Adapter\").item.json.message.message_thread_id }}"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "id": "nt-16",
+      "name": "NT Get Card",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2016,
+        1264
+      ],
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "vZ74meVqtdYSt1j0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "session": "={{ $(\"NT Build Draft State\").item.json.session }}",
+            "msg_id": "={{ $(\"NT Send Draft\").item.json.result.message_id }}"
+          },
+          "schema": [
+            {
+              "id": "session",
+              "displayName": "session",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "msg_id",
+              "displayName": "msg_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "nt-17",
+      "name": "NT Insert Card",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3136,
+        1264
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "vZ74meVqtdYSt1j0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session",
+              "keyValue": "={{ $(\"TG Adapter\").item.json.callback_query.message.chat.id }}:{{ $(\"TG Adapter\").item.json.callback_query.message.message_thread_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "nt-18",
+      "name": "NT Clear Card Save",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3136,
+        1568
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "id": "nt-19",
+      "name": "NT Wait Debounce",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        1264
+      ],
+      "webhookId": "b21d41c5-72c6-495e-88ba-3697eb786537"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "bpwNfJwc15sqXgeU"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session",
+              "keyValue": "={{ $(\"TG Adapter\").item.json.message.chat.id }}:{{ $(\"TG Adapter\").item.json.message.message_thread_id }}"
+            }
+          ]
+        },
+        "limit": 1,
+        "orderBy": true
+      },
+      "id": "nt-20",
+      "name": "NT Get Latest",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1344,
+        1264
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $(\"NT Get Latest\").item.json.id }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              },
+              "rightValue": "={{ $(\"NT Insert Draft Row\").item.json.id }}"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "nt-21",
+      "name": "NT Is Latest",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1568,
+        1264
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lines = $input.all().map(i => i.json);\nconst parts = [];\nfor (const ln of lines) { if (ln.transcript) parts.push(ln.transcript); }\nreturn [{ json: { user_content: parts.join(\"\\n\\n\") } }];"
+      },
+      "id": "nt-22",
+      "name": "NT Build Content",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        1568
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $json.callback_query.id }}",
+        "additionalFields": {
+          "text": "🗑 Отменяю…"
+        }
+      },
+      "id": "nt-23",
+      "name": "NT Answer Cancel",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        1872
+      ],
+      "webhookId": "468c6b49-0197-412b-baa3-a67572215b4a",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "editMessageText",
+        "chatId": "={{ $(\"TG Adapter\").item.json.callback_query.message.chat.id }}",
+        "messageId": "={{ $(\"TG Adapter\").item.json.callback_query.message.message_id }}",
+        "text": "❌ Черновик отменён. Голосовые сброшены — начни заново.",
+        "additionalFields": {}
+      },
+      "id": "nt-24",
+      "name": "NT Edit To Cancelled",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        688,
+        1872
+      ],
+      "webhookId": "128959be-eeed-4347-b6c5-ed645ae2514d",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "bpwNfJwc15sqXgeU"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session",
+              "keyValue": "={{ $(\"TG Adapter\").item.json.callback_query.message.chat.id }}:{{ $(\"TG Adapter\").item.json.callback_query.message.message_thread_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "nt-25",
+      "name": "NT Cancel Clear Lines",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        928,
+        1872
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "vZ74meVqtdYSt1j0"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session",
+              "keyValue": "={{ $(\"TG Adapter\").item.json.callback_query.message.chat.id }}:{{ $(\"TG Adapter\").item.json.callback_query.message.message_thread_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "nt-26",
+      "name": "NT Cancel Clear Card",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1184,
+        1872
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Claude JSON note -> Google Docs batchUpdate requests (Gemini-style layout)\nconst raw = (($(\"NT claude-sonnet-4-6\").item.json.content || [{}])[0].text || \"\").trim();\nlet j;\ntry {\n  const a = raw.indexOf(\"{\"), b = raw.lastIndexOf(\"}\");\n  j = JSON.parse(raw.slice(a, b + 1));\n} catch (err) {\n  j = { title: \"Заметка\", summary_intro: raw, summary_sections: [], decisions_aligned: [], decisions_open: [], next_steps: [], details: [] };\n}\n\nconst z = $now.setZone(\"Europe/Berlin\");\nconst dateStr = z.toFormat(\"dd.LL.yyyy\");\nconst titleText = (j.title || \"Заметка\").toString().trim() || \"Заметка\";\n\nconst C_HEAD = { red: 0.122, green: 0.122, blue: 0.122 };\nconst C_BODY = { red: 0.188, green: 0.188, blue: 0.188 };\nconst C_CHIP = { red: 0.824, green: 0.890, blue: 0.988 };\n\nlet text = \"\";\nconst paras = [];\nconst bullets = [];\nconst runs = [];\n\nfunction heading(str, named, size) {\n  const s = text.length; text += str + \"\\n\"; const e = text.length;\n  paras.push({ start: s, end: e, named: named });\n  runs.push({ start: s, end: e - 1, bold: true, size: size, fg: C_HEAD });\n}\nfunction bodyPara(str) {\n  const s = text.length; text += str + \"\\n\"; const e = text.length;\n  runs.push({ start: s, end: e - 1, size: 11, fg: C_BODY });\n}\nfunction leadPara(lead, rest, preset) {\n  const s = text.length; text += lead; const le = text.length;\n  text += rest + \"\\n\"; const e = text.length;\n  runs.push({ start: s, end: le, bold: true, size: 11, fg: C_BODY });\n  if (rest) runs.push({ start: le, end: e - 1, size: 11, fg: C_BODY });\n  if (preset) bullets.push({ start: s, end: e, preset: preset });\n}\n\n// TITLE\n{\n  const s = text.length; text += \"🎙 \" + titleText + \"\\n\"; const e = text.length;\n  paras.push({ start: s, end: e, named: \"HEADING_2\" });\n  runs.push({ start: s, end: e - 1, bold: true, size: 26, fg: C_HEAD });\n}\n// DATE chip\n{\n  const s = text.length; text += dateStr; const e = text.length; text += \"\\n\";\n  runs.push({ start: s, end: e, size: 11, fg: C_HEAD, bg: C_CHIP });\n}\ntext += \"\\n\";\n\n// SUMMARY\nheading(\"Summary\", \"HEADING_3\", 20);\nif (j.summary_intro) bodyPara(j.summary_intro.toString().trim());\n(j.summary_sections || []).filter(Boolean).forEach(function (sec) {\n  leadPara((sec.heading || \"\").toString().trim() + \"  \", (sec.text || \"\").toString().trim(), null);\n});\n\n// DECISIONS\nconst da = (j.decisions_aligned || []).filter(Boolean);\nconst dop = (j.decisions_open || []).filter(Boolean);\nif (da.length || dop.length) {\n  heading(\"Decisions\", \"HEADING_3\", 20);\n  if (dop.length) {\n    heading(\"Needs Further Discussion\", \"SUBTITLE\", 14);\n    dop.forEach(function (d) { leadPara((d.title || \"\").toString().trim() + \"  \", (d.desc || \"\").toString().trim(), \"BULLET_DISC_CIRCLE_SQUARE\"); });\n  }\n  if (da.length) {\n    heading(\"Aligned\", \"SUBTITLE\", 14);\n    da.forEach(function (d) { leadPara((d.title || \"\").toString().trim() + \"  \", (d.desc || \"\").toString().trim(), \"BULLET_DISC_CIRCLE_SQUARE\"); });\n  }\n}\n\n// NEXT STEPS\nconst ns = (j.next_steps || []).filter(Boolean);\nif (ns.length) {\n  heading(\"Next steps\", \"HEADING_3\", 20);\n  ns.forEach(function (n) {\n    const owner = (n.owner || \"\").toString().trim();\n    const ttl = (n.title || \"\").toString().trim();\n    const task = (n.task || \"\").toString().trim();\n    const lead = (owner ? (\"[\" + owner + \"] \") : \"\") + ttl + (task ? \": \" : \"\");\n    leadPara(lead, task, \"BULLET_CHECKBOX\");\n  });\n}\n\n// DETAILS\nconst det = (j.details || []).filter(Boolean);\nif (det.length) {\n  heading(\"Details\", \"HEADING_3\", 20);\n  det.forEach(function (d) { leadPara((d.topic || \"\").toString().trim() + \": \", (d.text || \"\").toString().trim(), \"BULLET_DISC_CIRCLE_SQUARE\"); });\n}\n\n// QUOTES (always last)\nconst qs = (j.quotes || []).filter(Boolean);\nif (qs.length) {\n  heading(\"Quotes\", \"HEADING_3\", 20);\n  qs.forEach(function (q) {\n    const quote = (q.quote || \"\").toString().trim();\n    if (!quote) return;\n    const author = (q.author || \"\").toString().trim();\n    const s = text.length;\n    text += \"«\" + quote + \"»\";\n    const qe = text.length;\n    if (author) text += \" — \" + author;\n    text += \"\\n\";\n    const e = text.length;\n    runs.push({ start: s, end: qe, italic: true, size: 11, fg: C_BODY });\n    if (author) runs.push({ start: qe, end: e - 1, size: 11, fg: C_BODY });\n    bullets.push({ start: s, end: e, preset: \"BULLET_DISC_CIRCLE_SQUARE\" });\n  });\n}\n\n\n// FULL TRANSCRIPTION (Notes) - verbatim, numbered, always last\nvar _ntTr = $(\"NT Get Draft For Save\").all().map(function(i){ return (i.json.transcript||\"\").toString().trim(); }).filter(Boolean);\nif (_ntTr.length) {\n  heading(\"🎙 Full transcript\", \"HEADING_3\", 20);\n  _ntTr.forEach(function(t, i){ bodyPara((i+1) + \". \" + t); });\n}\n\n// Build requests (Docs index = textOffset + 1; insertText first, then bullets, paragraph styles, global font, per-run)\nconst reqs = [];\nreqs.push({ insertText: { location: { index: 1 }, text: text } });\nbullets.forEach(function (b) {\n  reqs.push({ createParagraphBullets: { range: { startIndex: b.start + 1, endIndex: b.end + 1 }, bulletPreset: b.preset } });\n});\nparas.forEach(function (p) {\n  reqs.push({ updateParagraphStyle: { range: { startIndex: p.start + 1, endIndex: p.end + 1 }, paragraphStyle: { namedStyleType: p.named }, fields: \"namedStyleType\" } });\n});\nreqs.push({ updateTextStyle: { range: { startIndex: 1, endIndex: text.length + 1 }, textStyle: { weightedFontFamily: { fontFamily: \"Google Sans Flex Normal\" } }, fields: \"weightedFontFamily\" } });\nruns.forEach(function (r) {\n  if (r.end <= r.start) return;\n  const ts = {}; let fields = \"\";\n  function addf(name) { fields += (fields ? \",\" : \"\") + name; }\n  if (r.bold) { ts.bold = true; addf(\"bold\"); }\n  if (r.italic) { ts.italic = true; addf(\"italic\"); }\n  if (r.size) { ts.fontSize = { magnitude: r.size, unit: \"PT\" }; addf(\"fontSize\"); }\n  if (r.fg) { ts.foregroundColor = { color: { rgbColor: r.fg } }; addf(\"foregroundColor\"); }\n  if (r.bg) { ts.backgroundColor = { color: { rgbColor: r.bg } }; addf(\"backgroundColor\"); }\n  if (!fields) return;\n  reqs.push({ updateTextStyle: { range: { startIndex: r.start + 1, endIndex: r.end + 1 }, textStyle: ts, fields: fields } });\n});\n\nconst docTitle = titleText + \" — \" + z.toFormat(\"yyyy/LL/dd HH:mm\") + \" CEST — Notes by Tryll\";\nreturn [{ json: { documentTitle: docTitle, requests: reqs } }];"
+      },
+      "id": "nt-27",
+      "name": "NT Build Doc Requests",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        1568
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://docs.googleapis.com/v1/documents",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"title\": {{ JSON.stringify($json.documentTitle) }} }",
+        "options": {}
+      },
+      "id": "nt-28",
+      "name": "NT Create Doc",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2016,
+        1568
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://www.googleapis.com/drive/v3/files/{{ $(\"NT Create Doc\").item.json.documentId }}?addParents=1ycKRrCDsU9cIBXCoM_ijWxg1lcobEaPF&removeParents=root&supportsAllDrives=true",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "options": {}
+      },
+      "id": "nt-29",
+      "name": "NT Move To Folder",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2240,
+        1568
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://docs.googleapis.com/v1/documents/{{ $(\"NT Create Doc\").item.json.documentId }}:batchUpdate",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"requests\": {{ JSON.stringify($(\"NT Build Doc Requests\").item.json.requests) }} }",
+        "options": {}
+      },
+      "id": "nt-30",
+      "name": "NT Style Doc",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2464,
+        1568
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Ряд 1 - Voice→Notes: приём голосовых\nЛовит голосовые/кружки в топике Notes, транскрибирует (Voxtral), копит в черновик и перерисовывает карточку-черновик с кнопками",
+        "height": 192,
+        "width": 304,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        80,
+        1248
+      ],
+      "id": "8341456b-b69c-45ff-a6d1-7a8bb159b6de",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "Ряд 2 - Voice→Notes: сохранение заметки\nПо кнопке «✅ Сохранить»: собирает заметку из всех голосовых через Claude, конвертит в HTML, заливает Google Doc на Drive",
+        "height": 192,
+        "width": 304,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        80,
+        1536
+      ],
+      "id": "a36f9529-9618-4e6b-baba-8e0550224125",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "Ряд 3 - Voice→Notes: отмена\nПо кнопке «Отмена»: чистит буфер черновика и удаляет карточку.",
+        "height": 192,
+        "width": 304,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        80,
+        1840
+      ],
+      "id": "069e423a-7bbd-41df-8e7e-72dd9bb1ef84",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 800,
+        "width": 3280,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        64,
+        -224
+      ],
+      "id": "8adc2c9d-aef4-4c66-9d5f-7a36d2ad9328",
+      "name": "Sticky Note11"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 608,
+        "width": 3280,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        64,
+        592
+      ],
+      "id": "1cbde92a-d358-4fe0-a18e-761b55b821c2",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 832,
+        "width": 3280,
+        "color": "#0659B2"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        64,
+        1232
+      ],
+      "id": "494b7ea4-6011-4e1a-9302-5ff473a5f58c",
+      "name": "Sticky Note13"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 1216,
+        "width": 3792,
+        "color": "#4D0505"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        64,
+        2096
+      ],
+      "id": "e69801ce-4f2c-412a-bad3-c6e37e7574ca",
+      "name": "Sticky Note14"
     }
   ],
   "connections": {
@@ -2655,6 +3649,27 @@
         [
           {
             "node": "RR Answer CB",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "NT Get Voice File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "NT Answer Callback",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "NT Answer Cancel",
             "type": "main",
             "index": 0
           }
@@ -3553,11 +4568,312 @@
           }
         ]
       ]
+    },
+    "NT Get Voice File": {
+      "main": [
+        [
+          {
+            "node": "NT Transcribe Voxtral",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Transcribe Voxtral": {
+      "main": [
+        [
+          {
+            "node": "NT Insert Draft Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Insert Draft Row": {
+      "main": [
+        [
+          {
+            "node": "NT Wait Debounce",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Wait Debounce": {
+      "main": [
+        [
+          {
+            "node": "NT Get Latest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Get Latest": {
+      "main": [
+        [
+          {
+            "node": "NT Is Latest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Is Latest": {
+      "main": [
+        [
+          {
+            "node": "NT Get Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Get Draft": {
+      "main": [
+        [
+          {
+            "node": "NT Get Card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Get Card": {
+      "main": [
+        [
+          {
+            "node": "NT Build Draft State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Build Draft State": {
+      "main": [
+        [
+          {
+            "node": "NT Delete Old Draft Msg",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Delete Old Draft Msg": {
+      "main": [
+        [
+          {
+            "node": "NT Send Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Send Draft": {
+      "main": [
+        [
+          {
+            "node": "NT Clear Old Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Clear Old Row": {
+      "main": [
+        [
+          {
+            "node": "NT Insert Card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Answer Callback": {
+      "main": [
+        [
+          {
+            "node": "NT Edit To Processing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Edit To Processing": {
+      "main": [
+        [
+          {
+            "node": "NT Get Draft For Save",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Get Draft For Save": {
+      "main": [
+        [
+          {
+            "node": "NT Build Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Build Content": {
+      "main": [
+        [
+          {
+            "node": "NT Note Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Note Prompt": {
+      "main": [
+        [
+          {
+            "node": "NT claude-sonnet-4-6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT claude-sonnet-4-6": {
+      "main": [
+        [
+          {
+            "node": "NT Build Doc Requests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Build Doc Requests": {
+      "main": [
+        [
+          {
+            "node": "NT Create Doc",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Create Doc": {
+      "main": [
+        [
+          {
+            "node": "NT Move To Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Move To Folder": {
+      "main": [
+        [
+          {
+            "node": "NT Style Doc",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Style Doc": {
+      "main": [
+        [
+          {
+            "node": "NT Edit To Saved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Edit To Saved": {
+      "main": [
+        [
+          {
+            "node": "NT Clear Draft Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Clear Draft Row": {
+      "main": [
+        [
+          {
+            "node": "NT Clear Card Save",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Answer Cancel": {
+      "main": [
+        [
+          {
+            "node": "NT Edit To Cancelled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Edit To Cancelled": {
+      "main": [
+        [
+          {
+            "node": "NT Cancel Clear Lines",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NT Cancel Clear Lines": {
+      "main": [
+        [
+          {
+            "node": "NT Cancel Clear Card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
     "executionOrder": "v1",
     "availableInMCP": true,
     "binaryMode": "separate"
+  },
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
   }
 }
