@@ -5,6 +5,7 @@
 const NOTE_TOPICS = [
   { chat: -1004406148635, thread: 7 },      // TryllAuto · Notes
   { chat: -1002699410666, thread: 14347 },  // Tryll Engine · Events
+  { chat: -1002699410666, thread: 18190 },  // Tryll Engine · Notes (own pipeline, NT nodes)
 ];
 
 function isRelevant(u) {
@@ -22,7 +23,7 @@ function isRelevant(u) {
   const cb = u && u.callback_query;
   if (cb) {
     const d = cb.data || '';
-    if (d === 'save' || d === 'cancel' || d.indexOf('rs:') === 0) return true;
+    if (d === 'save' || d === 'cancel' || d === 'save_n' || d === 'cancel_n' || d.indexOf('rs:') === 0) return true;
   }
   return false;
 }
