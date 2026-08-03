@@ -29,7 +29,6 @@
 | IEEE Spectrum — AI | https://spectrum.ieee.org/topic/artificial-intelligence/feed/ | ✅ |
 | MarkTechPost | https://www.marktechpost.com/feed/ | ✅ |
 | Import AI (Substack) | https://importai.substack.com/feed | ⚠️ 403 с сервера n8n |
-| Habr — AI/ML | https://habr.com/ru/rss/flows/ai_and_ml/articles/ | ✅ |
 | Forbes — Innovation | https://www.forbes.com/innovation/feed2/ | ✅ |
 | Engadget | https://www.engadget.com/rss.xml | ✅ |
 

@@ -20,7 +20,7 @@
 ```
 Schedule 7 & 17 CET (cron 0 0 7 * * * + 0 0 17 * * *)
   → Read Sources (Data Table news_sources, returnAll)
-  → Only Active (active == true)
+  → Only Active (active == true И feed_url НЕ содержит "habr.com" — Habr отключён на уровне фильтра; строка в news_sources осталась, но игнорируется, т.к. MCP не умеет удалять строки Data Table)
   → Fetch & Parse Feeds (Code: HTTP GET с Chrome-UA + парсер RSS/Atom, 25 items/ленту)
   → Fresh & Dated (isoDate есть И >= now-24ч; без даты — выкидываем)
   → Dedup (seen before) (removeDuplicates, key = url, scope workflow — не шлём повторно)

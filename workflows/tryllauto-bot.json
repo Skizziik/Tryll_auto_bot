@@ -1473,12 +1473,22 @@
           },
           "conditions": [
             {
+              "id": "c-active",
               "leftValue": "={{ $json.active }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
                 "operation": "true",
                 "singleValue": true
+              }
+            },
+            {
+              "id": "c-no-habr",
+              "leftValue": "={{ $json.feed_url }}",
+              "rightValue": "habr.com",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
               }
             }
           ],
