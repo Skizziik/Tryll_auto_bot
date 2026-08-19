@@ -2,32 +2,33 @@
 
 **Платформа:** Telegram-группа TryllAuto, топик с `message_thread_id = 918`, chat `-1004406148635`.
 **Где живёт:** n8n Cloud, воркфлоу `WFarxoRPXfxnrqsV` (**TryllAuto Bot**) — отдельная Schedule-цепочка (ниже всех, префикс нод `MW `).
-**Бот:** @Tryllauto_bot. **LLM:** Claude `claude-sonnet-4-6` (cred «Anthropic (Tryll)» `Kd6puzMUt71Ko9fg`), web_search + web_fetch.
+**Бот:** @Tryllauto_bot. **LLM:** Claude `claude-sonnet-4-6` (cred «Anthropic (Tryll)» `Kd6puzMUt71Ko9fg`), только web_search (`max_uses:6`, web_fetch убран — жёг токены/таймаут).
 
 ## Что делает
 
-Раз в **2 дня** (09:00 по таймзоне воркфлоу) Claude ищет в вебе **заметные сторонние упоминания и использования** Tryll Engine / Tryll Assistant (пресса, инвесторы/VC, анонсы игр/студий, что используют Tryll, сторонние store-листинги, форумы, видео), отсеивает уже отправленные и наши собственные каналы, и постит новое в топик. Нет нового → ничего не постит.
+Раз в **2 дня** (09:00 по таймзоне воркфлоу) Claude ищет в вебе **заметные сторонние упоминания и использования** Tryll Engine / Tryll Assistant (пресса, инвесторы/VC, анонсы игр/студий, что используют Tryll, форумы, видео), отсеивает уже отправленные, наши собственные каналы и **агрегаторы цен**, постит новое в топик (карточка на **английском**) и **дописывает строку в Google-таблицу**. Нет нового → ничего не постит.
 
 **Без окна по дате** (это важно): ищем ВСЁ, дедуп-таблица гарантирует, что каждое отправляется один раз. Первые прогоны сливают бэклог по **cap 8/прогон** (`MW Build Message`, сортировка свежие→старые; остальные подхватятся в следующий прогон), потом стабильно — только новое. Первую версию с окном «последние 4 дня» убрали (она возвращала [], т.к. вся коверэдж старше 4 дней).
 
 ```
 MW Schedule 2d (interval days=2, 09:00)
-  → MW Build Request (Code: system-промпт + дата)
-  → MW Claude (httpRequest → api.anthropic.com/v1/messages, sonnet-4-6, web_search_20260209 + web_fetch_20260309)
-  → MW Extract (Code: вытащить JSON-массив из text-блоков, нормализовать url (срез utm/#), выкинуть наши домены/видео, дедуп в батче)
+  → MW Build Request (Code: system-промпт EN + дата, summary IN ENGLISH)
+  → MW Claude (httpRequest → api.anthropic.com/v1/messages, sonnet-4-6, web_search_20260209 max_uses:6; web_fetch убран)
+  → MW Extract (Code: JSON-массив из text-блоков, нормализация url, blocklist наших доменов/видео + агрегаторов цен, дедуп в батче)
   → MW New Only (Data Table mentions_watch_seen: rowNotExists по url)
-  → MW Build Message (Code: HTML-сообщение + found_at/sent_at)
+  → MW Build Message (Code: EN HTML-карточка + поля для таблицы: logged_at/date/summary, cap 8)
       → MW Record Seen (записать в mentions_watch_seen)
       → MW Post (Telegram, thread 918, HTML, без превью)
+      → MW Log Sheet (Google Sheets append → таблица «Tryll — Mentions Watch (log)», лист Mentions)
 ```
 
-Формат сообщения:
+Формат сообщения (English):
 ```
-📣 <b>Упоминание Tryll</b> · <источник> · <дата>
+📣 <b>Tryll mention</b> · <source> · <date>
 
-<RU: кто и что написал про Tryll>
+<EN: who published/did what re Tryll>
 
-🔗 <a href="url">Заголовок</a>
+🔗 <a href="url">Title</a>
 ```
 
 ## Критерий отбора (промпт Claude)
@@ -41,7 +42,13 @@ MW Schedule 2d (interval days=2, 09:00)
 - `discord.gg/bSTtvkdsS6`, `github.com/TryllEngine`, `tryll-engine.slack.com`
 - любой контент, опубликованный самой Tryll / командой / основателями (Glotov, Riabov, Beliaev, Makevich, Potapov, Morozov, Kuzmenko, Andreev, Kozlova).
 
-Двойная защита: (1) промпт-гейт у Claude; (2) жёсткий blocklist доменов/видео-ID в `MW Extract` (расширяемо — правь массивы `OWNED` / `OWNED_VIDS`). Список наших ссылок — из `00_COMPANY HUB — Tryll Engine`.
+Также исключаем **агрегаторы цен / реселлеры ключей** (gg.deals, isthereanydeal, allkeyshop, cheapshark, gamivo, eneba, kinguin, g2a, cdkeys, keyforsteam, dlcompare, steampricehistory, steamdb) и нашу собственную Steam-community страницу `steamcommunity.com/app/4193780`.
+
+Двойная защита: (1) промпт-гейт у Claude; (2) жёсткий blocklist в `MW Extract` — массивы `OWNED` / `OWNED_VIDS` / `PRICE_AGG` (расширяемо). Список наших ссылок — из `00_COMPANY HUB — Tryll Engine`.
+
+## Google-таблица (лог)
+
+Таблица **«Tryll — Mentions Watch (log)»** на company-Google-Drive (id `16EMghyYwevQJUnCQAn8mQcDdkkTf2nPgqY0JZuVhR_E`, лист `Mentions` gid `2051381124`). Колонки: `Logged At · Date · Source · Title · Summary · URL`. Пишет нода `MW Log Sheet` (Google Sheets append, cred **company** `IS8es1x9XC8psdEQ` bohdan@tryllengine.com, mapping defineBelow под шапку). Каждый отправленный в топик пункт = строка. Бэкфилл 17 находок за все прогоны сделан разовым воркфлоу (удалён); их url добавлены в `mentions_watch_seen`, чтобы не задваивать.
 
 ## Дедуп / БД
 
