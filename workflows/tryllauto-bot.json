@@ -3623,6 +3623,219 @@
       ],
       "id": "e69801ce-4f2c-412a-bad3-c6e37e7574ca",
       "name": "Sticky Note14"
+    },
+    {
+      "id": "mw-1",
+      "name": "MW Schedule 2d",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -600,
+        3200
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 2,
+              "triggerAtHour": 9,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "mw-2",
+      "name": "MW Build Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -360,
+        3200
+      ],
+      "parameters": {
+        "jsCode": "const z = $now.setZone('Europe/Berlin');\nconst today = z.toFormat('yyyy-LL-dd');\nconst system = \"You monitor the web for THIRD-PARTY mentions of the startup \\\"Tryll Engine\\\" (a.k.a. \\\"Tryll\\\", consumer product \\\"Tryll Assistant\\\").\\nABOUT TRYLL: on-device AI middleware for games — runs LLMs directly on the player's own GPU instead of the cloud (think \\\"DirectX for on-device AI\\\"). Delaware C-corp + Belgian entity, Epic MegaGrant recipient, currently in closed beta with game studios. Founders/team: Aleksandr (Sasha) Glotov (CEO), Alex Riabov (CBDO), Vladimir Beliaev (CTO), Maksim Makevich, Gennadii Potapov, Andrei Morozov, Bohdan Kuzmenko, Nikolay Andreev, Lidia Kozlova.\\n\\nTASK: find NEW EXTERNAL mentions from roughly the last 4 days — articles, news, blog posts, Reddit/forum threads, videos, podcasts, or social posts published by OTHER people/companies (press, investors, VCs, game studios, developers, communities) that mention Tryll Engine.\\n\\nSTRICT RELEVANCE GATE — include a result ONLY if it is clearly about THIS company (the AI-for-games startup Tryll Engine). The token \\\"Tryll\\\" also appears in unrelated contexts (other companies, games, surnames, random words) — DISCARD anything that is not about our company.\\n\\nEXCLUDE (these are NOT third-party mentions — our own channels / self-published content):\\n- tryllengine.com (site + blog)\\n- linkedin.com/company/tryllengine (our LinkedIn company page)\\n- youtube.com/@Tryll_engine (our YouTube channel and its videos)\\n- discord.gg/bSTtvkdsS6 (our Discord)\\n- github.com/TryllEngine\\n- ANY content authored/published by Tryll itself, its team, or its founders listed above (their own LinkedIn/X/YouTube/blog posts are self-promotion, not third-party mentions).\\n\\nUse web_search broadly (a few angles), then web_fetch selectively to confirm relevance and freshness. Prefer fresh, dated sources.\\n\\nOUTPUT: return ONLY a JSON array (no prose, no markdown code fence). Empty array [] if nothing qualifies. Each item:\\n{\\\"url\\\": \\\"direct link\\\", \\\"title\\\": \\\"headline/title\\\", \\\"source\\\": \\\"domain or outlet name\\\", \\\"date\\\": \\\"YYYY-MM-DD or best estimate\\\", \\\"summary_ru\\\": \\\"1-2 sentences IN RUSSIAN: кто и что написал/сказал про Tryll\\\"}\";\nconst user = 'Найди свежие сторонние упоминания Tryll Engine за последние ~4 дня. Сегодня ' + today + '. Верни ТОЛЬКО JSON-массив находок (или [] если ничего нового и релевантного нет).';\nreturn [{ json: { system_prompt: system, user_prompt: user, today } }];"
+      }
+    },
+    {
+      "id": "mw-3",
+      "name": "MW Claude",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -120,
+        3200
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"model\": \"claude-sonnet-4-6\", \"max_tokens\": 8000, \"system\": {{ JSON.stringify($json.system_prompt) }}, \"messages\": [ {\"role\": \"user\", \"content\": {{ JSON.stringify($json.user_prompt) }} } ], \"tools\": [ {\"type\": \"web_search_20260209\", \"name\": \"web_search\"}, {\"type\": \"web_fetch_20260309\", \"name\": \"web_fetch\"} ] }",
+        "options": {
+          "timeout": 600000
+        }
+      }
+    },
+    {
+      "id": "mw-4",
+      "name": "MW Extract",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        120,
+        3200
+      ],
+      "parameters": {
+        "jsCode": "const resp = $json;\nlet text = '';\nconst content = resp.content || [];\nfor (const b of content) { if (b && b.type === 'text' && b.text) text += b.text + '\\n'; }\nlet arr = [];\ntry { const a = text.indexOf('['), b = text.lastIndexOf(']'); if (a >= 0 && b > a) arr = JSON.parse(text.slice(a, b + 1)); } catch (e) { arr = []; }\nif (!Array.isArray(arr)) arr = [];\nconst OWNED = ['tryllengine.com','linkedin.com/company/tryllengine','youtube.com/@tryll_engine','discord.gg/bsttvkdss6','github.com/tryllengine','tryll-engine.slack.com'];\nconst OWNED_VIDS = ['6h4pwpbxknm','6r85htaeybq','e7nxj-ckubq','hgbkbnxj-6g','hurc4ie-dvg','poefkkj11io','r4eydt7fdpm','ta9seheyl2i','znbzx02l5rq'];\nfunction norm(u){ u=(u||'').toString().trim(); try{ const url=new URL(u); url.hash=''; const p=new URLSearchParams(url.search); ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','fbclid','gclid'].forEach(k=>p.delete(k)); url.search=p.toString(); let s=url.toString(); return s.replace(/\\/$/,''); }catch(e){ return u.replace(/[#?].*$/,'').replace(/\\/$/,''); } }\nfunction isOwned(u){ const low=(u||'').toLowerCase(); if (OWNED.some(o=>low.includes(o))) return true; if (OWNED_VIDS.some(v=>low.includes(v))) return true; return false; }\nconst out=[]; const seen=new Set();\nfor (const it of arr){ if(!it || !it.url) continue; const url=norm(it.url); if(!url || seen.has(url)) continue; if(isOwned(url)) continue; seen.add(url); out.push({ json: { url, title:(it.title||'').toString().trim(), source:(it.source||'').toString().trim(), date:(it.date||'').toString().trim(), summary_ru:(it.summary_ru||it.summary||'').toString().trim() } }); }\nreturn out;"
+      }
+    },
+    {
+      "id": "mw-5",
+      "name": "MW New Only",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        360,
+        3200
+      ],
+      "parameters": {
+        "operation": "rowNotExists",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CoUCdHfltkZe8Vfv"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "url",
+              "keyValue": "={{ $json.url }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "mw-6",
+      "name": "MW Build Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        3200
+      ],
+      "parameters": {
+        "jsCode": "const foundAt = $now.toISO();\nconst esc = s => (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst out=[];\nfor (const it of $input.all()){ const d=it.json; const safeUrl=(d.url||'').toString().replace(/&/g,'&amp;').replace(/\"/g,'%22'); const src=d.source ? (' · '+esc(d.source)) : ''; const dt=d.date ? (' · '+esc(d.date)) : ''; const body=esc(d.summary_ru||d.title||''); const linkText=esc(d.title||'Источник'); const message='📣 <b>Упоминание Tryll</b>'+src+dt+'\\n\\n'+body+'\\n\\n🔗 <a href=\"'+safeUrl+'\">'+linkText+'</a>'; out.push({ json: { url:d.url, title:d.title, source:d.source, found_at:foundAt, sent_at:foundAt, message } }); }\nreturn out;"
+      }
+    },
+    {
+      "id": "mw-7",
+      "name": "MW Record Seen",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        840,
+        3120
+      ],
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "CoUCdHfltkZe8Vfv"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "url": "={{ $json.url }}",
+            "title": "={{ $json.title }}",
+            "source": "={{ $json.source }}",
+            "found_at": "={{ $json.found_at }}",
+            "sent_at": "={{ $json.sent_at }}"
+          },
+          "schema": [
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "found_at",
+              "displayName": "found_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sent_at",
+              "displayName": "sent_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "mw-8",
+      "name": "MW Post",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        840,
+        3280
+      ],
+      "parameters": {
+        "chatId": "-1004406148635",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_web_page_preview": true,
+          "parse_mode": "HTML",
+          "message_thread_id": 918
+        }
+      }
     }
   ],
   "connections": {
@@ -4870,6 +5083,77 @@
         [
           {
             "node": "NT Cancel Clear Card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MW Schedule 2d": {
+      "main": [
+        [
+          {
+            "node": "MW Build Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MW Build Request": {
+      "main": [
+        [
+          {
+            "node": "MW Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MW Claude": {
+      "main": [
+        [
+          {
+            "node": "MW Extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MW Extract": {
+      "main": [
+        [
+          {
+            "node": "MW New Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MW New Only": {
+      "main": [
+        [
+          {
+            "node": "MW Build Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MW Build Message": {
+      "main": [
+        [
+          {
+            "node": "MW Record Seen",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MW Post",
             "type": "main",
             "index": 0
           }
