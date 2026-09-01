@@ -23,10 +23,9 @@ Schedule 7 & 17 CET (cron 0 0 7 * * * + 0 0 17 * * *)
   → Only Active (active == true И feed_url НЕ содержит "habr.com" — Habr отключён на уровне фильтра; строка в news_sources осталась, но игнорируется, т.к. MCP не умеет удалять строки Data Table)
   → Fetch & Parse Feeds (Code: HTTP GET с Chrome-UA + парсер RSS/Atom, 25 items/ленту)
   → Fresh & Dated (isoDate есть И >= now-24ч; без даты — выкидываем)
-  → Dedup (seen before) (removeDuplicates, key = url, scope workflow — не шлём повторно)
-  → Build Claude Input (сорт по дате, cap 60, нумерация idx)
-  → Claude Value Filter (chainLlm + Anthropic + Structured Parser) — отбор ценного + RU-описание + тег индустрии
-  → Select Valuable (join по idx, формат сообщения, day/run/sent_at)
+  → Build Claude Input (сорт по дате, cap 60, нумерация idx; подмешивает recent_sent/recent_keys из news_seen через Get Recent Sent+Aggregate Recent → Claude знает, что уже слали)
+  → Claude Value Filter (chainLlm + Anthropic + Structured Parser) — отбор ценного + RU-описание + тег индустрии + event_key + метка ALREADY_SENT
+  → Select Valuable (join по idx, формат сообщения, day/run/sent_at; режет дубли по event_key/recent_keys)
       → Post News (Telegram sendMessage, thread 187, HTML)
       → Record Seen (Data Table news_seen)
 ```
@@ -66,7 +65,7 @@ Schedule 19 CET (cron 0 0 19 * * *)
 | `news_pins` | `EMRQitOd1yxnqjxe` | Закреплённые сводки для ротации 5: `message_id, pinned_at`. |
 
 Добавить источник: новая строка в `news_sources` с **URL ленты** (не страницы), `active = true`.
-Дедуп живёт в собственном сторе ноды Dedup (по url), не в `news_seen`.
+Дедуп живёт в Data Table `news_seen` (`Get Recent Sent`→`Aggregate Recent`→в промпт Claude как recent_sent/recent_keys; `Record Seen` пишет отправленное) + метка ALREADY_SENT/`event_key` у Claude и `Select Valuable`. Свежесть режет `Fresh & Dated` (24ч). **Ноду `Dedup (seen before)` (removeDuplicates) удалили** — её история упиралась в 10 000 url и падала с «exceeds maximum history size», роняя весь новостной прогон; она дублировала дедуп на Data Table (см. commit `Fix news bot`).
 
 ## Источники (на старте, 30 шт.)
 
@@ -88,7 +87,7 @@ RSS отдаёт `title + link + дата + описание` сразу — о�
 
 ## Обработанные исходы
 
-Дубли (url-нормализация + dedup-стор), битый/медленный фид (try/catch — пропуск, прогон не падает),
+Дубли (url-нормализация + дедуп на Data Table news_seen + event_key/ALREADY_SENT у Claude), битый/медленный фид (try/catch — пропуск, прогон не падает),
 фид без даты (выкидываем — старьё не шлём), протухший фид (фильтр свежести), Cloudflare-блок
 (Chrome-UA), флуд (LLM-гейт ценности + cap 60), пустой день (сводка не постится),
 лимит закрепов (ротация 5), DST (логика дня завязана на Europe/Berlin).
