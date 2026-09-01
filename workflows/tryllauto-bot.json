@@ -1540,24 +1540,6 @@
     },
     {
       "parameters": {
-        "operation": "removeItemsSeenInPreviousExecutions",
-        "dedupeValue": "={{ $json.url }}",
-        "options": {
-          "scope": "workflow",
-          "historySize": 10000
-        }
-      },
-      "id": "375eef23-0fbd-4b88-ac52-990245392b0c",
-      "name": "Dedup (seen before)",
-      "type": "n8n-nodes-base.removeDuplicates",
-      "typeVersion": 2,
-      "position": [
-        2016,
-        2192
-      ]
-    },
-    {
-      "parameters": {
         "jsCode": "const items = $input.all().map(i => i.json).filter(x => x.url && x.title);\nitems.sort((a,b) => (b.isoDate||'').localeCompare(a.isoDate||''));\nconst capped = items.slice(0, 60);\nconst candidates = capped.map((x,i) => ({ idx: i, title: x.title, snippet: x.snippet, source: x.source, hint: x.industry, url: x.url, isoDate: x.isoDate }));\nif (candidates.length === 0) return [];\nconst z = $now.setZone('Europe/Berlin');\nconst today = z.toFormat('yyyy-LL-dd');\nconst yest = z.minus({ days: 1 }).toFormat('yyyy-LL-dd');\nlet sentRows = [];\ntry { sentRows = $('Aggregate Recent').first().json.sent || []; } catch(e) { sentRows = []; }\nconst recent = (Array.isArray(sentRows) ? sentRows : []).filter(r => r && (r.day === today || r.day === yest));\nconst recent_sent = recent.filter(r => r.title).map(r => ({ title: r.title, source: r.source })).slice(0, 80);\nconst recent_keys = recent.filter(r => r.event_key).map(r => r.event_key.toString().toLowerCase());\nreturn [{ json: { candidates, recent_sent, recent_keys, count: candidates.length } }];"
       },
       "id": "5f44c771-a2b3-4632-9697-6e4e7e9f552a",
@@ -4420,17 +4402,6 @@
       ]
     },
     "Fresh & Dated": {
-      "main": [
-        [
-          {
-            "node": "Dedup (seen before)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Dedup (seen before)": {
       "main": [
         [
           {
