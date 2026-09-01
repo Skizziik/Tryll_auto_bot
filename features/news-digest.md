@@ -6,13 +6,34 @@
 **Бот:** @Tryllauto_bot (только отправка; на приём не влияет).
 **LLM:** Claude (cred «Anthropic (Tryll)» `Kd6puzMUt71Ko9fg`), модель `claude-sonnet-4-6`.
 
+## 🎯 Tryll Radar (редизайн, сен-2026)
+
+Из «широкой AI-ленты» → **узкий premium-радар для Tryll**. Один топик News AI, каждый пост с чипом-категорией. Только сигнал, максимальный контраст.
+
+**Категории (чипы):**
+- 🎮 **AI-IN-GAMES** — AI/on-device AI **в играх** (NPC, voice-AI, локальный инференс, генеративный контент, Unity/Unreal/Godot AI, ACE/NNE).
+- 🎯 **COMPETITOR** — движения из списка конкурентов (Inworld, Convai, Glade, Player2, Artificial Agency, UndreamAI, Bitpart, NVIDIA ACE, Unity AI, Ubisoft Teammates и т.д.).
+- 🧠 **LOCAL MODEL** — свежие локальные TTT/STT/TTS-модели **только от топ-лаб** (allowlist), с **вечным дедупом** (модель = один раз).
+- 🔬 **RESEARCH** — ресёрч по AI в играх / локальным моделям.
+
+**Жёсткий REJECT:** инвестиции/раунды/M&A, увольнения/закрытия, обычные релизы/ревью игр, гаджеты, генерик-AI без привязки к играм, масс-медиа, мнения, листиклы.
+
+**Дедуп:**
+- Новости/конкуренты — по `event_key` за ~2 дня (`news_seen` + `recent_keys` в промпте + `Select Valuable`).
+- **Local-model — вечный**: `Build Claude Input` отдаёт `sent_model_keys` = все all-time ключи с `industry='local-model'` из `news_seen`; `Select Valuable` дропает уже отправленную модель.
+
+**Три пути сбора (все в топик 187):**
+1. **RSS-пайплайн** (07:00/17:00 CET) — почищенные `news_sources` (мусорные домены выключены в `Only Active`), строгий gate Claude, чипы.
+2. **Competitor Sweep** (ветка `CW *`, 07:30/17:30 CET) — Claude web_search по всему списку конкурентов → дедуп `competitors_seen` (`qsReOCh4vsM0TPan`) → 🎯 карточки. Ловит то, чего нет в RSS (соцсети/анонсы). Клон Mentions Watch.
+3. **Competitor RSS-фиды** — добавлены в `news_sources` (UndreamAI/Getnamo GitHub `releases.atom`, Bitpart Substack, Inworld blog; Convai RSS не существует → покрыт свипом).
+
 ## Что делает
 
-1. **Сбор новостей** — 07:00 и 17:00 CET: пробегает по RSS/Atom-лентам из таблицы `news_sources`,
-   берёт только свежее (< 24 ч), отсеивает уже отправленное, спрашивает Claude — *ценна ли новость
-   для Tryll Engine* (AI / AI+games / геймдев / релевантные инвестиции), Claude пишет RU-описание,
-   и бот постит каждую в топик News AI.
-2. **Сводка дня** — 19:00 CET: собирает всё отправленное за сегодня, Claude делает выжимку по
+1. **Сбор новостей** — 07:00 и 17:00 CET: пробегает по RSS/Atom-лентам из таблицы `news_sources`
+   (мусорные домены отфильтрованы в `Only Active`), берёт только свежее (< 24 ч), строгий gate Claude
+   (4 корзины, см. Radar выше) пишет RU-описание + категорию, бот постит каждую в топик News AI с чипом.
+2. **Competitor Sweep** — 07:30/17:30 CET: ветка `CW *`, Claude web_search по конкурентам → 🎯 карточки.
+3. **Сводка дня** — 19:00 CET: собирает всё отправленное за сегодня, Claude делает выжимку по
    индустриям, бот постит её и **закрепляет**, держа 5 последних закрепов (6-й откреп).
 
 ## Цепочка 1 — сбор (Schedule 7 & 17 CET)
@@ -20,7 +41,7 @@
 ```
 Schedule 7 & 17 CET (cron 0 0 7 * * * + 0 0 17 * * *)
   → Read Sources (Data Table news_sources, returnAll)
-  → Only Active (active == true И feed_url НЕ содержит "habr.com" — Habr отключён на уровне фильтра; строка в news_sources осталась, но игнорируется, т.к. MCP не умеет удалять строки Data Table)
+  → Only Active (active == true И feed_url не в blocklist из 23 мусорных доменов — Habr, Forbes, Engadget, TechinAsia, TechCrunch/Verge/VentureBeat/Wired/IEEE/MarkTechPost/MIT-TR, GameSpot/IGN/DigitalTrends/PocketGamer/MCV/GamesBeat и др.; строки остались, но игнорируются — MCP не удаляет строки Data Table)
   → Fetch & Parse Feeds (Code: HTTP GET с Chrome-UA + парсер RSS/Atom, 25 items/ленту)
   → Fresh & Dated (isoDate есть И >= now-24ч; без даты — выкидываем)
   → Build Claude Input (сорт по дате, cap 60, нумерация idx; подмешивает recent_sent/recent_keys из news_seen через Get Recent Sent+Aggregate Recent → Claude знает, что уже слали)
@@ -30,15 +51,16 @@ Schedule 7 & 17 CET (cron 0 0 7 * * * + 0 0 17 * * *)
       → Record Seen (Data Table news_seen)
 ```
 
-Формат сообщения:
+Формат сообщения (премиум-карточка):
 ```
-🟢 AI · <b>Заголовок как в источнике</b>
+🎯 COMPETITOR · <источник>
+<b>Заголовок как в источнике</b>
 
-Краткое описание на русском.
+Острое RU-описание: что и почему важно нам.
 
-🔗 https://ссылка
+🔗 Source
 ```
-Теги: 🟢 AI · 🎮 AI+GAME · 🕹 GAMEDEV · 💰 INVEST · 🔬 RESEARCH.
+Чипы: 🎮 AI-IN-GAMES · 🎯 COMPETITOR · 🧠 LOCAL MODEL · 🔬 RESEARCH (fallback 📡 SIGNAL).
 
 ## Цепочка 2 — сводка дня (Schedule 19 CET)
 

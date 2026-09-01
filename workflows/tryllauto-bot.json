@@ -1531,7 +1531,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all().map(i => i.json).filter(x => x.url && x.title);\nitems.sort((a,b) => (b.isoDate||'').localeCompare(a.isoDate||''));\nconst capped = items.slice(0, 60);\nconst candidates = capped.map((x,i) => ({ idx: i, title: x.title, snippet: x.snippet, source: x.source, hint: x.industry, url: x.url, isoDate: x.isoDate }));\nif (candidates.length === 0) return [];\nconst z = $now.setZone('Europe/Berlin');\nconst today = z.toFormat('yyyy-LL-dd');\nconst yest = z.minus({ days: 1 }).toFormat('yyyy-LL-dd');\nlet sentRows = [];\ntry { sentRows = $('Aggregate Recent').first().json.sent || []; } catch(e) { sentRows = []; }\nconst recent = (Array.isArray(sentRows) ? sentRows : []).filter(r => r && (r.day === today || r.day === yest));\nconst recent_sent = recent.filter(r => r.title).map(r => ({ title: r.title, source: r.source })).slice(0, 80);\nconst recent_keys = recent.filter(r => r.event_key).map(r => r.event_key.toString().toLowerCase());\nreturn [{ json: { candidates, recent_sent, recent_keys, count: candidates.length } }];"
+        "jsCode": "const items = $input.all().map(i => i.json).filter(x => x.url && x.title);\nitems.sort((a,b) => (b.isoDate||'').localeCompare(a.isoDate||''));\nconst capped = items.slice(0, 60);\nconst candidates = capped.map((x,i) => ({ idx: i, title: x.title, snippet: x.snippet, source: x.source, hint: x.industry, url: x.url, isoDate: x.isoDate }));\nif (candidates.length === 0) return [];\nconst z = $now.setZone('Europe/Berlin');\nconst today = z.toFormat('yyyy-LL-dd');\nconst yest = z.minus({ days: 1 }).toFormat('yyyy-LL-dd');\nlet sentRows = [];\ntry { sentRows = $('Aggregate Recent').first().json.sent || []; } catch(e) { sentRows = []; }\nconst all = Array.isArray(sentRows) ? sentRows : [];\nconst recent = all.filter(r => r && (r.day === today || r.day === yest));\nconst recent_sent = recent.filter(r => r.title).map(r => ({ title: r.title, source: r.source })).slice(0, 80);\nconst recent_keys = recent.filter(r => r.event_key).map(r => r.event_key.toString().toLowerCase());\nconst sent_model_keys = all.filter(r => r && String(r.industry||'').toLowerCase()==='local-model' && r.event_key).map(r => r.event_key.toString().toLowerCase());\nreturn [{ json: { candidates, recent_sent, recent_keys, sent_model_keys, count: candidates.length } }];"
       },
       "id": "5f44c771-a2b3-4632-9697-6e4e7e9f552a",
       "name": "Build Claude Input",
@@ -1594,7 +1594,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const out = $json.output || {};\nconst results = Array.isArray(out.results) ? out.results : [];\nconst bi = $('Build Claude Input').first().json;\nconst cand = bi.candidates || [];\nconst byIdx = {}; cand.forEach(c => { byIdx[c.idx] = c; });\nconst recentKeys = new Set((bi.recent_keys || []).map(k => k.toString().toLowerCase()));\nconst z = $now.setZone('Europe/Berlin');\nconst day = z.toFormat('yyyy-LL-dd');\nconst run = z.hour < 12 ? 'morning' : 'evening';\nconst sentAt = $now.toISO();\nconst esc = s => (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst labels = { 'ai-in-games':'\\ud83c\\udfae AI-IN-GAMES', 'competitor':'\\ud83c\\udfaf COMPETITOR', 'local-model':'\\ud83e\\udde0 LOCAL MODEL', 'research':'\\ud83d\\udd2c RESEARCH' };\nconst bad = /ALREADY_SENT|ОТКЛОН|дубл|\\bDROP\\b|duplicate/i;\nconst norm = s => (s||'').toString().toLowerCase().replace(/[^a-z0-9а-я ]+/gi,'').replace(/\\s+/g,' ').trim();\nconst seenKeys = new Set();\nconst outItems = [];\nfor (const r of results) {\n  if (!r || r.keep !== true) continue;\n  const c = byIdx[r.idx]; if (!c) continue;\n  const summary = (r.summary_ru || '').toString().trim();\n  if (!summary || bad.test(summary)) continue;\n  const industry = (r.industry || '').toString().toLowerCase();\n  const title = (r.title || c.title || '').toString().trim();\n  let key = norm(r.event_key);\n  if (!key) key = norm(title).slice(0, 40);\n  if (recentKeys.has(key) || seenKeys.has(key)) continue;\n  seenKeys.add(key);\n  const tag = labels[industry] || '\\ud83d\\udce1 SIGNAL';\n  const head = tag + (c.source ? ' \\u00b7 ' + esc(c.source) : '');\n  const safeUrl = (c.url||'').toString().replace(/&/g,'&amp;').replace(/\"/g,'%22');\n  const message = head + '\\n<b>' + esc(title) + '</b>\\n\\n' + esc(summary) + '\\n\\n\\ud83d\\udd17 <a href=\"' + safeUrl + '\">Source</a>';\n  outItems.push({ json: { url: c.url, title, industry, source: c.source, summary_ru: summary, event_key: key, day, run, sent_at: sentAt, message } });\n}\nreturn outItems;"
+        "jsCode": "const out = $json.output || {};\nconst results = Array.isArray(out.results) ? out.results : [];\nconst bi = $('Build Claude Input').first().json;\nconst cand = bi.candidates || [];\nconst byIdx = {}; cand.forEach(c => { byIdx[c.idx] = c; });\nconst recentKeys = new Set((bi.recent_keys || []).map(k => k.toString().toLowerCase()));\nconst modelKeys = new Set((bi.sent_model_keys || []).map(k => k.toString().toLowerCase()));\nconst z = $now.setZone('Europe/Berlin');\nconst day = z.toFormat('yyyy-LL-dd');\nconst run = z.hour < 12 ? 'morning' : 'evening';\nconst sentAt = $now.toISO();\nconst esc = s => (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst labels = { 'ai-in-games':'\\ud83c\\udfae AI-IN-GAMES', 'competitor':'\\ud83c\\udfaf COMPETITOR', 'local-model':'\\ud83e\\udde0 LOCAL MODEL', 'research':'\\ud83d\\udd2c RESEARCH' };\nconst bad = /ALREADY_SENT|ОТКЛОН|дубл|\\bDROP\\b|duplicate/i;\nconst norm = s => (s||'').toString().toLowerCase().replace(/[^a-z0-9а-я ]+/gi,'').replace(/\\s+/g,' ').trim();\nconst seenKeys = new Set();\nconst outItems = [];\nfor (const r of results) {\n  if (!r || r.keep !== true) continue;\n  const c = byIdx[r.idx]; if (!c) continue;\n  const summary = (r.summary_ru || '').toString().trim();\n  if (!summary || bad.test(summary)) continue;\n  const industry = (r.industry || '').toString().toLowerCase();\n  const title = (r.title || c.title || '').toString().trim();\n  let key = norm(r.event_key);\n  if (!key) key = norm(title).slice(0, 40);\n  if (recentKeys.has(key) || seenKeys.has(key)) continue;\n  if (industry === 'local-model' && modelKeys.has(key)) continue;\n  seenKeys.add(key);\n  const tag = labels[industry] || '\\ud83d\\udce1 SIGNAL';\n  const head = tag + (c.source ? ' \\u00b7 ' + esc(c.source) : '');\n  const safeUrl = (c.url||'').toString().replace(/&/g,'&amp;').replace(/\"/g,'%22');\n  const message = head + '\\n<b>' + esc(title) + '</b>\\n\\n' + esc(summary) + '\\n\\n\\ud83d\\udd17 <a href=\"' + safeUrl + '\">Source</a>';\n  outItems.push({ json: { url: c.url, title, industry, source: c.source, summary_ru: summary, event_key: key, day, run, sent_at: sentAt, message } });\n}\nreturn outItems;"
       },
       "id": "74bbfa91-8129-4435-8801-2a2570079faf",
       "name": "Select Valuable",
@@ -3915,6 +3915,223 @@
         }
       },
       "id": "mwlogsheet1787173248027"
+    },
+    {
+      "name": "CW Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        4220
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 30 7 * * *"
+            },
+            {
+              "field": "cronExpression",
+              "expression": "0 30 17 * * *"
+            }
+          ]
+        }
+      },
+      "id": "cws2lmh0h"
+    },
+    {
+      "name": "CW Build Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        4220
+      ],
+      "parameters": {
+        "jsCode": "const z = $now.setZone('Europe/Berlin');\nconst today = z.toFormat('yyyy-LL-dd');\nconst system = \"You are a competitive-intelligence scout for Tryll Engine (on-device AI middleware for games: local LLM/voice NPCs, STT, TTS, generative content on the player's GPU).\\nFind NOTABLE RECENT moves (prefer the last ~2 weeks) by the COMPETITORS below: product / plugin / SDK / model / demo releases, engine integrations (Unity/Unreal/Godot), partnerships, or substantial technical posts. IGNORE funding, hiring, generic PR.\\n\\nCOMPETITORS (name — primary site):\\nInworld AI — inworld.ai; Convai — convai.com; Glade / GladeCore — gladecore.com; Player2 (Elefant AI) — player2.game; Artificial Agency — artificial.agency; GeorgyDev — solutions.georgy.dev; UndreamAI — undream.ai; Charisma.ai — charisma.ai; HakkoAI — hakko.ai; Bitpart AI — bitpart.ai; Studio Atelico — atelico.studio; NVIDIA ACE / NVIGI — developer.nvidia.com/ace-for-games; Microsoft Copilot for Gaming; Google Gemini Live (gaming); Unity AI — unity.com; Unreal NNE / Epic; Ubisoft Teammates; Varco Game AI (NCSoft) — game-ai.varco.ai; Getnamo (Llama-Unreal); RunAnywhere — runanywhere.ai; ClawdBot / MoltBot — clawd.bot; Iconic Games — iconicgames.io; Parametrix AI — parametrix.ai; Aura — tryaura.dev; Run Edge AI — runedge.ai; Bezi — bezi.com; Rosebud AI — rosebud.ai; Codewisp — codewisp.ai.\\n\\nEFFICIENCY: this is a LIGHTWEIGHT recurring monitor, NOT deep research. Run AT MOST ~8 targeted web searches total. Judge each item from the SEARCH-RESULT SNIPPETS — do NOT open/read full pages. Be decisive and STOP EARLY. No hard date filter (we dedupe on our side), but prefer fresh.\\n\\nSTRICT: include ONLY items clearly about one of the listed competitors AND about a real product/tech move. Skip unrelated companies that share a name, and skip pure marketing/funding/hiring.\\n\\nOUTPUT: return ONLY a JSON array (no prose, no markdown fence). Empty array [] if nothing notable. Each item:\\n{\\\"url\\\": \\\"direct link\\\", \\\"title\\\": \\\"headline\\\", \\\"company\\\": \\\"which competitor\\\", \\\"date\\\": \\\"YYYY-MM-DD or empty\\\", \\\"summary_ru\\\": \\\"1-2 sharp RU sentences: что сделал конкурент и почему это важно для on-device-AI-for-games компании\\\"}\";\nconst user = 'Найди свежие заметные движения конкурентов Tryll (релизы/плагины/SDK/модели/демо/интеграции, ~2 недели; работай по сниппетам, <=8 поисков). Сегодня ' + today + '. Верни ТОЛЬКО JSON-массив (или [] если реально ничего).';\nreturn [{ json: { system_prompt: system, user_prompt: user, today } }];"
+      },
+      "id": "cwe17btr2"
+    },
+    {
+      "name": "CW Claude",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        680,
+        4220
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"model\": \"claude-sonnet-4-6\", \"max_tokens\": 8000, \"system\": {{ JSON.stringify($json.system_prompt) }}, \"messages\": [ {\"role\": \"user\", \"content\": {{ JSON.stringify($json.user_prompt) }} } ], \"tools\": [ {\"type\": \"web_search_20260209\", \"name\": \"web_search\", \"max_uses\": 8} ] }",
+        "options": {
+          "timeout": 600000
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "Kd6puzMUt71Ko9fg",
+          "name": "Anthropic (Tryll)"
+        }
+      },
+      "id": "cwi4myeod"
+    },
+    {
+      "name": "CW Extract",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        4220
+      ],
+      "parameters": {
+        "jsCode": "const resp = $json;\nlet text = '';\nconst content = resp.content || [];\nfor (const b of content) { if (b && b.type === 'text' && b.text) text += b.text + '\\n'; }\nlet arr = [];\ntry { const a = text.indexOf('['), b = text.lastIndexOf(']'); if (a >= 0 && b > a) arr = JSON.parse(text.slice(a, b + 1)); } catch (e) { arr = []; }\nif (!Array.isArray(arr)) arr = [];\nfunction norm(u){ u=(u||'').toString().trim(); try{ const url=new URL(u); url.hash=''; const p=new URLSearchParams(url.search); ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','fbclid','gclid'].forEach(k=>p.delete(k)); url.search=p.toString(); return url.toString().replace(/\\/$/,''); }catch(e){ return u.replace(/[#?].*$/,'').replace(/\\/$/,''); } }\nconst out=[]; const seen=new Set();\nfor (const it of arr){ if(!it || !it.url) continue; const url=norm(it.url); if(!url || seen.has(url)) continue; seen.add(url); out.push({ json: { url, title:(it.title||'').toString().trim(), company:(it.company||'').toString().trim(), date:(it.date||'').toString().trim(), summary_ru:(it.summary_ru||it.summary||'').toString().trim() } }); }\nreturn out;"
+      },
+      "id": "cwm9sni7e"
+    },
+    {
+      "name": "CW New Only",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        4220
+      ],
+      "parameters": {
+        "operation": "rowNotExists",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "qsReOCh4vsM0TPan"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "url",
+              "keyValue": "={{ $json.url }}"
+            }
+          ]
+        }
+      },
+      "id": "cwfcv0mgl"
+    },
+    {
+      "name": "CW Build Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        4220
+      ],
+      "parameters": {
+        "jsCode": "const CAP = 6;\nconst foundAt = $now.toISO();\nlet items = $input.all().map(i => i.json);\nitems.sort((a,b)=>{ const da=(a.date||''), db=(b.date||''); if(da&&db) return db.localeCompare(da); if(db&&!da) return 1; if(da&&!db) return -1; return 0; });\nitems = items.slice(0, CAP);\nconst esc = s => (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst out=[];\nfor (const d of items){ const safeUrl=(d.url||'').toString().replace(/&/g,'&amp;').replace(/\"/g,'%22'); const comp=d.company ? (' \\u00b7 '+esc(d.company)) : ''; const dt=d.date ? (' \\u00b7 '+esc(d.date)) : ''; const body=esc(d.summary_ru||d.title||''); const title=esc(d.title||''); const message='\\ud83c\\udfaf <b>COMPETITOR</b>'+comp+dt+'\\n<b>'+title+'</b>\\n\\n'+body+'\\n\\n\\ud83d\\udd17 <a href=\"'+safeUrl+'\">Source</a>'; out.push({ json: { url:d.url, company:d.company, title:d.title, found_at:foundAt, sent_at:foundAt, message } }); }\nreturn out;"
+      },
+      "id": "cwn9alriw"
+    },
+    {
+      "name": "CW Record Seen",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1560,
+        4120
+      ],
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "qsReOCh4vsM0TPan"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "url": "={{ $json.url }}",
+            "company": "={{ $json.company }}",
+            "title": "={{ $json.title }}",
+            "sent_at": "={{ $json.sent_at }}"
+          },
+          "schema": [
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sent_at",
+              "displayName": "sent_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cw06lgsrn"
+    },
+    {
+      "name": "CW Post",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1560,
+        4320
+      ],
+      "parameters": {
+        "chatId": "-1004406148635",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_web_page_preview": true,
+          "parse_mode": "HTML",
+          "message_thread_id": 187
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      },
+      "id": "cwzcbyoft"
     }
   ],
   "connections": {
@@ -5227,6 +5444,77 @@
           },
           {
             "node": "MW Log Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CW Schedule": {
+      "main": [
+        [
+          {
+            "node": "CW Build Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CW Build Request": {
+      "main": [
+        [
+          {
+            "node": "CW Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CW Claude": {
+      "main": [
+        [
+          {
+            "node": "CW Extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CW Extract": {
+      "main": [
+        [
+          {
+            "node": "CW New Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CW New Only": {
+      "main": [
+        [
+          {
+            "node": "CW Build Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CW Build Message": {
+      "main": [
+        [
+          {
+            "node": "CW Record Seen",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "CW Post",
             "type": "main",
             "index": 0
           }
