@@ -2,7 +2,7 @@
 
 **Платформа:** Telegram-группа TryllAuto, топик с `message_thread_id = 918`, chat `-1004406148635`.
 **Где живёт:** n8n Cloud, воркфлоу `WFarxoRPXfxnrqsV` (**TryllAuto Bot**) — отдельная Schedule-цепочка (ниже всех, префикс нод `MW `).
-**Бот:** @Tryllauto_bot. **LLM:** Claude `claude-sonnet-4-6` (cred «Anthropic (Tryll)» `Kd6puzMUt71Ko9fg`), только web_search (`max_uses:6`, web_fetch убран — жёг токены/таймаут).
+**Бот:** @Tryllauto_bot. **LLM:** Claude `claude-sonnet-4-6` (cred «Anthropic (Tryll)» `Kd6puzMUt71Ko9fg`), **базовый `web_search_20250305`** (`max_uses:8`). Web_fetch убран; на `web_search_20260209` НЕ переходить — он гоняет поиск через code_execution и жрёт токены/упирается в лимит (было 268k→[]). Промпт даёт явные search-углы и приоритет играм, использующим Tryll.
 
 ## Что делает
 
@@ -13,7 +13,7 @@
 ```
 MW Schedule 2d (interval days=2, 09:00)
   → MW Build Request (Code: system-промпт EN + дата, summary IN ENGLISH)
-  → MW Claude (httpRequest → api.anthropic.com/v1/messages, sonnet-4-6, web_search_20260209 max_uses:6; web_fetch убран)
+  → MW Claude (httpRequest → api.anthropic.com/v1/messages, sonnet-4-6, basic web_search_20250305 max_uses:8; web_fetch убран)
   → MW Extract (Code: JSON-массив из text-блоков, нормализация url, blocklist наших доменов/видео + агрегаторов цен, дедуп в батче)
   → MW New Only (Data Table mentions_watch_seen: rowNotExists по url)
   → MW Build Message (Code: EN HTML-карточка + поля для таблицы: logged_at/date/summary, cap 8)
