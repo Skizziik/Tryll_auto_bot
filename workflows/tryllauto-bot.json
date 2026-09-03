@@ -4132,6 +4132,233 @@
         }
       },
       "id": "cwzcbyoft"
+    },
+    {
+      "name": "LM Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        4620
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 8 * * *"
+            },
+            {
+              "field": "cronExpression",
+              "expression": "0 0 18 * * *"
+            }
+          ]
+        }
+      },
+      "id": "lmn4zvcnh"
+    },
+    {
+      "name": "LM Build Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        4620
+      ],
+      "parameters": {
+        "jsCode": "const z = $now.setZone('Europe/Berlin');\nconst today = z.toFormat('yyyy-LL-dd');\nconst system = \"You track FRESH, LOCALLY-RUNNABLE / open-weight AI models in games-relevant modalities: TEXT->TEXT (LLM/SLM), SPEECH->TEXT (STT/ASR), and TEXT->SPEECH (TTS), released by SERIOUS makers.\\n\\nALLOWED MAKERS (reputable, open-weight): Google/DeepMind (Gemma), Alibaba (Qwen), Meta (Llama), Mistral, Microsoft (Phi), NVIDIA, DeepSeek, Kyutai (Moshi), Moonshot/Kimi, Zhipu/GLM, Tencent (Hunyuan), ByteDance, Kokoro, Nari (Dia), Coqui/XTTS, Fish Audio, SparkTTS, and other clearly reputable open-weight releases.\\n\\nSTRICT — include ONLY models that are LOCAL / on-device runnable: open weights, downloadable, runnable on a consumer GPU/CPU. EXCLUDE: cloud-only API models (Gemini / GPT / Claude cloud endpoints, any closed model), image/video/music-only models, and anything from unknown / noname makers. When unsure it is truly local/open-weight — DROP it.\\n\\nPrefer the last ~3 weeks. We deduplicate BY MODEL on our side, so each model is posted only once, ever.\\n\\nFor EACH item emit model_key: a stable lowercase kebab slug of the MODEL IDENTITY (e.g. google-gemma-3n, alibaba-qwen3-tts, kokoro-82m, kyutai-moshi, deepseek-v3, meta-llama-4-8b) — the SAME model MUST get the SAME key regardless of source or wording.\\n\\nSEARCH ANGLES — vary across up to 8 searches: new open-weight LLM release 2026; Qwen TTS OR STT release; Gemma on-device model; DeepSeek new model; open source TTS model 2026; local speech-to-text / ASR model release; small language model on-device; Kokoro / Kyutai / Dia TTS; HuggingFace trending TTS OR ASR OR LLM.\\n\\nEFFICIENCY: LIGHTWEIGHT recurring monitor, NOT deep research. AT MOST ~8 targeted web searches. Judge from SEARCH-RESULT SNIPPETS — do NOT open pages. Be decisive, STOP EARLY.\\n\\nOUTPUT: return ONLY a JSON array (no prose, no markdown fence). Empty array [] if nothing qualifies. Each item:\\n{\\\"url\\\": \\\"direct link\\\", \\\"title\\\": \\\"model / release name\\\", \\\"model_key\\\": \\\"stable-slug\\\", \\\"org\\\": \\\"maker (Google, Alibaba, Kokoro...)\\\", \\\"date\\\": \\\"YYYY-MM-DD or empty\\\", \\\"summary_ru\\\": \\\"1-2 sharp RU sentences: что за модель, модальность (LLM/STT/TTS), размер/лицензия, чем полезна для on-device игр\\\"}\";\nconst user = 'Найди свежие ЛОКАЛЬНЫЕ / open-weight модели (LLM / STT / TTS) от топ-лаб (Google/Alibaba/Meta/DeepSeek/Kokoro и т.д.), ~3 недели, по сниппетам, <=8 поисков, варьируй запросы. ТОЛЬКО то, что реально запускается локально (open weights), без облачных API. Сегодня ' + today + '. Верни ТОЛЬКО JSON-массив (или []).';\nreturn [{ json: { system_prompt: system, user_prompt: user, today } }];"
+      },
+      "id": "lm1jsjop6"
+    },
+    {
+      "name": "LM Claude",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        680,
+        4620
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"model\": \"claude-sonnet-4-6\", \"max_tokens\": 8000, \"system\": {{ JSON.stringify($json.system_prompt) }}, \"messages\": [ {\"role\": \"user\", \"content\": {{ JSON.stringify($json.user_prompt) }} } ], \"tools\": [ {\"type\": \"web_search_20250305\", \"name\": \"web_search\", \"max_uses\": 8} ] }",
+        "options": {
+          "timeout": 600000
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "Kd6puzMUt71Ko9fg",
+          "name": "Anthropic (Tryll)"
+        }
+      },
+      "id": "lmr3971mu"
+    },
+    {
+      "name": "LM Extract",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        4620
+      ],
+      "parameters": {
+        "jsCode": "const resp = $json;\nlet text = '';\nconst content = resp.content || [];\nfor (const b of content) { if (b && b.type === 'text' && b.text) text += b.text + '\\n'; }\nlet arr = [];\ntry { const a = text.indexOf('['), b = text.lastIndexOf(']'); if (a >= 0 && b > a) arr = JSON.parse(text.slice(a, b + 1)); } catch (e) { arr = []; }\nif (!Array.isArray(arr)) arr = [];\nfunction strip(s){ s=(s||'').toString(); while(s.endsWith('/')) s=s.slice(0,-1); return s; }\nfunction norm(u){ u=(u||'').toString().trim(); try{ const url=new URL(u); url.hash=''; const p=new URLSearchParams(url.search); ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','fbclid','gclid'].forEach(k=>p.delete(k)); url.search=p.toString(); return strip(url.toString()); }catch(e){ let s=u.split('#')[0].split('?')[0]; return strip(s); } }\nfunction keyify(s){ return (s||'').toString().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }\nconst out=[]; const seen=new Set();\nfor (const it of arr){ if(!it || !it.url) continue; const url=norm(it.url); if(!url) continue; let mk=keyify(it.model_key); if(!mk) mk=keyify(it.title); if(!mk || seen.has(mk)) continue; seen.add(mk); out.push({ json: { url, title:(it.title||'').toString().trim(), model_key:mk, org:(it.org||'').toString().trim(), date:(it.date||'').toString().trim(), summary_ru:(it.summary_ru||it.summary||'').toString().trim() } }); }\nreturn out;"
+      },
+      "id": "lm1hxjzgd"
+    },
+    {
+      "name": "LM New Only",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        4620
+      ],
+      "parameters": {
+        "operation": "rowNotExists",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "6LbL6iNsqo7v2Ji8"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "model_key",
+              "keyValue": "={{ $json.model_key }}"
+            }
+          ]
+        }
+      },
+      "id": "lmrgld28q"
+    },
+    {
+      "name": "LM Build Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        4620
+      ],
+      "parameters": {
+        "jsCode": "const CAP = 6;\nconst foundAt = $now.toISO();\nlet items = $input.all().map(i => i.json);\nitems.sort((a,b)=>{ const da=(a.date||''), db=(b.date||''); if(da&&db) return db.localeCompare(da); if(db&&!da) return 1; if(da&&!db) return -1; return 0; });\nitems = items.slice(0, CAP);\nconst esc = s => (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst out=[];\nfor (const d of items){ const safeUrl=(d.url||'').toString().replace(/&/g,'&amp;').replace(/\"/g,'%22'); const org=d.org ? (' \\u00b7 '+esc(d.org)) : ''; const dt=d.date ? (' \\u00b7 '+esc(d.date)) : ''; const body=esc(d.summary_ru||d.title||''); const title=esc(d.title||''); const message='\\ud83e\\udde0 <b>LOCAL MODEL</b>'+org+dt+'\\n<b>'+title+'</b>\\n\\n'+body+'\\n\\n\\ud83d\\udd17 <a href=\"'+safeUrl+'\">Source</a>'; out.push({ json: { model_key:d.model_key, title:d.title, org:d.org, url:d.url, sent_at:foundAt, message } }); }\nreturn out;"
+      },
+      "id": "lm8s388ay"
+    },
+    {
+      "name": "LM Record Seen",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1560,
+        4520
+      ],
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "6LbL6iNsqo7v2Ji8"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "model_key": "={{ $json.model_key }}",
+            "title": "={{ $json.title }}",
+            "org": "={{ $json.org }}",
+            "url": "={{ $json.url }}",
+            "sent_at": "={{ $json.sent_at }}"
+          },
+          "schema": [
+            {
+              "id": "model_key",
+              "displayName": "model_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "org",
+              "displayName": "org",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sent_at",
+              "displayName": "sent_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "lm4pxkd86"
+    },
+    {
+      "name": "LM Post",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1560,
+        4720
+      ],
+      "parameters": {
+        "chatId": "-1004406148635",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_web_page_preview": true,
+          "parse_mode": "HTML",
+          "message_thread_id": 187
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      },
+      "id": "lm62gekb5"
     }
   ],
   "connections": {
@@ -5515,6 +5742,77 @@
           },
           {
             "node": "CW Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LM Schedule": {
+      "main": [
+        [
+          {
+            "node": "LM Build Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LM Build Request": {
+      "main": [
+        [
+          {
+            "node": "LM Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LM Claude": {
+      "main": [
+        [
+          {
+            "node": "LM Extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LM Extract": {
+      "main": [
+        [
+          {
+            "node": "LM New Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LM New Only": {
+      "main": [
+        [
+          {
+            "node": "LM Build Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LM Build Message": {
+      "main": [
+        [
+          {
+            "node": "LM Record Seen",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "LM Post",
             "type": "main",
             "index": 0
           }
