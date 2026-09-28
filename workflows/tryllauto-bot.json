@@ -2098,13 +2098,13 @@
           "interval": [
             {
               "field": "cronExpression",
-              "expression": "0 0 1 * * *"
+              "expression": "0 0 */4 * * *"
             }
           ]
         }
       },
       "id": "e460f5cf-ff68-4e43-8dae-b4328e8add9e",
-      "name": "Schedule itch 01 CET",
+      "name": "Schedule itch 4h",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.3,
       "position": [
@@ -2114,7 +2114,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';\nconst pages = ['https://itch.io/games/newest/tag-artificial-intelligence', 'https://itch.io/games/newest/tag-artificial-intelligence?page=2'];\nconst out = [];\nconst seen = new Set();\nfor (const purl of pages) {\n  let body = '';\n  try { const res = await this.helpers.httpRequest({ url: purl, returnFullResponse: true, timeout: 20000, headers: { 'User-Agent': UA, 'Accept-Language': 'en-US,en;q=0.9' } }); body = (res.body || '').toString(); } catch (e) { continue; }\n  const re = /<a\\b[^>]*class=\"title game_link\"[^>]*>([^]*?)<\\/a>/gi;\n  let m;\n  while ((m = re.exec(body))) {\n    const hm = m[0].match(/href=\"([^\"]+)\"/i);\n    if (!hm) continue;\n    let url = hm[1];\n    try { const u = new URL(url); u.hash=''; u.search=''; url = u.toString().replace(/\\/$/,''); } catch(e) {}\n    if (!/\\.itch\\.io\\//.test(url)) continue;\n    if (seen.has(url)) continue; seen.add(url);\n    const title = m[1].replace(/<[^>]*>/g,'').replace(/&amp;/g,'&').replace(/&#39;/g,\"'\").replace(/&#(\\d+);/g,(x,n)=>String.fromCharCode(parseInt(n,10))).replace(/\\s+/g,' ').trim();\n    out.push({ json: { url, title } });\n  }\n  if (out.length >= 70) break;\n}\nreturn out;"
+        "jsCode": "// Newest itch.io games from every AI-related tag (the old version only read tag-artificial-intelligence).\nconst UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';\nconst TAGS = ['artificial-intelligence', 'llm', 'local-llm', 'ollama', 'ai', 'chatgpt', 'chatbot', 'machine-learning', 'neural-network'];\nconst out = [];\nconst seen = new Set();\nconst pages = await Promise.all(TAGS.map(async tag => {\n  try {\n    const res = await this.helpers.httpRequest({ url: 'https://itch.io/games/newest/tag-' + tag, returnFullResponse: true, timeout: 20000, headers: { 'User-Agent': UA, 'Accept-Language': 'en-US,en;q=0.9' } });\n    return { tag, body: (res.body || '').toString() };\n  } catch (e) { return { tag, body: '' }; }\n}));\nfor (const { tag, body } of pages) {\n  const re = /<a\\b[^>]*class=\"title game_link\"[^>]*>([^]*?)<\\/a>/gi;\n  let m;\n  while ((m = re.exec(body))) {\n    const hm = m[0].match(/href=\"([^\"]+)\"/i);\n    if (!hm) continue;\n    let url = hm[1].split('#')[0].split('?')[0];\n    while (url.endsWith('/')) url = url.slice(0, -1);\n    if (!/\\.itch\\.io\\//.test(url)) continue;\n    if (seen.has(url)) continue;\n    seen.add(url);\n    const title = m[1].replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/&#39;/g, \"'\").replace(/&#(\\d+);/g, (x, n) => String.fromCharCode(parseInt(n, 10))).replace(/\\s+/g, ' ').trim();\n    out.push({ json: { url, title, found_via: tag } });\n  }\n}\nreturn out;\n"
       },
       "id": "502ba1f4-4d41-4fc5-8045-cdeaf697cf7c",
       "name": "Fetch itch Newest",
@@ -2179,63 +2179,7 @@
     },
     {
       "parameters": {
-        "model": {
-          "__rl": true,
-          "mode": "list",
-          "value": "claude-sonnet-4-6",
-          "cachedResultName": "Claude Sonnet 4.6"
-        },
-        "options": {
-          "maxTokensToSample": 6000
-        }
-      },
-      "id": "bca50a83-b7c9-4159-8a58-d5479c0d26be",
-      "name": "itch Claude Model",
-      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
-      "typeVersion": 1.5,
-      "position": [
-        1568,
-        3168
-      ],
-      "credentials": {
-        "anthropicApi": {
-          "id": "Kd6puzMUt71Ko9fg",
-          "name": "Anthropic (Tryll)"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsonSchemaExample": "{ \"results\": [ { \"idx\": 0, \"used_ai\": false, \"title\": \"Game Title\", \"ai_note\": \"\" } ] }"
-      },
-      "id": "139977d3-d65a-493a-97d5-92d27a09209a",
-      "name": "itch Verdict Parser",
-      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
-      "typeVersion": 1.3,
-      "position": [
-        1712,
-        3168
-      ]
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "=You analyze indie games from itch.io to find games that USE AI as an in-game TECHNOLOGY at runtime AND run that AI LOCALLY / on-device (offline), NOT via cloud APIs.\n\nKEEP (used_ai = true) ONLY when BOTH conditions hold:\n1) AI is part of how the game actually works or is played — e.g. LLM / chatbot NPCs the player talks to in natural language, AI-driven dialogue or storytelling, content generated live by ML models, voice AI interaction, or ML models powering mechanics; AND\n2) that AI runs LOCALLY on the player's machine / on-device / offline. Signals of local: \"local model\", \"runs locally\", \"offline\", \"on-device\", GGUF, llama.cpp, Ollama, LM Studio, koboldcpp, bundled or downloadable model, local inference, \"no internet / no API key required\". If the game clearly offers BOTH local and cloud options, KEEP it (local is supported).\n\nDO NOT count (used_ai = false):\n- AI that runs in the CLOUD / via an online API (OpenAI, Anthropic, Gemini, OpenRouter, \"requires API key\", \"needs internet for the AI\", server-side) when there is NO local option;\n- cases where you cannot tell whether the AI is local or cloud — if there is no concrete evidence of LOCAL/on-device AI, set used_ai = false (when in doubt, false);\n- games merely MADE WITH AI-generated assets (art, music, textures) — asset generation does NOT qualify;\n- classic game AI (pathfinding, finite-state-machine enemies, behavior trees, \"smart\" bots);\n- marketing buzzwords with no real AI technology behind them.\n\nRead each candidate's title, desc (developer description) and tags carefully for explicit mentions of LOCAL / on-device AI. For used_ai = true, write a short Russian note (1 sentence, <=200 chars) stating that it is LOCAL AI and what it does in the game. Keep the original title exactly.\n\nReturn results for ALL candidates (both true and false), referencing each by idx.\n\nCANDIDATES:\n{{ JSON.stringify($json.candidates) }}",
-        "hasOutputParser": true,
-        "batching": {}
-      },
-      "id": "66f59200-032d-4759-a432-1641c8f94745",
-      "name": "itch Claude Filter",
-      "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.9,
-      "position": [
-        1568,
-        2976
-      ]
-    },
-    {
-      "parameters": {
-        "jsCode": "const out = $json.output || {};\nconst results = Array.isArray(out.results) ? out.results : [];\nconst cand = $('Build itch Claude Input').first().json.candidates || [];\nconst z = $now.setZone('Europe/Berlin');\nconst day = z.toFormat('yyyy-LL-dd');\nconst sentAt = $now.toISO();\nconst esc = s => (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst outItems = [];\nfor (const c of cand) {\n  const r = results.find(x => x && x.idx === c.idx) || {};\n  const used = r.used_ai === true;\n  const title = (r.title || c.title || '').toString().trim();\n  const note = (r.ai_note || '').toString().trim();\n  const safeUrl = (c.url||'').toString().replace(/&/g,'&amp;').replace(/\"/g,'%22');\n  const message = used ? ('🎮 itch.io · <b>' + esc(title) + '</b>\\n\\n' + esc(note) + '\\n\\n🔗 <a href=\"' + safeUrl + '\">Source</a>') : '';\n  outItems.push({ json: { url: c.url, title, used_ai: used, ai_note: note, day, sent_at: sentAt, message } });\n}\nreturn outItems;"
+        "jsCode": "// Parse the Claude verdicts; every scanned game is recorded, AI games also get a card.\nlet results = null;\ntry {\n  let t = '';\n  for (const b of ($json.content || [])) if (b && b.type === 'text') t += b.text;\n  const a = t.indexOf('{'), z = t.lastIndexOf('}');\n  const j = JSON.parse(t.slice(a, z + 1));\n  if (Array.isArray(j.results)) results = j.results;\n} catch (e) { results = null; }\n// If Claude failed, record nothing so these games are checked again next run.\nif (!results) return [];\nconst cand = $('Build itch Claude Input').first().json.candidates || [];\nconst z = $now.setZone('Europe/Berlin');\nconst day = z.toFormat('yyyy-LL-dd');\nconst sentAt = $now.toISO();\nconst esc = s => (s || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst outItems = [];\nfor (const c of cand) {\n  const r = results.find(x => x && x.idx === c.idx) || {};\n  const title = (r.title || c.title || '').toString().trim();\n  const note = (r.ai_note || '').toString().trim();\n  // A note is only written for local-AI games, so a note with a missing flag still counts.\n  const used = r.used_ai === true || (r.used_ai === undefined && note.length > 0);\n  const safeUrl = (c.url || '').toString().replace(/&/g, '&amp;').replace(/\"/g, '%22');\n  const message = used ? ('🎮 <b>LOCAL AI GAME</b> · itch.io\\n<b>' + esc(title) + '</b>\\n\\n' + esc(note) + '\\n\\n🔗 <a href=\"' + safeUrl + '\">Play on itch.io</a>') : '';\n  outItems.push({ json: { url: c.url, title, used_ai: used, ai_note: note, tags: c.tags || '', description: String(c.desc || '').slice(0, 1000), day, sent_at: sentAt, message } });\n}\nreturn outItems;\n"
       },
       "id": "e9a4e71e-6f9b-479f-b72b-759668ab5c13",
       "name": "Select itch",
@@ -2260,7 +2204,10 @@
             "title": "={{ $json.title }}",
             "used_ai": "={{ $json.used_ai }}",
             "day": "={{ $json.day }}",
-            "sent_at": "={{ $json.sent_at }}"
+            "sent_at": "={{ $json.sent_at }}",
+            "ai_note": "={{ $json.ai_note }}",
+            "tags": "={{ $json.tags }}",
+            "description": "={{ $json.description }}"
           },
           "schema": [
             {
@@ -2302,6 +2249,33 @@
             {
               "id": "sent_at",
               "displayName": "sent_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ai_note",
+              "displayName": "ai_note",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tags",
+              "displayName": "tags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "displayName": "description",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -5021,6 +4995,89 @@
           "name": "Telegram account"
         }
       }
+    },
+    {
+      "id": "3d41aa40-8a02-4676-9a52-b17e98dcc119",
+      "name": "itch Build Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        2976
+      ],
+      "parameters": {
+        "jsCode": "// itch.io local-AI check for Claude Sonnet 5.5 (replaces the old LangChain chain).\nconst SYSTEM = `You analyze indie games from itch.io to find games that USE AI as an in-game TECHNOLOGY at runtime AND run that AI LOCALLY / on-device (offline), NOT via cloud APIs.\n\nKEEP (used_ai = true) ONLY when BOTH conditions hold:\n1) AI is part of how the game actually works or is played: e.g. LLM / chatbot NPCs the player talks to in natural language, AI-driven dialogue or storytelling, content generated live by ML models, voice AI interaction, or ML models powering mechanics; AND\n2) that AI runs LOCALLY on the player's machine / on-device / offline. Signals of local: \"local model\", \"runs locally\", \"offline\", \"on-device\", GGUF, llama.cpp, Ollama, LM Studio, koboldcpp, bundled or downloadable model, local inference, \"no internet / no API key required\". If the game clearly offers BOTH local and cloud options, KEEP it (local is supported).\n\nDO NOT count (used_ai = false):\n- AI that runs in the CLOUD / via an online API (OpenAI, Anthropic, Gemini, OpenRouter, \"requires API key\", \"needs internet for the AI\", server-side) when there is NO local option;\n- cases where you cannot tell whether the AI is local or cloud: if there is no concrete evidence of LOCAL/on-device AI, set used_ai = false (when in doubt, false);\n- games merely MADE WITH AI-generated assets (art, music, textures): asset generation does NOT qualify;\n- classic game AI (pathfinding, finite-state-machine enemies, behavior trees, \"smart\" bots);\n- marketing buzzwords with no real AI technology behind them.\n\nRead each candidate's title, desc (developer description) and tags carefully for explicit mentions of LOCAL / on-device AI. For used_ai = true, write a short ENGLISH note (1 sentence, <=200 chars) saying which local AI it uses (model or runtime if named) and what it does in the game. Keep the original title exactly.\n\nReturn results for ALL candidates (both true and false), referencing each by idx.\nOutput ONLY JSON: {\"results\":[{\"idx\":0,\"used_ai\":false,\"title\":\"...\",\"ai_note\":\"\"}]}`;\nconst user = 'CANDIDATES:\\n' + JSON.stringify($json.candidates || []) + '\\n\\nReturn ONLY the JSON object.';\n// Strict schema so the model cannot drop used_ai for some games.\nconst SCHEMA = {\n  type: 'object', additionalProperties: false, required: ['results'],\n  properties: { results: { type: 'array', items: {\n    type: 'object', additionalProperties: false, required: ['idx', 'used_ai', 'title', 'ai_note'],\n    properties: { idx: { type: 'integer' }, used_ai: { type: 'boolean' }, title: { type: 'string' }, ai_note: { type: 'string' } },\n  } } },\n};\nreturn [{ json: { request_body: {\n  model: 'claude-sonnet-5-5', max_tokens: 12000,\n  output_config: { effort: 'medium', format: { type: 'json_schema', schema: SCHEMA } },\n  system: SYSTEM, messages: [{ role: 'user', content: user }],\n} } }];\n"
+      }
+    },
+    {
+      "id": "ba843ef9-a8f7-4bb4-9b0e-a69beed37064",
+      "name": "itch Claude",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1678,
+        3156
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.request_body) }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "anthropicApi": {
+          "id": "Kd6puzMUt71Ko9fg",
+          "name": "Anthropic (Tryll)"
+        }
+      }
+    },
+    {
+      "id": "3c63ab0c-2a60-47fd-8d8c-16e0b36cc2d8",
+      "name": "itch Loop",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2380,
+        3072
+      ],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "e29790a6-31b3-4c02-a43c-1c5de62f154e",
+      "name": "itch Pace",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2820,
+        3232
+      ],
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 3,
+        "unit": "seconds"
+      },
+      "webhookId": "1f0e704a-b39d-43eb-9df4-cc3dd9c84051"
     }
   ],
   "connections": {
@@ -5652,17 +5709,6 @@
         ]
       ]
     },
-    "Schedule itch 01 CET": {
-      "main": [
-        [
-          {
-            "node": "Fetch itch Newest",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Fetch itch Newest": {
       "main": [
         [
@@ -5696,28 +5742,6 @@
         ]
       ]
     },
-    "Build itch Claude Input": {
-      "main": [
-        [
-          {
-            "node": "itch Claude Filter",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "itch Claude Filter": {
-      "main": [
-        [
-          {
-            "node": "Select itch",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Select itch": {
       "main": [
         [
@@ -5729,39 +5753,6 @@
           {
             "node": "Filter Only AI",
             "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Filter Only AI": {
-      "main": [
-        [
-          {
-            "node": "Post itch",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "itch Claude Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "itch Claude Filter",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "itch Verdict Parser": {
-      "ai_outputParser": [
-        [
-          {
-            "node": "itch Claude Filter",
-            "type": "ai_outputParser",
             "index": 0
           }
         ]
@@ -6686,6 +6677,95 @@
         [
           {
             "node": "Health Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build itch Claude Input": {
+      "main": [
+        [
+          {
+            "node": "itch Build Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "itch Build Request": {
+      "main": [
+        [
+          {
+            "node": "itch Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "itch Claude": {
+      "main": [
+        [
+          {
+            "node": "Select itch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule itch 4h": {
+      "main": [
+        [
+          {
+            "node": "Fetch itch Newest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Only AI": {
+      "main": [
+        [
+          {
+            "node": "itch Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "itch Loop": {
+      "main": [
+        null,
+        [
+          {
+            "node": "Post itch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post itch": {
+      "main": [
+        [
+          {
+            "node": "itch Pace",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "itch Pace": {
+      "main": [
+        [
+          {
+            "node": "itch Loop",
             "type": "main",
             "index": 0
           }
