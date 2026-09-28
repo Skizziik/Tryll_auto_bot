@@ -18,7 +18,13 @@
         144
       ],
       "webhookId": "2c5611cd-8b5d-476d-8ec8-59dd9638e91e",
-      "disabled": true
+      "disabled": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -237,7 +243,13 @@
         448,
         -144
       ],
-      "webhookId": "679f4277-59d5-439c-bc49-48f2ef83f98b"
+      "webhookId": "679f4277-59d5-439c-bc49-48f2ef83f98b",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -273,7 +285,13 @@
       "position": [
         672,
         -144
-      ]
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "kYVtrQK8yvgr89Vw",
+          "name": "Bearer Auth account"
+        }
+      }
     },
     {
       "parameters": {
@@ -370,7 +388,13 @@
       ],
       "webhookId": "9528b49e-121d-4733-8eaa-d6dd4ddfac2f",
       "executeOnce": true,
-      "onError": "continueRegularOutput"
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -425,7 +449,13 @@
         -144
       ],
       "webhookId": "4f6d85f3-e1a4-4a98-86dc-b4d40a8459b4",
-      "executeOnce": true
+      "executeOnce": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -569,7 +599,13 @@
         112
       ],
       "webhookId": "b51b7b61-6776-4e20-b5d1-5455942c1b41",
-      "onError": "continueRegularOutput"
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -618,7 +654,13 @@
         2704,
         112
       ],
-      "webhookId": "f7597116-2a76-4e87-9b95-56b830eae13e"
+      "webhookId": "f7597116-2a76-4e87-9b95-56b830eae13e",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -669,7 +711,13 @@
         112
       ],
       "webhookId": "ab261f84-e65c-444e-9f5d-172b34933841",
-      "onError": "continueRegularOutput"
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -723,7 +771,17 @@
       "position": [
         1568,
         112
-      ]
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "kYVtrQK8yvgr89Vw",
+          "name": "Bearer Auth account"
+        },
+        "anthropicApi": {
+          "id": "Kd6puzMUt71Ko9fg",
+          "name": "Anthropic (Tryll)"
+        }
+      }
     },
     {
       "parameters": {
@@ -935,7 +993,13 @@
         368
       ],
       "webhookId": "268685e9-041b-4987-b00b-70a189e70bce",
-      "onError": "continueRegularOutput"
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -954,7 +1018,13 @@
         368
       ],
       "webhookId": "686662cf-73bd-458e-80a1-47f3bcca136e",
-      "onError": "continueRegularOutput"
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -1075,7 +1145,13 @@
         896,
         800
       ],
-      "webhookId": "961f45e7-51e8-4ab7-a160-b8a48a9677e1"
+      "webhookId": "961f45e7-51e8-4ab7-a160-b8a48a9677e1",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -1182,7 +1258,13 @@
         1120,
         608
       ],
-      "webhookId": "a6125dd6-991d-4310-9e3a-a040ec48b05b"
+      "webhookId": "a6125dd6-991d-4310-9e3a-a040ec48b05b",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -1200,7 +1282,13 @@
         448,
         1024
       ],
-      "webhookId": "48143d6d-a021-4f7d-9c39-de8bfd87a1c9"
+      "webhookId": "48143d6d-a021-4f7d-9c39-de8bfd87a1c9",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -1231,7 +1319,13 @@
         896,
         1024
       ],
-      "webhookId": "36969e13-666b-439c-b890-7946bb17a7f9"
+      "webhookId": "36969e13-666b-439c-b890-7946bb17a7f9",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -1290,7 +1384,13 @@
       "position": [
         1568,
         1024
-      ]
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "Kd6puzMUt71Ko9fg",
+          "name": "Anthropic (Tryll)"
+        }
+      }
     },
     {
       "parameters": {
@@ -1358,7 +1458,13 @@
       "position": [
         2464,
         1024
-      ]
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "CBqMJPCUkU9mQ6bP",
+          "name": "Google Drive account"
+        }
+      }
     },
     {
       "parameters": {
@@ -1376,7 +1482,13 @@
         2688,
         1024
       ],
-      "webhookId": "bc44cd88-33d5-4361-94ef-735b01bef74a"
+      "webhookId": "bc44cd88-33d5-4361-94ef-735b01bef74a",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -1442,7 +1554,7 @@
         448,
         2192
       ],
-      "disabled": true
+      "disabled": false
     },
     {
       "parameters": {
@@ -1475,7 +1587,7 @@
           "conditions": [
             {
               "id": "c-keep",
-              "leftValue": "={{ $json.active === true && ![\"habr.com\",\"forbes.com\",\"engadget.com\",\"techinasia.com\",\"eu-startups.com\",\"siliconcanals.com\",\"investgame.net\",\"techcrunch.com\",\"theverge.com\",\"venturebeat.com\",\"wired.com\",\"spectrum.ieee.org\",\"marktechpost.com\",\"technologyreview.com\",\"importai.substack.com\",\"gamespot.com\",\"ign.com\",\"digitaltrends.com\",\"pocketgamer.biz\",\"mcvuk.com\",\"gamesbeat.com\",\"thegamebusiness.com\",\"pcgamesinsider.biz\"].some(d => String($json.feed_url || '').includes(d)) }}",
+              "leftValue": "={{ $json.active === true }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
@@ -1532,7 +1644,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all().map(i => i.json).filter(x => x.url && x.title);\nitems.sort((a,b) => (b.isoDate||'').localeCompare(a.isoDate||''));\nconst capped = items.slice(0, 60);\nconst candidates = capped.map((x,i) => ({ idx: i, title: x.title, snippet: x.snippet, source: x.source, hint: x.industry, url: x.url, isoDate: x.isoDate }));\nif (candidates.length === 0) return [];\nconst z = $now.setZone('Europe/Berlin');\nconst today = z.toFormat('yyyy-LL-dd');\nconst yest = z.minus({ days: 1 }).toFormat('yyyy-LL-dd');\nlet sentRows = [];\ntry { sentRows = $('Aggregate Recent').first().json.sent || []; } catch(e) { sentRows = []; }\nconst all = Array.isArray(sentRows) ? sentRows : [];\nconst recent = all.filter(r => r && (r.day === today || r.day === yest));\nconst recent_sent = recent.filter(r => r.title).map(r => ({ title: r.title, source: r.source })).slice(0, 80);\nconst recent_keys = recent.filter(r => r.event_key).map(r => r.event_key.toString().toLowerCase());\nconst sent_model_keys = all.filter(r => r && String(r.industry||'').toLowerCase()==='local-model' && r.event_key).map(r => r.event_key.toString().toLowerCase());\nreturn [{ json: { candidates, recent_sent, recent_keys, sent_model_keys, count: candidates.length } }];"
+        "jsCode": "const items = $input.all().map(i => i.json).filter(x => x.url && x.title);\nitems.sort((a, b) => (b.isoDate || '').localeCompare(a.isoDate || ''));\nconst capped = items.slice(0, 90);\nconst candidates = capped.map((x, i) => ({ idx: i, title: x.title, snippet: x.snippet, source: x.source, hint: x.industry, url: x.url, isoDate: x.isoDate }));\nif (candidates.length === 0) return [];\n// Recent stories from the shared story memory, so the filter does not waste slots on known news.\nlet rows = [];\ntry { rows = $('Aggregate Recent').first().json.sent || []; } catch (e) { rows = []; }\nconst cutoff = Date.now() - 10 * 86400000;\nconst recent_sent = (Array.isArray(rows) ? rows : [])\n  .filter(r => r && r.headline && Date.parse(r.last_update || r.first_sent || '') >= cutoff)\n  .map(r => ({ title: r.headline, entity: r.entity || '' }))\n  .slice(-120);\nreturn [{ json: { candidates, recent_sent, count: candidates.length } }];\n"
       },
       "id": "5f44c771-a2b3-4632-9697-6e4e7e9f552a",
       "name": "Build Claude Input",
@@ -1545,57 +1657,7 @@
     },
     {
       "parameters": {
-        "model": {
-          "__rl": true,
-          "mode": "list",
-          "value": "claude-sonnet-4-6",
-          "cachedResultName": "Claude Sonnet 4.6"
-        },
-        "options": {
-          "maxTokensToSample": 8000
-        }
-      },
-      "id": "1e8fe826-509d-443a-9177-8bacb9038355",
-      "name": "News Claude Sonnet",
-      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
-      "typeVersion": 1.5,
-      "position": [
-        2464,
-        2416
-      ]
-    },
-    {
-      "parameters": {
-        "jsonSchemaExample": "{ \"results\": [ { \"idx\": 0, \"keep\": true, \"event_key\": \"alibaba-qwen3-tts\", \"industry\": \"local-model\", \"title\": \"Original article title\", \"summary_ru\": \"Краткое описание на русском.\" } ] }"
-      },
-      "id": "6c262f95-459b-4779-afe9-91c35f003dd6",
-      "name": "Verdict Parser",
-      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
-      "typeVersion": 1.3,
-      "position": [
-        2608,
-        2416
-      ]
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "=You are the senior market-intelligence curator for Tryll Engine — a startup building ON-DEVICE AI middleware for GAMES: LLM/voice AI NPCs, speech-to-text, text-to-speech, and generative game content that run LOCALLY on the player's own GPU (no cloud, no per-call cost). Plugins for Unity / Unreal / Godot.\n\nYour job: from the candidate feed items, keep ONLY the few a Tryll founder MUST see. Be ruthless. Contrast over coverage. When in doubt — REJECT.\n\nKEEP (keep=true) ONLY if the item fits ONE of these four buckets; set `industry` to that bucket's key:\n\n1. \"ai-in-games\" — AI / on-device AI actually used IN games: AI NPCs, voice/conversational characters, local inference in a game, generative in-game content, AI tooling for Unity/Unreal/Godot, engine AI features (NVIDIA ACE/NVIGI, Unreal NNE, Unity AI). Must be AI-in-a-game, not a plain game.\n\n2. \"competitor\" — a move by a company on our COMPETITOR list: product/plugin/model/demo release, partnership, integration, notable technical post. COMPETITORS: Inworld AI, Convai, Glade / GladeCore / Glade Studio, Player2 (Elefant AI), Artificial Agency, GeorgyDev, UndreamAI (LLM for Unity), Charisma.ai, HakkoAI, Bitpart AI, Studio Atelico, NVIDIA ACE/NVIGI, Microsoft Copilot for Gaming, Google Gemini Live (gaming), Unity AI, Unreal NNE / Epic, Ubisoft Teammates, Varco Game AI (NCSoft), Getnamo (Llama-Unreal), RunAnywhere, ClawdBot / MoltBot, Iconic Games, Parametrix AI, Aura, Run Edge AI, Bezi, Rosebud AI, Codewisp.\n\n3. \"local-model\" — a FRESH, LOCALLY-RUNNABLE / on-device model for TEXT->TEXT, SPEECH->TEXT (STT/ASR), or TEXT->SPEECH (TTS), released or open-weighted by a SERIOUS lab ONLY. Allowed labs: Google/DeepMind, Alibaba (Qwen), Meta, Mistral, Microsoft, NVIDIA, DeepSeek, Kyutai, Moonshot/Kimi, Kokoro, Nari (Dia), Coqui, ElevenLabs open releases, Zhipu/GLM, Tencent, ByteDance. REJECT models from unknown/noname sources, cloud-only APIs, image/video-only models, and models with no local/open weights. In event_key encode the MODEL identity (e.g. \"google-gemma-3n\", \"alibaba-qwen3-tts\") so the same model is never posted twice.\n\n4. \"research\" — substantive research (paper or lab blog) on AI in games OR on-device/local models (e.g. a DeepMind post on game-playing agents; an efficient on-device TTS paper).\n\nREJECT (keep=false) EVERYTHING ELSE — no exceptions:\n- funding / investment / raises / valuations / M&A (even in AI or games);\n- layoffs, studio closures, furloughs, hiring, exec moves;\n- ordinary game releases, trailers, reviews, delays, sales, hardware/consoles;\n- consumer gadgets, phones, laptops, TVs, appliances;\n- generic AI news with NO tie to games or on-device inference (chatbots, enterprise AI, policy, lawsuits, safety drama, regulation);\n- mass-media, opinion, listicles, roundups, marketing.\n\nEVENT GROUPING — for EVERY candidate assign event_key: a short lowercase kebab-case slug for the CORE event (specific launch/model/paper/announcement). Same underlying event -> IDENTICAL event_key across sources/languages. For local-model items, event_key = the model identity.\n\nDEDUPLICATION — keep=false when: another candidate shares the event_key (keep only the single most authoritative); OR it repeats any ALREADY_SENT item.\n\nFor EVERY candidate return: idx; keep; event_key; industry (one of \"ai-in-games\",\"competitor\",\"local-model\",\"research\"); title (ORIGINAL, unchanged); summary_ru.\n- summary_ru: ONLY for keep=true — a sharp English 1-2 sentence take on WHAT happened and WHY it matters to an on-device-AI-for-games company (<=300 chars). For keep=false -> empty string \"\".\n- NEVER put reasoning/verdicts/words like ALREADY_SENT/DROP/дубликат into title or summary_ru.\n\nReturn results for ALL candidates.\n\nALREADY_SENT:\n{{ JSON.stringify($json.recent_sent) }}\n\nCANDIDATES:\n{{ JSON.stringify($json.candidates) }}",
-        "hasOutputParser": true,
-        "batching": {}
-      },
-      "id": "c5a1b53d-6d31-4e2e-b696-0f78fdcbc235",
-      "name": "Claude Value Filter",
-      "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.9,
-      "position": [
-        2464,
-        2192
-      ]
-    },
-    {
-      "parameters": {
-        "jsCode": "const out = $json.output || {};\nconst results = Array.isArray(out.results) ? out.results : [];\nconst bi = $('Build Claude Input').first().json;\nconst cand = bi.candidates || [];\nconst byIdx = {}; cand.forEach(c => { byIdx[c.idx] = c; });\nconst recentKeys = new Set((bi.recent_keys || []).map(k => k.toString().toLowerCase()));\nconst modelKeys = new Set((bi.sent_model_keys || []).map(k => k.toString().toLowerCase()));\nconst z = $now.setZone('Europe/Berlin');\nconst day = z.toFormat('yyyy-LL-dd');\nconst run = z.hour < 12 ? 'morning' : 'evening';\nconst sentAt = $now.toISO();\nconst esc = s => (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst labels = { 'ai-in-games':'\\ud83c\\udfae AI-IN-GAMES', 'competitor':'\\ud83c\\udfaf COMPETITOR', 'local-model':'\\ud83e\\udde0 LOCAL MODEL', 'research':'\\ud83d\\udd2c RESEARCH' };\nconst bad = /ALREADY_SENT|ОТКЛОН|дубл|\\bDROP\\b|duplicate/i;\nconst norm = s => (s||'').toString().toLowerCase().replace(/[^a-z0-9а-я ]+/gi,'').replace(/\\s+/g,' ').trim();\nconst seenKeys = new Set();\nconst outItems = [];\nfor (const r of results) {\n  if (!r || r.keep !== true) continue;\n  const c = byIdx[r.idx]; if (!c) continue;\n  const summary = (r.summary_ru || '').toString().trim();\n  if (!summary || bad.test(summary)) continue;\n  const industry = (r.industry || '').toString().toLowerCase();\n  const title = (r.title || c.title || '').toString().trim();\n  let key = norm(r.event_key);\n  if (!key) key = norm(title).slice(0, 40);\n  if (recentKeys.has(key) || seenKeys.has(key)) continue;\n  if (industry === 'local-model' && modelKeys.has(key)) continue;\n  seenKeys.add(key);\n  const tag = labels[industry] || '\\ud83d\\udce1 SIGNAL';\n  const head = tag + (c.source ? ' \\u00b7 ' + esc(c.source) : '');\n  const safeUrl = (c.url||'').toString().replace(/&/g,'&amp;').replace(/\"/g,'%22');\n  const message = head + '\\n<b>' + esc(title) + '</b>\\n\\n' + esc(summary) + '\\n\\n\\ud83d\\udd17 <a href=\"' + safeUrl + '\">Source</a>';\n  outItems.push({ json: { url: c.url, title, industry, source: c.source, summary_ru: summary, event_key: key, day, run, sent_at: sentAt, message } });\n}\nreturn outItems;"
+        "jsCode": "// Parse the news filter answer and build cards for the Story Gate.\nlet results = [];\ntry {\n  let t = '';\n  for (const b of ($json.content || [])) if (b && b.type === 'text') t += b.text;\n  const a = t.indexOf('{'), z = t.lastIndexOf('}');\n  const j = JSON.parse(t.slice(a, z + 1));\n  results = Array.isArray(j.results) ? j.results : [];\n} catch (e) { results = []; }\nconst bi = $('Build Claude Input').first().json;\nconst byIdx = {};\n(bi.candidates || []).forEach(c => { byIdx[c.idx] = c; });\nconst esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst labels = { 'ai-in-games': '🎮 AI-IN-GAMES', 'competitor': '🎯 COMPETITOR', 'local-model': '🧠 LOCAL MODEL', 'research': '🔬 RESEARCH' };\nconst bad = /ALREADY_SENT|ОТКЛОН|дубл|\\bDROP\\b|duplicate/i;\nconst out = [];\nfor (const r of results) {\n  if (!r || r.keep !== true) continue;\n  const c = byIdx[r.idx];\n  if (!c) continue;\n  const summary = String(r.summary_ru || '').trim();\n  if (!summary || bad.test(summary)) continue;\n  const industry = String(r.industry || '').toLowerCase();\n  if (!labels[industry]) continue;\n  const title = String(r.title || c.title || '').trim();\n  const head = labels[industry] + (c.source ? ' · ' + esc(c.source) : '');\n  const safeUrl = String(c.url || '').replace(/&/g, '&amp;').replace(/\"/g, '%22');\n  const message = head + '\\n<b>' + esc(title) + '</b>\\n\\n' + esc(summary) + '\\n\\n🔗 <a href=\"' + safeUrl + '\">Source</a>';\n  out.push({ json: {\n    branch: 'news', bucket: industry, entity: String(r.entity || '').trim(), title, url: c.url,\n    summary, date: String(c.isoDate || '').slice(0, 10), source: c.source || '', photo: 'og', message,\n  } });\n}\nreturn out;\n"
       },
       "id": "74bbfa91-8129-4435-8801-2a2570079faf",
       "name": "Select Valuable",
@@ -1610,7 +1672,7 @@
       "parameters": {
         "operation": "sendPhoto",
         "chatId": "-1004406148635",
-        "file": "=https://tryllauto-tg-filter.vercel.app/api/card?title={{ encodeURIComponent($json.title) }}",
+        "file": "={{ $json.image ? $json.image : 'https://tryllauto-tg-filter.vercel.app/api/card?title=' + encodeURIComponent($json.title) }}",
         "additionalFields": {
           "caption": "={{ $json.message }}",
           "parse_mode": "HTML",
@@ -1626,122 +1688,13 @@
         2384
       ],
       "webhookId": "0bdcd283-ce5c-4b4a-8b5b-2a84fe5a1671",
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "dataTableId": {
-          "__rl": true,
-          "mode": "id",
-          "value": "mzGzfbnB18BVmM6h"
-        },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "url": "={{ $json.url }}",
-            "title": "={{ $json.title }}",
-            "industry": "={{ $json.industry }}",
-            "source": "={{ $json.source }}",
-            "summary_ru": "={{ $json.summary_ru }}",
-            "event_key": "={{ $json.event_key }}",
-            "sent_at": "={{ $json.sent_at }}",
-            "day": "={{ $json.day }}",
-            "run": "={{ $json.run }}"
-          },
-          "schema": [
-            {
-              "id": "url",
-              "displayName": "url",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "title",
-              "displayName": "title",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "industry",
-              "displayName": "industry",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "source",
-              "displayName": "source",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "summary_ru",
-              "displayName": "summary_ru",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "event_key",
-              "displayName": "event_key",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "sent_at",
-              "displayName": "sent_at",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "day",
-              "displayName": "day",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "run",
-              "displayName": "run",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "f3620dc6-065f-4202-b4a2-c23c4b6267d3",
-      "name": "Record Seen",
-      "type": "n8n-nodes-base.dataTable",
-      "typeVersion": 1.1,
-      "position": [
-        3168,
-        2384
-      ]
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -1762,7 +1715,7 @@
         448,
         2576
       ],
-      "disabled": true
+      "disabled": false
     },
     {
       "parameters": {
@@ -1770,15 +1723,7 @@
         "dataTableId": {
           "__rl": true,
           "mode": "id",
-          "value": "mzGzfbnB18BVmM6h"
-        },
-        "filters": {
-          "conditions": [
-            {
-              "keyName": "day",
-              "keyValue": "={{ $now.setZone('Europe/Berlin').toFormat('yyyy-LL-dd') }}"
-            }
-          ]
+          "value": "QSazNbs9LfUBFQKc"
         },
         "returnAll": true
       },
@@ -1808,42 +1753,6 @@
     },
     {
       "parameters": {
-        "model": {
-          "__rl": true,
-          "mode": "list",
-          "value": "claude-sonnet-4-6",
-          "cachedResultName": "Claude Sonnet 4.6"
-        },
-        "options": {
-          "maxTokensToSample": 5000
-        }
-      },
-      "id": "d8aa5da6-1b61-4a8e-af49-4cf0275d642e",
-      "name": "Summary Claude Model",
-      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
-      "typeVersion": 1.5,
-      "position": [
-        1120,
-        2768
-      ]
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "=You are preparing a short daily digest for the Tryll Engine team (the company builds AI games and AI NPCs: voice agents, generative content).\n\nBelow are today's news items (JSON array; fields: title, industry, summary_ru, url, source). Produce a compact digest:\n- First line — bold heading (b tag): Daily digest — {{ $now.setZone('Europe/Berlin').toFormat('dd.LL.yyyy') }}, and state the total number of items.\n- Group the items by industry (AI, AI+Game, GameDev, Investments, Research); the group heading is bold.\n- Each item = one line: the original title in a b tag, then a dash and the gist in 5-10 words in English, then a link as an a tag with an href to the url (link text — the source word from the source field).\n- Write with no fluff. Use only Telegram-HTML tags b, i, a. Replace any & with &amp;.\n\nNEWS:\n{{ JSON.stringify($json.rows) }}",
-        "batching": {}
-      },
-      "id": "7ceca694-caac-4110-85f3-a6eab38cc702",
-      "name": "News Claude Summary",
-      "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.9,
-      "position": [
-        1120,
-        2576
-      ]
-    },
-    {
-      "parameters": {
         "chatId": "-1004406148635",
         "text": "={{ $json.text }}",
         "additionalFields": {
@@ -1861,7 +1770,13 @@
         1472,
         2576
       ],
-      "webhookId": "aad6a2a4-2572-4e20-8c18-8a23b8bb61de"
+      "webhookId": "aad6a2a4-2572-4e20-8c18-8a23b8bb61de",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -1880,7 +1795,13 @@
         1696,
         2576
       ],
-      "webhookId": "3d53cb5d-4091-42dc-9bb5-4194728a7101"
+      "webhookId": "3d53cb5d-4091-42dc-9bb5-4194728a7101",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -1977,7 +1898,13 @@
         2576
       ],
       "webhookId": "799ace8d-56bf-42d2-88ba-a788281f0466",
-      "onError": "continueRegularOutput"
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -2007,7 +1934,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const sources = $input.all().map(i => i.json);\nconst UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';\nconst dec = (s) => (s||'').replace(/<!\\[CDATA\\[([^]*?)\\]\\]>/g,'$1').replace(/&#(\\d+);/g, (m,n)=>String.fromCharCode(parseInt(n,10))).replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'\"').replace(/&apos;/g,\"'\").replace(/&nbsp;/g,' ').replace(/&amp;/g,'&');\nconst strip = (s) => dec(s||'').replace(/<[^>]*>/g,' ').replace(/\\s+/g,' ').trim();\nconst pick = (b, tags) => { for (const t of tags) { const m = b.match(new RegExp('<'+t+'[^>]*>([^]*?)<\\/'+t+'>','i')); if (m) return m[1]; } return ''; };\nconst out = [];\nfor (const s of sources) {\n  let body='';\n  try { const res = await this.helpers.httpRequest({ url:s.feed_url, returnFullResponse:true, timeout:20000, headers:{ 'User-Agent':UA, 'Accept':'application/rss+xml, application/atom+xml, application/xml, text/xml, */*', 'Accept-Language':'en-US,en;q=0.9' } }); body=(res.body||'').toString(); } catch(e) { continue; }\n  const isAtom = /<entry[\\s>]/.test(body) && !/<item[\\s>]/.test(body);\n  let blocks = body.match(isAtom ? /<entry[\\s>][^]*?<\\/entry>/gi : /<item[\\s>][^]*?<\\/item>/gi) || [];\n  blocks = blocks.slice(0, 25);\n  for (const b of blocks) {\n    const title = strip(pick(b,['title']));\n    let link = strip(pick(b,['link']));\n    if (!link) { const lm = b.match(/<link[^>]*href=[\"']([^\"']+)[\"']/i); if (lm) link = lm[1]; }\n    if (!link) link = strip(pick(b,['guid','id']));\n    const rawd = strip(pick(b,['pubDate','published','updated','dc:date','date']));\n    let iso=null; if (rawd) { const d=new Date(rawd); if (!isNaN(d.getTime())) iso=d.toISOString(); }\n    let snip = strip(pick(b,['description','summary','content'])); if (snip.length>300) snip=snip.slice(0,300);\n    let url=(link||'').trim();\n    try { const u=new URL(url); u.hash=''; u.search=''; url=u.toString().replace(/\\/$/,''); } catch(e){}\n    if (!title || !url) continue;\n    out.push({ json:{ title, url, isoDate:iso, snippet:snip, source:s.name, industry:s.industry } });\n  }\n}\nreturn out;"
+        "jsCode": "const sources = $input.all().map(i => i.json);\nconst UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';\nconst dec = (s) => (s||'').replace(/<!\\[CDATA\\[([^]*?)\\]\\]>/g,'$1').replace(/&#(\\d+);/g, (m,n)=>String.fromCharCode(parseInt(n,10))).replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'\"').replace(/&apos;/g,\"'\").replace(/&nbsp;/g,' ').replace(/&amp;/g,'&');\nconst strip = (s) => dec(s||'').replace(/<[^>]*>/g,' ').replace(/\\s+/g,' ').trim();\nconst pick = (b, tags) => { for (const t of tags) { const m = b.match(new RegExp('<'+t+'[^>]*>([^]*?)<\\/'+t+'>','i')); if (m) return m[1]; } return ''; };\nconst out = [];\nfor (const s of sources) {\n  let body='';\n  try { const res = await this.helpers.httpRequest({ url:s.feed_url, returnFullResponse:true, timeout:20000, headers:{ 'User-Agent':UA, 'Accept':'application/rss+xml, application/atom+xml, application/xml, text/xml, */*', 'Accept-Language':'en-US,en;q=0.9' } }); body=(res.body||'').toString(); } catch(e) { continue; }\n  const isAtom = /<entry[\\s>]/.test(body) && !/<item[\\s>]/.test(body);\n  const isGoogleNews = String(s.feed_url || '').includes('news.google.com');\n  let blocks = body.match(isAtom ? /<entry[\\s>][^]*?<\\/entry>/gi : /<item[\\s>][^]*?<\\/item>/gi) || [];\n  blocks = blocks.slice(0, 25);\n  for (const b of blocks) {\n    let title = strip(pick(b,['title']));\n    let link = strip(pick(b,['link']));\n    if (!link) { const lm = b.match(/<link[^>]*href=[\"']([^\"']+)[\"']/i); if (lm) link = lm[1]; }\n    if (!link) link = strip(pick(b,['guid','id']));\n    const rawd = strip(pick(b,['pubDate','published','updated','dc:date','date']));\n    let iso=null; if (rawd) { const d=new Date(rawd); if (!isNaN(d.getTime())) iso=d.toISOString(); }\n    let snip = strip(pick(b,['description','summary','content'])); if (snip.length>300) snip=snip.slice(0,300);\n    let url = (link||'').trim().split('#')[0];\n    let source = s.name;\n    // Google News: show the real publisher and drop the \" - Publisher\" tail from the title.\n    if (isGoogleNews) {\n      const pub = strip(pick(b,['source']));\n      if (pub) {\n        source = pub;\n        const tail = ' - ' + pub;\n        if (title.endsWith(tail)) title = title.slice(0, -tail.length).trim();\n      }\n      snip = '';\n    }\n    if (!title || !url) continue;\n    out.push({ json:{ title, url, isoDate:iso, snippet:snip, source, industry:s.industry } });\n  }\n}\nreturn out;\n"
       },
       "id": "0d86c5ef-7ee5-4aea-b2ea-7d17f8fbb5de",
       "name": "Fetch & Parse Feeds",
@@ -2136,7 +2063,7 @@
         "dataTableId": {
           "__rl": true,
           "mode": "id",
-          "value": "mzGzfbnB18BVmM6h"
+          "value": "QSazNbs9LfUBFQKc"
         },
         "returnAll": true
       },
@@ -2269,7 +2196,13 @@
       "position": [
         1568,
         3168
-      ]
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "Kd6puzMUt71Ko9fg",
+          "name": "Anthropic (Tryll)"
+        }
+      }
     },
     {
       "parameters": {
@@ -2441,7 +2374,13 @@
         3072
       ],
       "webhookId": "c3566a9c-84f2-423c-bf42-1d52a924fef2",
-      "onError": "continueRegularOutput"
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -2471,61 +2410,6 @@
         3168,
         2192
       ]
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "leftValue": "={{ $json.image }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "notEmpty",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "id": "4450f594-b0c1-4dbf-9580-6d03f26ebb95",
-      "name": "Has Image",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        3392,
-        2192
-      ]
-    },
-    {
-      "parameters": {
-        "operation": "sendPhoto",
-        "chatId": "-1004406148635",
-        "file": "={{ $json.image }}",
-        "additionalFields": {
-          "caption": "={{ $json.message }}",
-          "parse_mode": "HTML",
-          "message_thread_id": 187
-        }
-      },
-      "id": "cfb0cc07-f776-4b59-bc49-c6f26e90e817",
-      "name": "Post News Photo",
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.2,
-      "position": [
-        3664,
-        2176
-      ],
-      "webhookId": "09ef0da6-6b18-4a8a-b353-01bc0f398721",
-      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -2589,7 +2473,13 @@
       "position": [
         2032,
         112
-      ]
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "CBqMJPCUkU9mQ6bP",
+          "name": "Google Drive account"
+        }
+      }
     },
     {
       "parameters": {
@@ -2606,7 +2496,13 @@
       "position": [
         2256,
         112
-      ]
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "CBqMJPCUkU9mQ6bP",
+          "name": "Google Drive account"
+        }
+      }
     },
     {
       "parameters": {
@@ -2626,7 +2522,13 @@
       "position": [
         2480,
         112
-      ]
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "CBqMJPCUkU9mQ6bP",
+          "name": "Google Drive account"
+        }
+      }
     },
     {
       "parameters": {
@@ -2642,7 +2544,13 @@
         448,
         1264
       ],
-      "webhookId": "63a0c78f-55da-474e-8d88-bb958d861d33"
+      "webhookId": "63a0c78f-55da-474e-8d88-bb958d861d33",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -2678,7 +2586,13 @@
       "position": [
         672,
         1264
-      ]
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "kYVtrQK8yvgr89Vw",
+          "name": "Bearer Auth account"
+        }
+      }
     },
     {
       "parameters": {
@@ -2774,8 +2688,14 @@
         1264
       ],
       "webhookId": "7413a0ba-ff6a-4272-9240-6e19477cdff7",
+      "executeOnce": true,
       "onError": "continueRegularOutput",
-      "executeOnce": true
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -2830,7 +2750,13 @@
         1264
       ],
       "webhookId": "6fbe5bdf-24a7-4339-bee0-0a75cd41e985",
-      "executeOnce": true
+      "executeOnce": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -2974,7 +2900,13 @@
         1568
       ],
       "webhookId": "4ee66e65-a570-4c57-acfb-eed64ec262f4",
-      "onError": "continueRegularOutput"
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -3023,7 +2955,13 @@
         2688,
         1568
       ],
-      "webhookId": "7f98525c-7aea-42c7-afc3-0cc85d65bcfd"
+      "webhookId": "7f98525c-7aea-42c7-afc3-0cc85d65bcfd",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -3074,7 +3012,13 @@
         1568
       ],
       "webhookId": "d3944b1e-ad2f-4343-9661-004f3646dfeb",
-      "onError": "continueRegularOutput"
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -3128,7 +3072,13 @@
       "position": [
         1568,
         1568
-      ]
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "Kd6puzMUt71Ko9fg",
+          "name": "Anthropic (Tryll)"
+        }
+      }
     },
     {
       "parameters": {
@@ -3340,7 +3290,13 @@
         1872
       ],
       "webhookId": "468c6b49-0197-412b-baa3-a67572215b4a",
-      "onError": "continueRegularOutput"
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -3359,7 +3315,13 @@
         1872
       ],
       "webhookId": "128959be-eeed-4347-b6c5-ed645ae2514d",
-      "onError": "continueRegularOutput"
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -3448,7 +3410,13 @@
       "position": [
         2016,
         1568
-      ]
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "CBqMJPCUkU9mQ6bP",
+          "name": "Google Drive account"
+        }
+      }
     },
     {
       "parameters": {
@@ -3465,7 +3433,13 @@
       "position": [
         2240,
         1568
-      ]
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "CBqMJPCUkU9mQ6bP",
+          "name": "Google Drive account"
+        }
+      }
     },
     {
       "parameters": {
@@ -3485,7 +3459,13 @@
       "position": [
         2464,
         1568
-      ]
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "CBqMJPCUkU9mQ6bP",
+          "name": "Google Drive account"
+        }
+      }
     },
     {
       "parameters": {
@@ -3600,49 +3580,39 @@
       "name": "Sticky Note14"
     },
     {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "daysInterval": 2,
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
       "id": "mw-1",
       "name": "MW Schedule 2d",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.3,
       "position": [
-        -600,
-        3200
-      ],
-      "parameters": {
-        "rule": {
-          "interval": [
-            {
-              "field": "days",
-              "daysInterval": 2,
-              "triggerAtHour": 9,
-              "triggerAtMinute": 0
-            }
-          ]
-        }
-      }
+        464,
+        3504
+      ]
     },
     {
+      "parameters": {
+        "jsCode": "const z = $now.setZone('Europe/Berlin');\nconst today = z.toFormat('yyyy-LL-dd');\nconst system = \"You monitor the web for THIRD-PARTY mentions and real usages of the startup \\\"Tryll Engine\\\" (a.k.a. \\\"Tryll\\\", consumer product \\\"Tryll Assistant\\\").\\nABOUT TRYLL: on-device AI middleware for games — runs LLMs directly on the player's own GPU instead of the cloud (\\\"DirectX for on-device AI\\\"). Delaware C-corp + Belgian entity, Epic MegaGrant recipient, closed alpha/beta with game studios, ~$600k pre-seed at ~$6M (Early Game Ventures). Founders/team: Aleksandr (Sasha) Glotov, Alex Riabov, Vladimir Beliaev, Maksim Makevich, Gennadii Potapov, Andrei Morozov, Bohdan Kuzmenko, Nikolay Andreev, Lidia Kozlova.\\n\\nTASK: find notable EXTERNAL web items where Tryll Engine / Tryll Assistant genuinely appears — mentioned, covered, credited, or USED — published by anyone OTHER than Tryll. Include:\\n- Games / studios that USE or CREDIT Tryll Engine or Tryll Assistant (announcements, store pages, trailers, devlogs, reviews) — even if \\\"Tryll\\\" is NOT in the headline. THESE ARE THE HIGHEST-VALUE FINDS.\\n- Press / news / blog articles about Tryll (product, launches, funding, valuation).\\n- Investor / VC / accelerator coverage (e.g. Early Game Ventures).\\n- Reddit / forum / Discord threads, YouTube videos, podcasts, roundups by other people.\\n\\nSEARCH ANGLES — cover several different queries (you have up to 8 searches). Vary them, e.g.:\\n\\\"Tryll Engine\\\"; \\\"Tryll Assistant\\\"; \\\"powered by Tryll\\\" OR \\\"built with Tryll\\\" OR \\\"using Tryll\\\" game; Tryll on-device AI NPC game; Tryll AI game studio; Tryll Early Game Ventures / funding; Tryll reddit; Tryll YouTube demo; \\\"Tryll\\\" game announcement 2026. Also try non-English (RU/其他) if English is thin.\\n\\nDO NOT restrict by date. We deduplicate on our side, so each item is sent only once. Prefer fresher items when choosing which to return.\\n\\nSTRICT RELEVANCE GATE — include an item ONLY if it is clearly ABOUT, or clearly USES/CREDITS, this specific company (the on-device-AI-for-games startup Tryll Engine). The token \\\"Tryll\\\" also appears in unrelated contexts (surnames, other products, misspellings) — if it shows up only as a coincidental/unrelated token, or the page has no real Tryll context, DISCARD it. When in doubt, exclude.\\n\\nEXCLUDE — our own channels / first-party (NOT third-party):\\n- tryllengine.com, docs.tryllengine.com, linkedin.com/company/tryllengine, youtube.com/@Tryll_engine (+ our videos), instagram.com/tryll_engine, discord.gg/bSTtvkdsS6, github.com/TryllEngine, tryll-engine.slack.com\\n- Tryll's OWN store/community pages: store.steampowered.com/app/4193780 and steamcommunity.com/app/4193780 (first-party). Third-party coverage about them is fine.\\n- ANY content authored/published by Tryll, its team, or its founders (self-promotion).\\n\\nEXCLUDE — price aggregators / deal & key-reseller sites (NEVER include, low signal): gg.deals, isthereanydeal.com, allkeyshop.com, cheapshark.com, gamivo.com, eneba.com, kinguin.net, g2a.com, cdkeys.com, keyforsteam.de, dlcompare.com, steampricehistory.com, steamdb.info.\\n\\nEFFICIENCY: this is a LIGHTWEIGHT recurring monitor, NOT deep research. Run AT MOST ~8 targeted web searches total. Identify items directly from SEARCH-RESULT SNIPPETS — do NOT open/read full pages. Be decisive and STOP EARLY once you have the notable results.\\n\\nOUTPUT: return ONLY a JSON array (no prose, no markdown code fence). Empty array [] only if truly nothing qualifies. Each item:\\n{\\\"url\\\": \\\"direct link\\\", \\\"title\\\": \\\"headline/title\\\", \\\"source\\\": \\\"domain or outlet name\\\", \\\"date\\\": \\\"YYYY-MM-DD or empty string if unknown\\\", \\\"summary\\\": \\\"1-2 sentences IN ENGLISH: who published/did what about Tryll\\\"}\";\nconst user = 'Find notable third-party mentions and usages of Tryll Engine / Tryll Assistant — especially GAMES that use Tryll (no date limit, we dedupe; work fast from snippets, vary your queries, <=8 searches). Today ' + today + '. Return ONLY a JSON array (or [] if truly nothing).';\nreturn [{ json: { system_prompt: system, user_prompt: user, today } }];"
+      },
       "id": "mw-2",
       "name": "MW Build Request",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -360,
-        3200
-      ],
-      "parameters": {
-        "jsCode": "const z = $now.setZone('Europe/Berlin');\nconst today = z.toFormat('yyyy-LL-dd');\nconst system = \"You monitor the web for THIRD-PARTY mentions and real usages of the startup \\\"Tryll Engine\\\" (a.k.a. \\\"Tryll\\\", consumer product \\\"Tryll Assistant\\\").\\nABOUT TRYLL: on-device AI middleware for games — runs LLMs directly on the player's own GPU instead of the cloud (\\\"DirectX for on-device AI\\\"). Delaware C-corp + Belgian entity, Epic MegaGrant recipient, closed alpha/beta with game studios, ~$600k pre-seed at ~$6M (Early Game Ventures). Founders/team: Aleksandr (Sasha) Glotov, Alex Riabov, Vladimir Beliaev, Maksim Makevich, Gennadii Potapov, Andrei Morozov, Bohdan Kuzmenko, Nikolay Andreev, Lidia Kozlova.\\n\\nTASK: find notable EXTERNAL web items where Tryll Engine / Tryll Assistant genuinely appears — mentioned, covered, credited, or USED — published by anyone OTHER than Tryll. Include:\\n- Games / studios that USE or CREDIT Tryll Engine or Tryll Assistant (announcements, store pages, trailers, devlogs, reviews) — even if \\\"Tryll\\\" is NOT in the headline. THESE ARE THE HIGHEST-VALUE FINDS.\\n- Press / news / blog articles about Tryll (product, launches, funding, valuation).\\n- Investor / VC / accelerator coverage (e.g. Early Game Ventures).\\n- Reddit / forum / Discord threads, YouTube videos, podcasts, roundups by other people.\\n\\nSEARCH ANGLES — cover several different queries (you have up to 8 searches). Vary them, e.g.:\\n\\\"Tryll Engine\\\"; \\\"Tryll Assistant\\\"; \\\"powered by Tryll\\\" OR \\\"built with Tryll\\\" OR \\\"using Tryll\\\" game; Tryll on-device AI NPC game; Tryll AI game studio; Tryll Early Game Ventures / funding; Tryll reddit; Tryll YouTube demo; \\\"Tryll\\\" game announcement 2026. Also try non-English (RU/其他) if English is thin.\\n\\nDO NOT restrict by date. We deduplicate on our side, so each item is sent only once. Prefer fresher items when choosing which to return.\\n\\nSTRICT RELEVANCE GATE — include an item ONLY if it is clearly ABOUT, or clearly USES/CREDITS, this specific company (the on-device-AI-for-games startup Tryll Engine). The token \\\"Tryll\\\" also appears in unrelated contexts (surnames, other products, misspellings) — if it shows up only as a coincidental/unrelated token, or the page has no real Tryll context, DISCARD it. When in doubt, exclude.\\n\\nEXCLUDE — our own channels / first-party (NOT third-party):\\n- tryllengine.com, docs.tryllengine.com, linkedin.com/company/tryllengine, youtube.com/@Tryll_engine (+ our videos), instagram.com/tryll_engine, discord.gg/bSTtvkdsS6, github.com/TryllEngine, tryll-engine.slack.com\\n- Tryll's OWN store/community pages: store.steampowered.com/app/4193780 and steamcommunity.com/app/4193780 (first-party). Third-party coverage about them is fine.\\n- ANY content authored/published by Tryll, its team, or its founders (self-promotion).\\n\\nEXCLUDE — price aggregators / deal & key-reseller sites (NEVER include, low signal): gg.deals, isthereanydeal.com, allkeyshop.com, cheapshark.com, gamivo.com, eneba.com, kinguin.net, g2a.com, cdkeys.com, keyforsteam.de, dlcompare.com, steampricehistory.com, steamdb.info.\\n\\nEFFICIENCY: this is a LIGHTWEIGHT recurring monitor, NOT deep research. Run AT MOST ~8 targeted web searches total. Identify items directly from SEARCH-RESULT SNIPPETS — do NOT open/read full pages. Be decisive and STOP EARLY once you have the notable results.\\n\\nOUTPUT: return ONLY a JSON array (no prose, no markdown code fence). Empty array [] only if truly nothing qualifies. Each item:\\n{\\\"url\\\": \\\"direct link\\\", \\\"title\\\": \\\"headline/title\\\", \\\"source\\\": \\\"domain or outlet name\\\", \\\"date\\\": \\\"YYYY-MM-DD or empty string if unknown\\\", \\\"summary\\\": \\\"1-2 sentences IN ENGLISH: who published/did what about Tryll\\\"}\";\nconst user = 'Find notable third-party mentions and usages of Tryll Engine / Tryll Assistant — especially GAMES that use Tryll (no date limit, we dedupe; work fast from snippets, vary your queries, <=8 searches). Today ' + today + '. Return ONLY a JSON array (or [] if truly nothing).';\nreturn [{ json: { system_prompt: system, user_prompt: user, today } }];"
-      }
+        704,
+        3504
+      ]
     },
     {
-      "id": "mw-3",
-      "name": "MW Claude",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [
-        -120,
-        3200
-      ],
       "parameters": {
         "method": "POST",
         "url": "https://api.anthropic.com/v1/messages",
@@ -3663,30 +3633,36 @@
         "options": {
           "timeout": 600000
         }
+      },
+      "id": "mw-3",
+      "name": "MW Claude",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        944,
+        3504
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "Kd6puzMUt71Ko9fg",
+          "name": "Anthropic (Tryll)"
+        }
       }
     },
     {
+      "parameters": {
+        "jsCode": "const resp = $json;\nlet text = '';\nconst content = resp.content || [];\nfor (const b of content) { if (b && b.type === 'text' && b.text) text += b.text + '\\n'; }\nlet arr = [];\ntry { const a = text.indexOf('['), b = text.lastIndexOf(']'); if (a >= 0 && b > a) arr = JSON.parse(text.slice(a, b + 1)); } catch (e) { arr = []; }\nif (!Array.isArray(arr)) arr = [];\nconst OWNED = ['tryllengine.com','linkedin.com/company/tryllengine','youtube.com/@tryll_engine','discord.gg/bsttvkdss6','github.com/tryllengine','tryll-engine.slack.com','instagram.com/tryll_engine','store.steampowered.com/app/4193780','steamcommunity.com/app/4193780'];\nconst OWNED_VIDS = ['6h4pwpbxknm','6r85htaeybq','e7nxj-ckubq','hgbkbnxj-6g','hurc4ie-dvg','poefkkj11io','r4eydt7fdpm','ta9seheyl2i','znbzx02l5rq'];\nconst PRICE_AGG = ['gg.deals','isthereanydeal.com','allkeyshop','cheapshark','gamivo','eneba.com','kinguin','g2a.com','cdkeys','keyforsteam','dlcompare','steampricehistory','steamdb.info'];\nfunction strip(s){ s=(s||'').toString(); while(s.endsWith('/')) s=s.slice(0,-1); return s; }\nfunction norm(u){ u=(u||'').toString().trim(); try{ const url=new URL(u); url.hash=''; const p=new URLSearchParams(url.search); ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','fbclid','gclid'].forEach(k=>p.delete(k)); url.search=p.toString(); return strip(url.toString()); }catch(e){ let s=u.split('#')[0].split('?')[0]; return strip(s); } }\nfunction isOwned(u){ const low=(u||'').toLowerCase(); if (OWNED.some(o=>low.includes(o))) return true; if (OWNED_VIDS.some(v=>low.includes(v))) return true; if (PRICE_AGG.some(p=>low.includes(p))) return true; return false; }\nconst out=[]; const seen=new Set();\nfor (const it of arr){ if(!it || !it.url) continue; const url=norm(it.url); if(!url || seen.has(url)) continue; if(isOwned(url)) continue; seen.add(url); out.push({ json: { url, title:(it.title||'').toString().trim(), source:(it.source||'').toString().trim(), date:(it.date||'').toString().trim(), summary:(it.summary||it.summary_ru||'').toString().trim() } }); }\nreturn out;"
+      },
       "id": "mw-4",
       "name": "MW Extract",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        120,
-        3200
-      ],
-      "parameters": {
-        "jsCode": "const resp = $json;\nlet text = '';\nconst content = resp.content || [];\nfor (const b of content) { if (b && b.type === 'text' && b.text) text += b.text + '\\n'; }\nlet arr = [];\ntry { const a = text.indexOf('['), b = text.lastIndexOf(']'); if (a >= 0 && b > a) arr = JSON.parse(text.slice(a, b + 1)); } catch (e) { arr = []; }\nif (!Array.isArray(arr)) arr = [];\nconst OWNED = ['tryllengine.com','linkedin.com/company/tryllengine','youtube.com/@tryll_engine','discord.gg/bsttvkdss6','github.com/tryllengine','tryll-engine.slack.com','instagram.com/tryll_engine','store.steampowered.com/app/4193780','steamcommunity.com/app/4193780'];\nconst OWNED_VIDS = ['6h4pwpbxknm','6r85htaeybq','e7nxj-ckubq','hgbkbnxj-6g','hurc4ie-dvg','poefkkj11io','r4eydt7fdpm','ta9seheyl2i','znbzx02l5rq'];\nconst PRICE_AGG = ['gg.deals','isthereanydeal.com','allkeyshop','cheapshark','gamivo','eneba.com','kinguin','g2a.com','cdkeys','keyforsteam','dlcompare','steampricehistory','steamdb.info'];\nfunction strip(s){ s=(s||'').toString(); while(s.endsWith('/')) s=s.slice(0,-1); return s; }\nfunction norm(u){ u=(u||'').toString().trim(); try{ const url=new URL(u); url.hash=''; const p=new URLSearchParams(url.search); ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','fbclid','gclid'].forEach(k=>p.delete(k)); url.search=p.toString(); return strip(url.toString()); }catch(e){ let s=u.split('#')[0].split('?')[0]; return strip(s); } }\nfunction isOwned(u){ const low=(u||'').toLowerCase(); if (OWNED.some(o=>low.includes(o))) return true; if (OWNED_VIDS.some(v=>low.includes(v))) return true; if (PRICE_AGG.some(p=>low.includes(p))) return true; return false; }\nconst out=[]; const seen=new Set();\nfor (const it of arr){ if(!it || !it.url) continue; const url=norm(it.url); if(!url || seen.has(url)) continue; if(isOwned(url)) continue; seen.add(url); out.push({ json: { url, title:(it.title||'').toString().trim(), source:(it.source||'').toString().trim(), date:(it.date||'').toString().trim(), summary:(it.summary||it.summary_ru||'').toString().trim() } }); }\nreturn out;"
-      }
+        1200,
+        3504
+      ]
     },
     {
-      "id": "mw-5",
-      "name": "MW New Only",
-      "type": "n8n-nodes-base.dataTable",
-      "typeVersion": 1.1,
-      "position": [
-        360,
-        3200
-      ],
       "parameters": {
         "operation": "rowNotExists",
         "dataTableId": {
@@ -3702,30 +3678,30 @@
             }
           ]
         }
-      }
+      },
+      "id": "mw-5",
+      "name": "MW New Only",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1440,
+        3504
+      ]
     },
     {
+      "parameters": {
+        "jsCode": "const CAP = 8;\nconst z = $now.setZone('Europe/Berlin');\nconst foundAt = z.toISO();\nconst loggedAt = z.toFormat('yyyy-LL-dd HH:mm');\nlet items = $input.all().map(i => i.json);\nitems.sort((a,b)=>{ const da=(a.date||''), db=(b.date||''); if(da&&db) return db.localeCompare(da); if(db&&!da) return 1; if(da&&!db) return -1; return 0; });\nitems = items.slice(0, CAP);\nconst esc = s => (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst out=[];\nfor (const d of items){ const safeUrl=(d.url||'').toString().replace(/&/g,'&amp;').replace(/\"/g,'%22'); const src=d.source ? (' · '+esc(d.source)) : ''; const dt=d.date ? (' · '+esc(d.date)) : ''; const body=esc(d.summary||d.title||''); const linkText=esc(d.title||'Source'); const message='📣 <b>Tryll mention</b>'+src+dt+'\\n\\n'+body+'\\n\\n🔗 <a href=\"'+safeUrl+'\">'+linkText+'</a>'; out.push({ json: { url:d.url, title:d.title, source:d.source, date:d.date||'', summary:d.summary||'', logged_at:loggedAt, found_at:foundAt, sent_at:foundAt, message } }); }\nreturn out;"
+      },
       "id": "mw-6",
       "name": "MW Build Message",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        600,
-        3200
-      ],
-      "parameters": {
-        "jsCode": "const CAP = 8;\nconst z = $now.setZone('Europe/Berlin');\nconst foundAt = z.toISO();\nconst loggedAt = z.toFormat('yyyy-LL-dd HH:mm');\nlet items = $input.all().map(i => i.json);\nitems.sort((a,b)=>{ const da=(a.date||''), db=(b.date||''); if(da&&db) return db.localeCompare(da); if(db&&!da) return 1; if(da&&!db) return -1; return 0; });\nitems = items.slice(0, CAP);\nconst esc = s => (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst out=[];\nfor (const d of items){ const safeUrl=(d.url||'').toString().replace(/&/g,'&amp;').replace(/\"/g,'%22'); const src=d.source ? (' \\u00b7 '+esc(d.source)) : ''; const dt=d.date ? (' \\u00b7 '+esc(d.date)) : ''; const body=esc(d.summary||d.title||''); const linkText=esc(d.title||'Source'); const message='\\ud83d\\udce3 <b>Tryll mention</b>'+src+dt+'\\n\\n'+body+'\\n\\n\\ud83d\\udd17 <a href=\"'+safeUrl+'\">'+linkText+'</a>'; out.push({ json: { url:d.url, title:d.title, source:d.source, date:d.date||'', summary:d.summary||'', logged_at:loggedAt, found_at:foundAt, sent_at:foundAt, message } }); }\nreturn out;"
-      }
+        1680,
+        3504
+      ]
     },
     {
-      "id": "mw-7",
-      "name": "MW Record Seen",
-      "type": "n8n-nodes-base.dataTable",
-      "typeVersion": 1.1,
-      "position": [
-        840,
-        3120
-      ],
       "parameters": {
         "dataTableId": {
           "__rl": true,
@@ -3790,17 +3766,17 @@
           ]
         },
         "options": {}
-      }
+      },
+      "id": "mw-7",
+      "name": "MW Record Seen",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1920,
+        3376
+      ]
     },
     {
-      "id": "mw-8",
-      "name": "MW Post",
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.2,
-      "position": [
-        840,
-        3280
-      ],
       "parameters": {
         "chatId": "-1004406148635",
         "text": "={{ $json.message }}",
@@ -3810,18 +3786,25 @@
           "parse_mode": "HTML",
           "message_thread_id": 918
         }
+      },
+      "id": "mw-8",
+      "name": "MW Post",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1920,
+        3584
+      ],
+      "webhookId": "50c89ff3-3e9c-4878-9a51-c6fada6ca022",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
       }
     },
     {
-      "name": "MW Log Sheet",
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.7,
-      "position": [
-        1920,
-        3760
-      ],
       "parameters": {
-        "resource": "sheet",
         "operation": "append",
         "documentId": {
           "__rl": true,
@@ -3904,21 +3887,43 @@
         },
         "options": {
           "locationDefine": {
-            "values": {
-              "headerRow": 1
-            }
+            "values": {}
           }
         }
       },
+      "id": "8fe79314-c95e-4c57-91a1-934b78abca7a",
+      "name": "MW Log Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1920,
+        3760
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "IS8es1x9XC8psdEQ",
           "name": "Google Sheets OAuth2 API"
         }
-      },
-      "id": "mwlogsheet1787173248027"
+      }
     },
     {
+      "parameters": {
+        "content": "",
+        "height": 640,
+        "width": 3792,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        64,
+        3344
+      ],
+      "id": "3f114f42-d15f-4ab4-b5ad-eb100980285b",
+      "name": "Sticky Note15"
+    },
+    {
+      "id": "c8c33f80-61dd-4c88-9798-55c02f1d842c",
       "name": "CW Schedule",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.3,
@@ -3940,10 +3945,10 @@
           ]
         }
       },
-      "id": "cws2lmh0h",
-      "disabled": true
+      "disabled": false
     },
     {
+      "id": "1850902d-bfe6-4076-b88b-277d6623a26d",
       "name": "CW Build Request",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -3952,11 +3957,11 @@
         4220
       ],
       "parameters": {
-        "jsCode": "const z = $now.setZone('Europe/Berlin');\nconst today = z.toFormat('yyyy-LL-dd');\nconst system = \"You are a senior competitive-intelligence analyst for Tryll Engine (on-device AI middleware for games: local LLM/voice NPCs, STT, TTS, generative content on the player's GPU).\\n\\n### FRESHNESS — #1 RULE\\nReturn ONLY items PUBLISHED / ANNOUNCED IN THE LAST 5 DAYS. Older = we already know = DROP. ALWAYS fill `date` (YYYY-MM-DD). If you cannot confirm it is within the last 5 days, do NOT include it. Empty answer beats stale news.\\n\\n### BREADTH — #2 RULE (avoid flooding one vendor)\\nSpread across DIFFERENT competitors — AT MOST 1-2 items per company per run. Do NOT return the same underlying story multiple times, and do NOT flood one vendor. NVIDIA ACE / Aniimo / PUBG has already been covered heavily — DEPRIORITIZE it and actively look at the OTHERS: Unity AI, Inworld, Convai, Player2, Artificial Agency, UndreamAI, Glade, Charisma, Bitpart, Studio Atelico, Getnamo, Rosebud, etc.\\n\\nFind NOTABLE items from the last 5 days in TWO categories:\\n(A) VENDOR MOVE — a competitor ships/updates a product, plugin, SDK, model, MCP server, engine integration, or posts a substantial technical update / partnership.\\n(B) ADOPTION — a GAME/STUDIO announces it integrates a competitor's AI in a game. Set company to the competitor being adopted, name the game.\\nIGNORE funding, hiring, generic PR.\\n\\nCOMPETITORS: Inworld AI; Convai; Glade / GladeCore; Player2 (Elefant AI); Artificial Agency; GeorgyDev; UndreamAI; Charisma.ai; HakkoAI; Bitpart AI; Studio Atelico; NVIDIA ACE / NVIGI; Microsoft Copilot for Gaming; Google Gemini Live (gaming); Unity AI; Unreal NNE / Epic; Ubisoft Teammates; Varco Game AI (NCSoft); Getnamo (Llama-Unreal); RunAnywhere; ClawdBot / MoltBot; Iconic Games; Parametrix AI; Aura; Run Edge AI; Bezi; Rosebud AI; Codewisp.\\n\\nSEARCH ANGLES — vary across up to 8 searches, cover BREADTH (different competitors + tooling), recent framing: Unity AI news this week; Unity MCP OR Unity \\\"Claude Code\\\"; Inworld AI new release; Convai update; Player2 AI game; Artificial Agency / UndreamAI / Bitpart release; \\\"<competitor> MCP\\\" OR \\\"MCP server\\\" game engine; game integrates AI NPC 2026.\\n\\nEVENT KEY — for EVERY item assign event_key: a short lowercase kebab slug naming the CORE event (e.g. unity-mcp-claude-code, inworld-tts-2, convai-unity-4-6). The SAME underlying story from different outlets MUST get the SAME event_key. Never return two items with the same event_key.\\n\\nEFFICIENCY: lightweight monitor, ~8 searches max, snippets only, stop early.\\nANALYSIS — summary_ru = 2-3 sharp analyst sentences IN ENGLISH: (1) exactly what the competitor shipped/did; (2) why it matters or threatens Tryll.\\n\\nOUTPUT: ONLY a JSON array (no prose/fence). Empty [] if nothing fresh. Each item:\\n{\\\"url\\\": \\\"direct link\\\", \\\"title\\\": \\\"headline\\\", \\\"company\\\": \\\"competitor\\\", \\\"event_key\\\": \\\"kebab-slug\\\", \\\"date\\\": \\\"YYYY-MM-DD (last 5 days)\\\", \\\"summary_ru\\\": \\\"2-3 sharp analyst sentences\\\"}\";\nconst user = 'Find ONLY FRESH (last 5 days) competitor moves for Tryll — prioritize BREADTH (different companies, max 1-2 per vendor, do NOT flood NVIDIA ACE/Aniimo). Be sure to check Unity (Unity AI / Unity MCP / Claude Code) and others. Snippets only, <=8 searches, always an exact date and event_key. Today is ' + today + '. Return ONLY a JSON array (or []).';\nreturn [{ json: { system_prompt: system, user_prompt: user, today } }];"
-      },
-      "id": "cwe17btr2"
+        "jsCode": "// Competitor sweep request (Claude Sonnet 5 + web search). Known stories are passed in so the\n// model skips what we already posted and looks for real developments of them instead.\nconst z = $now.setZone('Europe/Berlin');\nconst today = z.toFormat('yyyy-LL-dd');\nconst rows = $input.all().map(i => i.json).filter(r => r && r.story_id);\nconst cutoff = Date.now() - 30 * 86400000;\nconst known = rows\n  .filter(r => (r.bucket === 'competitor' || r.branch === 'cw') && Date.parse(r.last_update || r.first_sent || '') >= cutoff)\n  .sort((a, b) => Date.parse(a.last_update || a.first_sent) - Date.parse(b.last_update || b.first_sent))\n  .slice(-60)\n  .map(r => '- [' + String(r.first_sent || '').slice(0, 10) + '] ' + (r.entity ? r.entity + ': ' : '') + r.headline)\n  .join('\\n');\nconst system = \"You are a senior competitive-intelligence analyst for Tryll Engine (on-device AI middleware for games: local LLM/voice NPCs, STT, TTS, generative content on the player's GPU).\\n\\n### FRESHNESS — #1 RULE\\nReturn ONLY items PUBLISHED / ANNOUNCED IN THE LAST 5 DAYS. Older = we already know = DROP. ALWAYS fill `date` (YYYY-MM-DD). If you cannot confirm it is within the last 5 days, do NOT include it. Empty answer beats stale news.\\n\\n### BREADTH — #2 RULE (avoid flooding one vendor)\\nSpread across DIFFERENT competitors — AT MOST 1-2 items per company per run. Do NOT return the same underlying story multiple times, and do NOT flood one vendor. NVIDIA ACE / Aniimo / PUBG has already been covered heavily — DEPRIORITIZE it and actively look at the OTHERS: Unity AI, Inworld, Convai, Player2, Artificial Agency, UndreamAI, Glade, Charisma, Bitpart, Studio Atelico, Getnamo, Rosebud, etc.\\n\\nFind NOTABLE items from the last 5 days in TWO categories:\\n(A) VENDOR MOVE — a competitor ships/updates a product, plugin, SDK, model, MCP server, engine integration, or posts a substantial technical update / partnership.\\n(B) ADOPTION — a GAME/STUDIO announces it integrates a competitor's AI in a game. Set company to the competitor being adopted, name the game.\\nIGNORE funding, hiring, generic PR.\\n\\nCOMPETITORS: Inworld AI; Convai; Glade / GladeCore; Player2 (Elefant AI); Artificial Agency; GeorgyDev; UndreamAI; Charisma.ai; HakkoAI; Bitpart AI; Studio Atelico; NVIDIA ACE / NVIGI; Microsoft Copilot for Gaming; Google Gemini Live (gaming); Unity AI; Unreal NNE / Epic; Ubisoft Teammates; Varco Game AI (NCSoft); Getnamo (Llama-Unreal); RunAnywhere; ClawdBot / MoltBot; Iconic Games; Parametrix AI; Aura; Run Edge AI; Bezi; Rosebud AI; Codewisp.\\n\\nSEARCH ANGLES — vary across up to 8 searches, cover BREADTH (different competitors + tooling), recent framing: Unity AI news this week; Unity MCP OR Unity \\\"Claude Code\\\"; Inworld AI new release; Convai update; Player2 AI game; Artificial Agency / UndreamAI / Bitpart release; \\\"<competitor> MCP\\\" OR \\\"MCP server\\\" game engine; game integrates AI NPC 2026.\\n\\nEVENT KEY — for EVERY item assign event_key: a short lowercase kebab slug naming the CORE event (e.g. unity-mcp-claude-code, inworld-tts-2, convai-unity-4-6). The SAME underlying story from different outlets MUST get the SAME event_key. Never return two items with the same event_key.\\n\\nEFFICIENCY: lightweight monitor, ~8 searches max, snippets only, stop early.\\nANALYSIS — summary_ru = 2-3 sharp analyst sentences IN ENGLISH: (1) exactly what the competitor shipped/did; (2) why it matters or threatens Tryll.\\n\\nOUTPUT: ONLY a JSON array (no prose/fence). Empty [] if nothing fresh. Each item:\\n{\\\"url\\\": \\\"direct link\\\", \\\"title\\\": \\\"headline\\\", \\\"company\\\": \\\"competitor\\\", \\\"event_key\\\": \\\"kebab-slug\\\", \\\"date\\\": \\\"YYYY-MM-DD (last 5 days)\\\", \\\"summary_ru\\\": \\\"2-3 sharp analyst sentences\\\"}\";\nconst user = 'Find ONLY FRESH (last 5 days) competitor moves for Tryll — prioritize BREADTH (different companies, max 1-2 per vendor, do NOT flood NVIDIA ACE/Aniimo). Be sure to check Unity (Unity AI / Unity MCP / Claude Code) and others. Snippets only, <=8 searches, always an exact date and event_key. Today is ' + today + '.'\n  + '\\n\\nALREADY COVERED (last 30 days). Do NOT return these stories again, not even from another outlet. Return an item about one of them ONLY if there is a genuinely NEW development in the last 5 days (new version or release, launch date, a new game adopting it, pricing or licensing, new platform); then say what is new in the title. Also check whether any of them had such a development:\\n'\n  + (known || '(none yet)')\n  + '\\n\\nReturn ONLY a JSON array (or []).';\nreturn [{ json: { system_prompt: system, user_prompt: user, today } }];\n"
+      }
     },
     {
+      "id": "14e0a616-bb1b-4086-8d1a-d73bceb4af59",
       "name": "CW Claude",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -3980,7 +3985,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={ \"model\": \"claude-sonnet-4-6\", \"max_tokens\": 8000, \"system\": {{ JSON.stringify($json.system_prompt) }}, \"messages\": [ {\"role\": \"user\", \"content\": {{ JSON.stringify($json.user_prompt) }} } ], \"tools\": [ {\"type\": \"web_search_20250305\", \"name\": \"web_search\", \"max_uses\": 8} ] }",
+        "jsonBody": "={ \"model\": \"claude-sonnet-5\", \"max_tokens\": 16000, \"output_config\": {\"effort\": \"medium\"}, \"system\": {{ JSON.stringify($json.system_prompt) }}, \"messages\": [ {\"role\": \"user\", \"content\": {{ JSON.stringify($json.user_prompt) }} } ], \"tools\": [ {\"type\": \"web_search_20250305\", \"name\": \"web_search\", \"max_uses\": 8} ] }",
         "options": {
           "timeout": 600000
         }
@@ -3990,10 +3995,10 @@
           "id": "Kd6puzMUt71Ko9fg",
           "name": "Anthropic (Tryll)"
         }
-      },
-      "id": "cwi4myeod"
+      }
     },
     {
+      "id": "9125061f-2f4c-4079-b561-a02043906de1",
       "name": "CW Extract",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -4003,36 +4008,10 @@
       ],
       "parameters": {
         "jsCode": "const FRESH_DAYS = 5;\nconst z = $now.setZone('Europe/Berlin');\nconst cutoff = z.minus({ days: FRESH_DAYS }).toFormat('yyyy-LL-dd');\nconst resp = $json;\nlet text = '';\nconst content = resp.content || [];\nfor (const b of content) { if (b && b.type === 'text' && b.text) text += b.text + '\\n'; }\nlet arr = [];\ntry { const a = text.indexOf('['), b = text.lastIndexOf(']'); if (a >= 0 && b > a) arr = JSON.parse(text.slice(a, b + 1)); } catch (e) { arr = []; }\nif (!Array.isArray(arr)) arr = [];\nfunction strip(s){ s=(s||'').toString(); while(s.endsWith('/')) s=s.slice(0,-1); return s; }\nfunction norm(u){ u=(u||'').toString().trim(); try{ const url=new URL(u); url.hash=''; const p=new URLSearchParams(url.search); ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','fbclid','gclid'].forEach(k=>p.delete(k)); url.search=p.toString(); return strip(url.toString()); }catch(e){ let s=u.split('#')[0].split('?')[0]; return strip(s); } }\nfunction keyify(s){ return (s||'').toString().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }\nconst out=[]; const seen=new Set();\nfor (const it of arr){ if(!it || !it.url) continue; const d=(it.date||'').toString().slice(0,10); if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(d) || d < cutoff) continue; const url=norm(it.url); if(!url) continue; let ek=keyify(it.event_key); if(!ek) ek=keyify(it.title).slice(0,60); if(!ek || seen.has(ek)) continue; seen.add(ek); out.push({ json: { url, title:(it.title||'').toString().trim(), company:(it.company||'').toString().trim(), event_key:ek, date:d, summary_ru:(it.summary_ru||it.summary||'').toString().trim() } }); }\nreturn out;"
-      },
-      "id": "cwm9sni7e"
+      }
     },
     {
-      "name": "CW New Only",
-      "type": "n8n-nodes-base.dataTable",
-      "typeVersion": 1.1,
-      "position": [
-        1120,
-        4220
-      ],
-      "parameters": {
-        "operation": "rowNotExists",
-        "dataTableId": {
-          "__rl": true,
-          "mode": "id",
-          "value": "qsReOCh4vsM0TPan"
-        },
-        "filters": {
-          "conditions": [
-            {
-              "keyName": "event_key",
-              "keyValue": "={{ $json.event_key }}"
-            }
-          ]
-        }
-      },
-      "id": "cwfcv0mgl"
-    },
-    {
+      "id": "84c96b81-189e-46db-b24d-df1aa309f144",
       "name": "CW Build Message",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -4041,112 +4020,11 @@
         4220
       ],
       "parameters": {
-        "jsCode": "const CAP = 6;\nconst foundAt = $now.toISO();\nlet items = $input.all().map(i => i.json);\nitems.sort((a,b)=>{ const da=(a.date||''), db=(b.date||''); if(da&&db) return db.localeCompare(da); if(db&&!da) return 1; if(da&&!db) return -1; return 0; });\nitems = items.slice(0, CAP);\nconst esc = s => (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst out=[];\nfor (const d of items){ const safeUrl=(d.url||'').toString().replace(/&/g,'&amp;').replace(/\"/g,'%22'); const comp=d.company ? (' \\u00b7 '+esc(d.company)) : ''; const dt=d.date ? (' \\u00b7 '+esc(d.date)) : ''; const body=esc(d.summary_ru||d.title||''); const title=esc(d.title||''); const message='\\ud83c\\udfaf <b>COMPETITOR</b>'+comp+dt+'\\n<b>'+title+'</b>\\n\\n'+body+'\\n\\n\\ud83d\\udd17 <a href=\"'+safeUrl+'\">Source</a>'; out.push({ json: { url:d.url, company:d.company, title:d.title, event_key:d.event_key, found_at:foundAt, sent_at:foundAt, message } }); }\nreturn out;"
-      },
-      "id": "cwn9alriw"
+        "jsCode": "// Competitor cards for the Story Gate.\nconst CAP = 8;\nlet items = $input.all().map(i => i.json);\nitems.sort((a, b) => { const da = (a.date || ''), db = (b.date || ''); if (da && db) return db.localeCompare(da); if (db && !da) return 1; if (da && !db) return -1; return 0; });\nitems = items.slice(0, CAP);\nconst esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst out = [];\nfor (const d of items) {\n  const safeUrl = String(d.url || '').replace(/&/g, '&amp;').replace(/\"/g, '%22');\n  const comp = d.company ? (' · ' + esc(d.company)) : '';\n  const dt = d.date ? (' · ' + esc(d.date)) : '';\n  const body = esc(d.summary_ru || d.title || '');\n  const message = '🎯 <b>COMPETITOR</b>' + comp + dt + '\\n<b>' + esc(d.title || '') + '</b>\\n\\n' + body + '\\n\\n🔗 <a href=\"' + safeUrl + '\">Source</a>';\n  out.push({ json: {\n    branch: 'cw', bucket: 'competitor', entity: d.company || '', title: d.title || '', url: d.url,\n    summary: d.summary_ru || '', date: d.date || '', photo: 'none', message,\n  } });\n}\nreturn out;\n"
+      }
     },
     {
-      "name": "CW Record Seen",
-      "type": "n8n-nodes-base.dataTable",
-      "typeVersion": 1.1,
-      "position": [
-        1560,
-        4120
-      ],
-      "parameters": {
-        "dataTableId": {
-          "__rl": true,
-          "mode": "id",
-          "value": "qsReOCh4vsM0TPan"
-        },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "url": "={{ $json.url }}",
-            "company": "={{ $json.company }}",
-            "title": "={{ $json.title }}",
-            "event_key": "={{ $json.event_key }}",
-            "sent_at": "={{ $json.sent_at }}"
-          },
-          "schema": [
-            {
-              "id": "url",
-              "displayName": "url",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "company",
-              "displayName": "company",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "title",
-              "displayName": "title",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "event_key",
-              "displayName": "event_key",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "sent_at",
-              "displayName": "sent_at",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "cw06lgsrn"
-    },
-    {
-      "name": "CW Post",
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.2,
-      "position": [
-        1560,
-        4320
-      ],
-      "parameters": {
-        "chatId": "-1004406148635",
-        "text": "={{ $json.message }}",
-        "additionalFields": {
-          "appendAttribution": false,
-          "disable_web_page_preview": true,
-          "parse_mode": "HTML",
-          "message_thread_id": 187
-        }
-      },
-      "credentials": {
-        "telegramApi": {
-          "id": "CUOcdBn2atlIO15O",
-          "name": "Telegram account"
-        }
-      },
-      "id": "cwzcbyoft"
-    },
-    {
+      "id": "0c4f1fc5-1d65-4d20-a386-3816c3e60627",
       "name": "LM Schedule",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.3,
@@ -4168,29 +4046,29 @@
           ]
         }
       },
-      "id": "lmn4zvcnh",
-      "disabled": true
+      "disabled": false
     },
     {
+      "id": "9ee1cc01-0b45-4472-99c5-3f04718010e2",
       "name": "LM Build Request",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        460,
-        4620
+        0,
+        0
       ],
       "parameters": {
-        "jsCode": "const z = $now.setZone('Europe/Berlin');\nconst today = z.toFormat('yyyy-LL-dd');\nconst system = \"You track FRESH, LOCALLY-RUNNABLE / open-weight AI models for games-relevant modalities: TEXT->TEXT (LLM/SLM), SPEECH->TEXT (STT/ASR), TEXT->SPEECH (TTS), from SERIOUS makers.\\n\\n### FRESHNESS — THE #1 RULE\\nReturn ONLY models RELEASED IN THE LAST 7 DAYS. Older models we already know — DROP them. ALWAYS fill `date` with the exact release date (YYYY-MM-DD). If you cannot confirm it is from the last 7 days, DO NOT include it. Empty/short answer is better than stale.\\n\\nALLOWED MAKERS (reputable, open-weight): Google/DeepMind (Gemma), Alibaba (Qwen), Meta (Llama), Mistral, Microsoft (Phi), NVIDIA, DeepSeek, Kyutai (Moshi), Moonshot/Kimi, Zhipu/GLM, Tencent (Hunyuan), ByteDance, Kokoro, Nari (Dia), Coqui/XTTS, Fish Audio, SparkTTS, and other clearly reputable open-weight releases.\\n\\nSTRICT — include ONLY LOCAL / on-device runnable models: open weights, downloadable, runnable on consumer GPU/CPU. EXCLUDE cloud-only APIs (Gemini/GPT/Claude endpoints, closed models), image/video/music-only models, and noname makers.\\n\\nFor EACH item emit model_key: a stable lowercase kebab slug of the MODEL IDENTITY (e.g. google-gemma-4, alibaba-qwen3-tts, kokoro-82m) — same model MUST get the same key.\\n\\nSEARCH ANGLES — vary across up to 8 searches, add recent framing: new open-weight LLM release this week; Qwen / Gemma / DeepSeek new model September 2026; open source TTS release 2026; local ASR / speech-to-text model new; HuggingFace trending TTS OR ASR OR LLM latest.\\n\\nEFFICIENCY: lightweight monitor, AT MOST ~8 searches, snippets only, stop early.\\n\\nOUTPUT: return ONLY a JSON array (no prose, no fence). Empty [] if nothing fresh. Each item:\\n{\\\"url\\\": \\\"direct link\\\", \\\"title\\\": \\\"model / release name\\\", \\\"model_key\\\": \\\"stable-slug\\\", \\\"org\\\": \\\"maker\\\", \\\"date\\\": \\\"YYYY-MM-DD (MUST be within last 7 days)\\\", \\\"summary_ru\\\": \\\"1-2 sharp English sentences: what the model is, modality (LLM/STT/TTS), size/license, why it's useful for on-device games\\\"}\";\nconst user = 'Find ONLY FRESH (last 7 days) local / open-weight models (LLM/STT/TTS) from top labs. Do NOT take anything older than 7 days. Snippets only, <=8 searches, always an exact release date. Today is ' + today + '. Return ONLY a JSON array (or []).';\nreturn [{ json: { system_prompt: system, user_prompt: user, today } }];"
-      },
-      "id": "lm1jsjop6"
+        "jsCode": "// Local-model sweep: Claude Sonnet 5 picks and summarizes from the verified Hugging Face list.\nconst z = $now.setZone('Europe/Berlin');\nconst today = z.toFormat('yyyy-LL-dd');\nconst repos = $json.repos || [];\nconst system = `You curate FRESH open-weight models for Tryll Engine (on-device AI middleware for games: local LLM/SLM NPCs, speech-to-text, text-to-speech). You get a VERIFIED list of Hugging Face repositories created in the last 7 days by reputable labs. Use only this list, do not invent models.\n\nKEEP only models useful for on-device game AI: TEXT->TEXT LLM/SLM (including vision-language), SPEECH->TEXT (ASR/STT), TEXT->SPEECH (TTS), speech-to-speech or omni models.\nDROP: image/video/music generation, embeddings, classifiers, robotics, detection, time-series, third-party quantizations or re-uploads of another lab's model (e.g. nvidia/<OtherLab>-NVFP4), minor RL/distill checkpoints of an already listed family, eval/test/demo repos, repos with task \"unknown\" whose name does not clearly show an LLM/ASR/TTS model.\n\nGROUP variants of one family released together (sizes, Instruct/Base, Thinking, Flash/Pro) into ONE item:\n- title: family name with sizes, e.g. \"Qwen3.9 (0.6B-32B)\"\n- url: the main repo as https://huggingface.co/<id>\n- model_key: stable lowercase kebab slug of the family, e.g. \"qwen-qwen3-9\"\n- org: the lab\n- date: the repo creation date (YYYY-MM-DD)\n- summary_ru: 1-2 sharp ENGLISH sentences: what the model is, modality, sizes and license if the tags show them, why it matters for on-device games. Do not invent benchmarks.\n\nOUTPUT: ONLY a JSON array (no prose). Empty [] if nothing qualifies. Each item:\n{\"url\":\"https://huggingface.co/...\",\"title\":\"...\",\"model_key\":\"...\",\"org\":\"...\",\"date\":\"YYYY-MM-DD\",\"summary_ru\":\"...\"}`;\nconst user = 'Today is ' + today + '. Hugging Face repos:\\n' + JSON.stringify(repos);\nreturn [{ json: { system_prompt: system, user_prompt: user, today } }];\n"
+      }
     },
     {
+      "id": "a12983ab-c092-4ba7-953e-2a1fb2a5752e",
       "name": "LM Claude",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        680,
-        4620
+        0,
+        0
       ],
       "parameters": {
         "method": "POST",
@@ -4208,7 +4086,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={ \"model\": \"claude-sonnet-4-6\", \"max_tokens\": 8000, \"system\": {{ JSON.stringify($json.system_prompt) }}, \"messages\": [ {\"role\": \"user\", \"content\": {{ JSON.stringify($json.user_prompt) }} } ], \"tools\": [ {\"type\": \"web_search_20250305\", \"name\": \"web_search\", \"max_uses\": 8} ] }",
+        "jsonBody": "={ \"model\": \"claude-sonnet-5\", \"max_tokens\": 8000, \"output_config\": {\"effort\": \"low\"}, \"system\": {{ JSON.stringify($json.system_prompt) }}, \"messages\": [ {\"role\": \"user\", \"content\": {{ JSON.stringify($json.user_prompt) }} } ] }",
         "options": {
           "timeout": 600000
         }
@@ -4218,88 +4096,476 @@
           "id": "Kd6puzMUt71Ko9fg",
           "name": "Anthropic (Tryll)"
         }
-      },
-      "id": "lmr3971mu"
+      }
     },
     {
+      "id": "1f3fdb7f-a4ae-42a5-8be2-dded76406938",
       "name": "LM Extract",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        900,
-        4620
+        0,
+        0
       ],
       "parameters": {
         "jsCode": "const FRESH_DAYS = 7;\nconst z = $now.setZone('Europe/Berlin');\nconst cutoff = z.minus({ days: FRESH_DAYS }).toFormat('yyyy-LL-dd');\nconst resp = $json;\nlet text = '';\nconst content = resp.content || [];\nfor (const b of content) { if (b && b.type === 'text' && b.text) text += b.text + '\\n'; }\nlet arr = [];\ntry { const a = text.indexOf('['), b = text.lastIndexOf(']'); if (a >= 0 && b > a) arr = JSON.parse(text.slice(a, b + 1)); } catch (e) { arr = []; }\nif (!Array.isArray(arr)) arr = [];\nfunction strip(s){ s=(s||'').toString(); while(s.endsWith('/')) s=s.slice(0,-1); return s; }\nfunction norm(u){ u=(u||'').toString().trim(); try{ const url=new URL(u); url.hash=''; const p=new URLSearchParams(url.search); ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','fbclid','gclid'].forEach(k=>p.delete(k)); url.search=p.toString(); return strip(url.toString()); }catch(e){ let s=u.split('#')[0].split('?')[0]; return strip(s); } }\nfunction keyify(s){ return (s||'').toString().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }\nconst out=[]; const seen=new Set();\nfor (const it of arr){ if(!it || !it.url) continue; const d=(it.date||'').toString().slice(0,10); if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(d) || d < cutoff) continue; const url=norm(it.url); if(!url) continue; let mk=keyify(it.model_key); if(!mk) mk=keyify(it.title); if(!mk || seen.has(mk)) continue; seen.add(mk); out.push({ json: { url, title:(it.title||'').toString().trim(), model_key:mk, org:(it.org||'').toString().trim(), date:d, summary_ru:(it.summary_ru||it.summary||'').toString().trim() } }); }\nreturn out;"
-      },
-      "id": "lm1hxjzgd"
+      }
     },
     {
-      "name": "LM New Only",
-      "type": "n8n-nodes-base.dataTable",
-      "typeVersion": 1.1,
-      "position": [
-        1120,
-        4620
-      ],
-      "parameters": {
-        "operation": "rowNotExists",
-        "dataTableId": {
-          "__rl": true,
-          "mode": "id",
-          "value": "6LbL6iNsqo7v2Ji8"
-        },
-        "filters": {
-          "conditions": [
-            {
-              "keyName": "model_key",
-              "keyValue": "={{ $json.model_key }}"
-            }
-          ]
-        }
-      },
-      "id": "lmrgld28q"
-    },
-    {
+      "id": "6339ffc8-7cff-44fd-91ff-06720a6c064b",
       "name": "LM Build Message",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1340,
-        4620
+        0,
+        0
       ],
       "parameters": {
-        "jsCode": "const CAP = 6;\nconst foundAt = $now.toISO();\nlet items = $input.all().map(i => i.json);\nitems.sort((a,b)=>{ const da=(a.date||''), db=(b.date||''); if(da&&db) return db.localeCompare(da); if(db&&!da) return 1; if(da&&!db) return -1; return 0; });\nitems = items.slice(0, CAP);\nconst esc = s => (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst out=[];\nfor (const d of items){ const safeUrl=(d.url||'').toString().replace(/&/g,'&amp;').replace(/\"/g,'%22'); const org=d.org ? (' \\u00b7 '+esc(d.org)) : ''; const dt=d.date ? (' \\u00b7 '+esc(d.date)) : ''; const body=esc(d.summary_ru||d.title||''); const title=esc(d.title||''); const message='\\ud83e\\udde0 <b>LOCAL MODEL</b>'+org+dt+'\\n<b>'+title+'</b>\\n\\n'+body+'\\n\\n\\ud83d\\udd17 <a href=\"'+safeUrl+'\">Source</a>'; out.push({ json: { model_key:d.model_key, title:d.title, org:d.org, url:d.url, sent_at:foundAt, message } }); }\nreturn out;"
-      },
-      "id": "lm8s388ay"
+        "jsCode": "// Local-model cards for the Story Gate.\nconst CAP = 6;\nlet items = $input.all().map(i => i.json);\nitems.sort((a, b) => { const da = (a.date || ''), db = (b.date || ''); if (da && db) return db.localeCompare(da); if (db && !da) return 1; if (da && !db) return -1; return 0; });\nitems = items.slice(0, CAP);\nconst esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst out = [];\nfor (const d of items) {\n  const safeUrl = String(d.url || '').replace(/&/g, '&amp;').replace(/\"/g, '%22');\n  const org = d.org ? (' · ' + esc(d.org)) : '';\n  const dt = d.date ? (' · ' + esc(d.date)) : '';\n  const body = esc(d.summary_ru || d.title || '');\n  const message = '🧠 <b>LOCAL MODEL</b>' + org + dt + '\\n<b>' + esc(d.title || '') + '</b>\\n\\n' + body + '\\n\\n🔗 <a href=\"' + safeUrl + '\">Source</a>';\n  out.push({ json: {\n    branch: 'lm', bucket: 'local-model', entity: d.title || d.org || '', title: d.title || '', url: d.url,\n    summary: d.summary_ru || '', date: d.date || '', photo: 'none', message,\n  } });\n}\nreturn out;\n"
+      }
     },
     {
-      "name": "LM Record Seen",
+      "id": "dddefad7-dbb9-4cb6-8300-5be6cf0b0754",
+      "name": "SG In",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1800,
+        5000
+      ],
+      "parameters": {
+        "jsCode": "// Story Gate entry: every branch (News / CW / LM) sends its cards here.\nreturn $input.all();\n"
+      }
+    },
+    {
+      "id": "d3e25774-6c8f-43e9-a16d-26de43ea70b5",
+      "name": "SG Load Stories",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
-        1560,
-        4520
+        2020,
+        5000
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "QSazNbs9LfUBFQKc"
+        },
+        "returnAll": true
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "id": "4cb14580-2427-43aa-95f1-a04ee418ff8b",
+      "name": "SG Prep",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        5000
+      ],
+      "parameters": {
+        "jsCode": "// Story Gate, step 1: URL + title checks, then build the Haiku request for the rest.\nconst WINDOW_MS = 45 * 86400000;\nconst TITLE_SIM = 0.6;\nconst nowMs = Date.now();\nconst cands = $('SG In').all().map(i => i.json);\nconst stories = $input.all().map(i => i.json).filter(s => s && s.story_id);\n\nconst STOP = new Set(('the a an and or of for to in on with by at from is are was were be been its it this that these those new now just into over as via vs than more most how why what who when where which will can could has have had not no our your their his her after before about up out off all any first latest official officially launch launches launched release released releases unveil unveils unveiled announce announces announced introduce introduces introducing debut debuts bring brings adds add gets get says report reports reportedly update updated updates today week year here meet').split(' '));\n\n// The n8n code sandbox has no URL class, so URLs are parsed by hand.\nfunction parseUrl(u) {\n  const m = String(u || '').trim().match(/^[a-z][a-z0-9+.-]*:\\/\\/([^\\/?#]+)([^?#]*)(\\?[^#]*)?/i);\n  if (!m) return null;\n  return { host: m[1].toLowerCase().replace(/:\\d+$/, ''), path: m[2] || '', query: (m[3] || '').slice(1) };\n}\nfunction normUrl(u) {\n  const p = parseUrl(u);\n  if (!p) {\n    let s = String(u || '').trim().toLowerCase().split('#')[0];\n    while (s.endsWith('/')) s = s.slice(0, -1);\n    return s;\n  }\n  const host = p.host.replace(/^(www|m|amp)\\./, '');\n  let path = p.path.replace(/\\/amp\\/?$/i, '');\n  while (path.length > 1 && path.endsWith('/')) path = path.slice(0, -1);\n  if (path === '/') path = '';\n  const q = p.query.split('&').filter(kv => kv && !/^(utm_[^=]*|fbclid|gclid|ref|ref_src|source|mc_cid|mc_eid|cmpid|oc)(=|$)/i.test(kv)).join('&');\n  return (host + path + (q ? '?' + q : '')).toLowerCase();\n}\nfunction cleanTitle(t) { return String(t || '').replace(/\\s+[-–—|]\\s+[^-–—|]{2,40}$/, '').trim(); }\nfunction tokens(t) {\n  return cleanTitle(t).toLowerCase().replace(/[’'`]/g, '')\n    .split(/[^a-z0-9а-яё.+]+/i)\n    .map(w => w.replace(/^[.+]+|[.+]+$/g, ''))\n    .filter(w => w && (w.length >= 3 || /\\d/.test(w)) && !STOP.has(w));\n}\nfunction versions(t) { return new Set(String(t || '').toLowerCase().match(/\\d+(?:\\.\\d+)+/g) || []); }\nfunction sameVersions(a, b) {\n  const A = versions(a), B = versions(b);\n  if (!A.size || !B.size) return true;\n  if (A.size !== B.size) return false;\n  for (const x of A) if (!B.has(x)) return false;\n  return true;\n}\nfunction jacc(a, b) {\n  const A = new Set(a), B = new Set(b);\n  if (!A.size || !B.size) return 0;\n  let i = 0;\n  for (const x of A) if (B.has(x)) i++;\n  return i / (A.size + B.size - i);\n}\nfunction isJunk(u) {\n  const p = parseUrl(u);\n  if (!p) return true;\n  const host = p.host.replace(/^www\\./, '');\n  if (host === 'theopenweights.com') return true;\n  const segs = p.path.split('/').filter(Boolean);\n  if (segs.length === 0) return true;\n  if (segs.length === 1 && /^(blog|news|press|newsroom|articles?|updates?|changelog|releases|posts|insights|resources|research|en|en-us)$/i.test(segs[0])) return true;\n  return false;\n}\nconst tsOf = s => { const t = Date.parse(s.last_update || s.first_sent || ''); return isNaN(t) ? 0 : t; };\nconst recent = stories.filter(s => nowMs - tsOf(s) <= WINDOW_MS);\nconst byUrl = new Map();\nfor (const s of stories) for (const u of String(s.urls || '').split('|')) if (u) byUrl.set(u, s.story_id);\n\nconst items = [];\nconst batchUrl = new Map();\nconst batchFp = [];\ncands.forEach((c, idx) => {\n  const nurl = normUrl(c.url);\n  const tk = tokens(c.title);\n  const it = Object.assign({}, c, { idx, nurl, fp: tk.join(' '), pre: 'judge', story_id: '', dup_of_idx: null });\n  if (!c.url || isJunk(c.url)) { it.pre = 'junk'; items.push(it); return; }\n  if (byUrl.has(nurl)) { it.pre = 'dup_url'; it.story_id = byUrl.get(nurl); items.push(it); return; }\n  if (batchUrl.has(nurl)) { it.pre = 'dup_batch'; it.dup_of_idx = batchUrl.get(nurl); items.push(it); return; }\n  const hit = recent.find(s => jacc(tk, String(s.fingerprint || '').split(' ').filter(Boolean)) >= TITLE_SIM && sameVersions(c.title, s.headline));\n  if (hit) { it.pre = 'dup_title'; it.story_id = hit.story_id; items.push(it); return; }\n  const bh = batchFp.find(b => jacc(tk, b.tk) >= TITLE_SIM && sameVersions(c.title, b.title));\n  if (bh) { it.pre = 'dup_batch'; it.dup_of_idx = bh.idx; items.push(it); return; }\n  batchUrl.set(nurl, idx);\n  batchFp.push({ idx, tk, title: c.title });\n  items.push(it);\n});\n\nconst toJudge = items.filter(i => i.pre === 'judge');\nconst known = recent.slice().sort((a, b) => tsOf(b) - tsOf(a)).slice(0, 250).map(s => ({\n  id: s.story_id, entity: s.entity || '', headline: s.headline || '',\n  first: String(s.first_sent || '').slice(0, 10), last: String(s.last_update || '').slice(0, 10),\n}));\nconst SYSTEM = `You are the deduplication editor of a Telegram news feed for Tryll Engine (on-device AI middleware for games). The feed must NEVER post the same story twice.\n\nYou get KNOWN stories (already posted, last 45 days) and CANDIDATES found now, in order. For EVERY candidate return one verdict:\n- \"NEW\": a different event from every KNOWN story and from every EARLIER candidate.\n- \"SAME\": the same underlying event as a KNOWN story: a retelling by another outlet, different wording or language, an opinion/analysis/review/roundup about it, a minor detail, a re-announcement. Set story_id.\n- \"UPDATE\": a genuinely new development of a KNOWN story that adds a material NEW fact: a new version/release/patch of that product, a release or launch date, a launch actually happening, pricing or licensing change, new platform/engine support, a new game or studio adopting it, open weights released, new benchmark numbers. Set story_id and update_note.\n- \"DUP\": the same event as an EARLIER candidate in this list. Set dup_of_idx to that candidate's idx.\n\nRules:\n- The same company alone does NOT make two items the same story. Different products or different announcements are different stories.\n- A new version of a product that is already KNOWN is UPDATE, not NEW.\n- If unsure between SAME and UPDATE, choose SAME. If an item only repeats facts of the known story, it is SAME.\n- update_note: 1-2 short English sentences with ONLY what is new compared to the known story. No recap.\n\nOutput ONLY this JSON, one entry per candidate:\n{\"results\":[{\"idx\":0,\"verdict\":\"NEW\",\"story_id\":\"\",\"dup_of_idx\":null,\"update_note\":\"\"}]}`;\nconst cand = toJudge.map(c => ({\n  idx: c.idx, entity: c.entity || '', title: c.title || '',\n  summary: String(c.summary || '').slice(0, 300), url: c.url || '', date: c.date || '',\n}));\nconst user = 'KNOWN:\\n' + JSON.stringify(known) + '\\n\\nCANDIDATES:\\n' + JSON.stringify(cand) + '\\n\\nReturn ONLY the JSON object.';\nconst request_body = {\n  model: 'claude-haiku-4-5', max_tokens: 8000, temperature: 0,\n  system: SYSTEM, messages: [{ role: 'user', content: user }],\n};\nreturn [{ json: { items, need_judge: toJudge.length > 0, request_body, known_count: known.length, judge_count: toJudge.length } }];\n"
+      }
+    },
+    {
+      "id": "013ec73f-6d74-4e62-93e5-43e022d0a208",
+      "name": "SG Need Judge",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2460,
+        5000
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.need_judge }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "ba27415b-959c-4511-a99a-77b0ae5b8876",
+      "name": "SG Judge",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2680,
+        4900
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.request_body) }}",
+        "options": {
+          "timeout": 180000
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "anthropicApi": {
+          "id": "Kd6puzMUt71Ko9fg",
+          "name": "Anthropic (Tryll)"
+        }
+      }
+    },
+    {
+      "id": "88bf8ad5-8259-413d-8535-c8eeff4cebdb",
+      "name": "SG Apply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2900,
+        5000
+      ],
+      "parameters": {
+        "jsCode": "// Story Gate, step 2: apply Haiku verdicts, decide what to post / update / append.\nconst prep = $('SG Prep').first().json;\nconst stories = $('SG Load Stories').all().map(i => i.json).filter(s => s && s.story_id);\nconst byId = {};\nfor (const s of stories) byId[s.story_id] = s;\n\nconst verdicts = {};\nif (prep.need_judge) {\n  try {\n    const r = $('SG Judge').first().json;\n    let text = '';\n    for (const b of (r.content || [])) if (b && b.type === 'text') text += b.text;\n    const a = text.indexOf('{'), z = text.lastIndexOf('}');\n    const j = JSON.parse(text.slice(a, z + 1));\n    for (const v of (j.results || [])) if (v && v.idx !== undefined && v.idx !== null) verdicts[Number(v.idx)] = v;\n  } catch (e) { /* judge failed: URL + title checks still apply */ }\n}\n\nconst nowIso = $now.toISO();\nconst nowMs = Date.now();\nconst H48 = 48 * 3600000;\nconst FOLLOW_DAYS = { 'competitor': 30, 'local-model': 14 };\nconst items = prep.items.map(x => Object.assign({}, x, { extra_urls: [] }));\nconst byIdx = {};\nitems.forEach(x => { byIdx[x.idx] = x; });\n\nfor (const it of items) {\n  if (it.pre === 'junk' || it.pre === 'dup_url') { it.action = 'skip'; continue; }\n  if (it.pre === 'dup_title') { it.action = 'append'; continue; }\n  if (it.pre === 'dup_batch') { it.action = 'merge'; continue; }\n  const v = verdicts[it.idx];\n  const verdict = v ? String(v.verdict || '').toUpperCase() : 'NEW';\n  if (verdict === 'SAME') {\n    if (byId[v.story_id]) { it.action = 'append'; it.story_id = v.story_id; } else it.action = 'skip';\n    continue;\n  }\n  if (verdict === 'DUP') {\n    const d = Number(v.dup_of_idx);\n    if (!isNaN(d) && byIdx[d] && d < it.idx) { it.action = 'merge'; it.dup_of_idx = d; } else it.action = 'skip';\n    continue;\n  }\n  if (verdict === 'UPDATE') {\n    const s = byId[v.story_id];\n    if (!s) { it.action = 'skip'; continue; }\n    const first = Date.parse(s.first_sent || '');\n    const last = Date.parse(s.last_update || s.first_sent || '');\n    const follow = (FOLLOW_DAYS[s.bucket] || 30) * 86400000;\n    if (!isNaN(first) && nowMs - first > follow) { it.action = 'new'; continue; }\n    if (!isNaN(last) && nowMs - last < H48) { it.action = 'append'; it.story_id = v.story_id; continue; }\n    it.action = 'update'; it.story_id = v.story_id; it.update_note = String(v.update_note || '').trim();\n    continue;\n  }\n  it.action = 'new';\n}\n\nfunction resolve(it, depth) {\n  if (!it || depth > 20) return null;\n  if (it.action !== 'merge') return it;\n  return resolve(byIdx[it.dup_of_idx], depth + 1);\n}\nfor (const it of items) {\n  if (it.action !== 'merge') continue;\n  const t = resolve(byIdx[it.dup_of_idx], 0);\n  if (t && t.action === 'new') { t.extra_urls.push(it.nurl); it.action = 'skip'; }\n  else if (t && (t.action === 'append' || t.action === 'update') && t.story_id) { it.action = 'append'; it.story_id = t.story_id; }\n  else it.action = 'skip';\n}\n\nconst esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst dry = items.some(i => i.dry_run);\nconst appendMap = {};\nfunction addUrls(sid, urls) {\n  if (!byId[sid]) return;\n  if (!appendMap[sid]) appendMap[sid] = new Set(String(byId[sid].urls || '').split('|').filter(Boolean));\n  for (const u of urls) if (u) appendMap[sid].add(u);\n}\nfor (const it of items) if (it.action === 'append') addUrls(it.story_id, [it.nurl]);\n\nconst out = [];\nlet n = 0;\nfor (const it of items) {\n  if (it.action === 'new') {\n    const sid = 'S' + nowMs.toString(36) + '-' + (n++);\n    const urls = [it.nurl].concat(it.extra_urls).filter((u, i, a) => u && a.indexOf(u) === i);\n    const when = it.dry_run && it.sent_at ? it.sent_at : nowIso;\n    const row = {\n      story_id: sid, entity: it.entity || '', bucket: it.bucket || '', branch: it.branch || '',\n      headline: it.title || '', summary: it.summary || '', url: it.url || '', urls: urls.join('|'),\n      fingerprint: it.fp || '', tg_message_id: '', first_sent: when, last_update: when, updates: 0, last_note: '',\n    };\n    const route = it.dry_run ? 'dry' : (it.photo === 'og' ? 'post_photo' : 'post_text');\n    out.push({ json: Object.assign({}, it, { route, row }) });\n  } else if (it.action === 'update') {\n    const s = byId[it.story_id];\n    addUrls(it.story_id, [it.nurl]);\n    const day = String(it.date || nowIso).slice(0, 10);\n    const ent = it.entity || s.entity || '';\n    const safeUrl = String(it.url || '').replace(/&/g, '&amp;').replace(/\"/g, '%22');\n    const message = '🔄 <b>UPDATE</b>' + (ent ? ' · ' + esc(ent) : '') + ' · ' + esc(day)\n      + '\\n<b>' + esc(it.title) + '</b>\\n\\n' + esc(it.update_note || it.summary || '')\n      + '\\n\\n🔗 <a href=\"' + safeUrl + '\">Source</a>';\n    const reply = /^\\d+$/.test(String(s.tg_message_id || '')) ? Number(s.tg_message_id) : 0;\n    const route = it.dry_run ? 'dry' : (reply ? 'upd_reply' : 'upd_plain');\n    const upd = { story_id: it.story_id, urls: String(s.urls || ''), last_update: nowIso, updates: Number(s.updates || 0) + 1, last_note: it.update_note || '' };\n    out.push({ json: Object.assign({}, it, { route, reply_to: reply, message, upd }) });\n  } else if (it.dry_run) {\n    out.push({ json: Object.assign({}, it, { route: 'dry' }) });\n  }\n}\nif (!dry) {\n  for (const sid of Object.keys(appendMap)) {\n    const s = byId[sid];\n    const urls = [...appendMap[sid]].join('|');\n    const updItems = out.filter(o => o.json.upd && o.json.story_id === sid);\n    if (updItems.length) { updItems.forEach(o => { o.json.upd.urls = urls; }); continue; }\n    if (urls === String(s.urls || '')) continue;\n    out.push({ json: { route: 'append', story_id: sid, urls, last_update: s.last_update || '', updates: Number(s.updates || 0), last_note: s.last_note || '' } });\n  }\n}\nreturn out;\n"
+      }
+    },
+    {
+      "id": "d7600d5e-a76d-485e-b564-15607d3b9d8d",
+      "name": "SG Route",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        3120,
+        5000
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "post_photo",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "post_photo"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "post_text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "post_text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "upd_reply",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "upd_reply"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "upd_plain",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "upd_plain"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "append",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "append"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      }
+    },
+    {
+      "id": "2e53996f-79d2-4702-ae50-cc0a3c663922",
+      "name": "SG Post Text",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3560,
+        5000
+      ],
+      "parameters": {
+        "chatId": "-1004406148635",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_web_page_preview": true,
+          "parse_mode": "HTML",
+          "message_thread_id": 187
+        }
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "c34535c2-dbea-4320-b763-9419d6950d18",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "id": "a4179abe-4ca9-4918-8433-f50fb7f54693",
+      "name": "SG Post Update Reply",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3560,
+        5200
+      ],
+      "parameters": {
+        "chatId": "-1004406148635",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_web_page_preview": true,
+          "parse_mode": "HTML",
+          "message_thread_id": 187,
+          "reply_to_message_id": "={{ $json.reply_to }}"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "fc675f30-1037-4f2c-aa92-3d07406a4449",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "id": "eab4b812-9aa2-452c-992b-f05187e1c4c6",
+      "name": "SG Post Update",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3560,
+        5400
+      ],
+      "parameters": {
+        "chatId": "-1004406148635",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_web_page_preview": true,
+          "parse_mode": "HTML",
+          "message_thread_id": 187
+        }
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "05a8261d-566f-47fe-89ed-c50edff17367",
+      "credentials": {
+        "telegramApi": {
+          "id": "CUOcdBn2atlIO15O",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "id": "d3544075-8ef0-4faf-832d-8fdfd678b47d",
+      "name": "SG Save New Photo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3780,
+        4800
+      ],
+      "parameters": {
+        "jsCode": "// Story row for each posted photo card, with the Telegram message id.\nconst src = $('Resolve Image').all();\nreturn $input.all().map((it, i) => {\n  const row = Object.assign({}, (src[i] && src[i].json.row) || {});\n  const mid = it.json && it.json.result && it.json.result.message_id;\n  row.tg_message_id = mid ? String(mid) : '';\n  return { json: row };\n}).filter(x => x.json.story_id);\n"
+      }
+    },
+    {
+      "id": "2041d029-cd7a-4700-9f57-fcfaa7b1f0c8",
+      "name": "SG Save New Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3780,
+        5000
+      ],
+      "parameters": {
+        "jsCode": "// Story row for each posted text card, with the Telegram message id.\nconst src = $('SG Apply').all().filter(x => x.json.route === 'post_text');\nreturn $input.all().map((it, i) => {\n  const row = Object.assign({}, (src[i] && src[i].json.row) || {});\n  const mid = it.json && it.json.result && it.json.result.message_id;\n  row.tg_message_id = mid ? String(mid) : '';\n  return { json: row };\n}).filter(x => x.json.story_id);\n"
+      }
+    },
+    {
+      "id": "0db8c9da-53be-43ef-b38c-c6878f38b2e0",
+      "name": "SG Save Update R",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3780,
+        5200
+      ],
+      "parameters": {
+        "jsCode": "// Story changes after an UPDATE posted as a reply.\nconst src = $('SG Apply').all().filter(x => x.json.route === 'upd_reply');\nreturn $input.all().map((it, i) => ({ json: Object.assign({}, (src[i] && src[i].json.upd) || {}) })).filter(x => x.json.story_id);\n"
+      }
+    },
+    {
+      "id": "a2f44e3d-8762-47dc-8c52-75d129433fa9",
+      "name": "SG Save Update P",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3780,
+        5400
+      ],
+      "parameters": {
+        "jsCode": "// Story changes after an UPDATE posted without a reply target.\nconst src = $('SG Apply').all().filter(x => x.json.route === 'upd_plain');\nreturn $input.all().map((it, i) => ({ json: Object.assign({}, (src[i] && src[i].json.upd) || {}) })).filter(x => x.json.story_id);\n"
+      }
+    },
+    {
+      "id": "1e2e132d-61c3-4e8e-9d19-c63d2e4febc9",
+      "name": "SG Insert Story",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        4000,
+        4900
       ],
       "parameters": {
         "dataTableId": {
           "__rl": true,
           "mode": "id",
-          "value": "6LbL6iNsqo7v2Ji8"
+          "value": "QSazNbs9LfUBFQKc"
         },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "model_key": "={{ $json.model_key }}",
-            "title": "={{ $json.title }}",
-            "org": "={{ $json.org }}",
+            "story_id": "={{ $json.story_id }}",
+            "entity": "={{ $json.entity }}",
+            "bucket": "={{ $json.bucket }}",
+            "branch": "={{ $json.branch }}",
+            "headline": "={{ $json.headline }}",
+            "summary": "={{ $json.summary }}",
             "url": "={{ $json.url }}",
-            "sent_at": "={{ $json.sent_at }}"
+            "urls": "={{ $json.urls }}",
+            "fingerprint": "={{ $json.fingerprint }}",
+            "tg_message_id": "={{ $json.tg_message_id }}",
+            "first_sent": "={{ $json.first_sent }}",
+            "last_update": "={{ $json.last_update }}",
+            "updates": "={{ $json.updates }}",
+            "last_note": "={{ $json.last_note }}"
           },
           "schema": [
             {
-              "id": "model_key",
-              "displayName": "model_key",
+              "id": "story_id",
+              "displayName": "story_id",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -4307,8 +4573,8 @@
               "canBeUsedToMatch": true
             },
             {
-              "id": "title",
-              "displayName": "title",
+              "id": "entity",
+              "displayName": "entity",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -4316,8 +4582,35 @@
               "canBeUsedToMatch": true
             },
             {
-              "id": "org",
-              "displayName": "org",
+              "id": "bucket",
+              "displayName": "bucket",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "branch",
+              "displayName": "branch",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "headline",
+              "displayName": "headline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -4334,8 +4627,62 @@
               "canBeUsedToMatch": true
             },
             {
-              "id": "sent_at",
-              "displayName": "sent_at",
+              "id": "urls",
+              "displayName": "urls",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fingerprint",
+              "displayName": "fingerprint",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tg_message_id",
+              "displayName": "tg_message_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "first_sent",
+              "displayName": "first_sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_update",
+              "displayName": "last_update",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updates",
+              "displayName": "updates",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_note",
+              "displayName": "last_note",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -4345,16 +4692,318 @@
           ]
         },
         "options": {}
-      },
-      "id": "lm4pxkd86"
+      }
     },
     {
-      "name": "LM Post",
+      "id": "ea458ad1-a814-42cb-b8b3-b7e6b3e38ded",
+      "name": "SG Update Story",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        4000,
+        5300
+      ],
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "QSazNbs9LfUBFQKc"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "story_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.story_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "urls": "={{ $json.urls }}",
+            "last_update": "={{ $json.last_update }}",
+            "updates": "={{ $json.updates }}",
+            "last_note": "={{ $json.last_note }}"
+          },
+          "schema": [
+            {
+              "id": "urls",
+              "displayName": "urls",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_update",
+              "displayName": "last_update",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updates",
+              "displayName": "updates",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_note",
+              "displayName": "last_note",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "6de66c28-7c0f-4720-ba47-921c949e30b4",
+      "name": "News Build Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2460,
+        2192
+      ],
+      "parameters": {
+        "jsCode": "// News filter request for Claude Sonnet 5 (replaces the old LangChain chain).\nconst bi = $json;\nconst SYSTEM = `You are the senior market-intelligence curator for Tryll Engine, a startup building ON-DEVICE AI middleware for GAMES: LLM/voice AI NPCs, speech-to-text, text-to-speech, and generative game content that run LOCALLY on the player's own GPU (no cloud, no per-call cost). Plugins for Unity / Unreal / Godot.\n\nYour job: from the candidate feed items, keep ONLY the few a Tryll founder MUST see. Be ruthless. Contrast over coverage. When in doubt, REJECT.\n\nKEEP (keep=true) ONLY if the item fits ONE of these four buckets; set \"industry\" to that bucket's key:\n\n1. \"ai-in-games\": AI / on-device AI actually used IN games: AI NPCs, voice/conversational characters, local inference in a game, generative in-game content, AI tooling for Unity/Unreal/Godot, engine AI features (NVIDIA ACE/NVIGI, Unreal NNE, Unity AI). Must be AI-in-a-game, not a plain game.\n\n2. \"competitor\": a move by a company on our COMPETITOR list: product/plugin/model/demo release, partnership, integration, notable technical post, or a game adopting their tech. COMPETITORS: Inworld AI, Convai, Glade / GladeCore / Glade Studio, Player2 (Elefant AI), Artificial Agency, GeorgyDev, UndreamAI (LLM for Unity), Charisma.ai, HakkoAI, Bitpart AI, Studio Atelico, NVIDIA ACE/NVIGI, Microsoft Copilot for Gaming, Google Gemini Live (gaming), Unity AI, Unreal NNE / Epic, Ubisoft Teammates, Varco Game AI (NCSoft), Getnamo (Llama-Unreal), RunAnywhere, ClawdBot / MoltBot, Iconic Games, Parametrix AI, Aura, Run Edge AI, Bezi, Rosebud AI, Codewisp.\n\n3. \"local-model\": a FRESH model for TEXT->TEXT, SPEECH->TEXT (STT/ASR) or TEXT->SPEECH (TTS) with OPEN, DOWNLOADABLE WEIGHTS from a serious lab (Google/DeepMind, Alibaba Qwen, Meta, Mistral, Microsoft, NVIDIA, DeepSeek, Kyutai, Moonshot/Kimi, Kokoro, Nari (Dia), Coqui, Zhipu/GLM, Tencent, ByteDance, Xiaomi). The item itself must show the weights are downloadable (Hugging Face, GitHub, \"open weights\", \"open source\" with a license). Cloud-only or API-only models (new Gemini, GPT, Claude or ElevenLabs API models, etc.) are NOT local-model: reject them unless they clearly fit another bucket.\n\n4. \"research\": substantive research (paper or lab blog) on AI in games OR on-device/local models (for example a DeepMind post on game-playing agents, an efficient on-device TTS paper).\n\nREJECT (keep=false) EVERYTHING ELSE, no exceptions:\n- funding / investment / raises / valuations / M&A (even in AI or games);\n- layoffs, studio closures, furloughs, hiring, exec moves;\n- ordinary game releases, trailers, reviews, delays, sales, hardware/consoles;\n- consumer gadgets, phones, laptops, TVs, appliances;\n- generic AI news with NO tie to games or on-device inference (chatbots, enterprise AI, policy, lawsuits, safety drama, regulation);\n- mass-media, opinion, listicles, roundups, marketing;\n- anything that repeats a story in ALREADY_SENT.\nIf two candidates are the same event, keep only the most authoritative one.\n\nFor EVERY candidate return: idx; keep; industry; entity (the main company, product or model the item is about, e.g. \"Unity AI\", \"Qwen3.8-27B\"; \"\" when keep=false); title (ORIGINAL, unchanged); summary_ru.\n- summary_ru: ONLY for keep=true: a sharp ENGLISH 1-2 sentence take on WHAT happened and WHY it matters to an on-device-AI-for-games company (<=300 chars). For keep=false use \"\".\n- NEVER put reasoning or verdict words into title or summary_ru.\n\nOutput ONLY JSON, one entry per candidate:\n{\"results\":[{\"idx\":0,\"keep\":false,\"industry\":\"\",\"entity\":\"\",\"title\":\"...\",\"summary_ru\":\"\"}]}`;\nconst user = 'ALREADY_SENT (recent stories, do not repeat):\\n' + JSON.stringify(bi.recent_sent || [])\n  + '\\n\\nCANDIDATES:\\n' + JSON.stringify(bi.candidates || []) + '\\n\\nReturn ONLY the JSON object.';\nreturn [{ json: { request_body: {\n  model: 'claude-sonnet-5', max_tokens: 16000, output_config: { effort: 'medium' },\n  system: SYSTEM, messages: [{ role: 'user', content: user }],\n} } }];\n"
+      }
+    },
+    {
+      "id": "e0e38ce3-a1a8-4541-8bd1-77968fc9529d",
+      "name": "News Claude",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2680,
+        2192
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.request_body) }}",
+        "options": {
+          "timeout": 600000
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "anthropicApi": {
+          "id": "Kd6puzMUt71Ko9fg",
+          "name": "Anthropic (Tryll)"
+        }
+      }
+    },
+    {
+      "id": "af439cbc-fdf5-4d7c-825b-95cd73dc9c44",
+      "name": "CW Load Stories",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        350,
+        4380
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "QSazNbs9LfUBFQKc"
+        },
+        "returnAll": true
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "id": "8f4a1c53-bcc3-4fea-b76c-6a7a9b024a5e",
+      "name": "LM Fetch HF",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        350,
+        4780
+      ],
+      "parameters": {
+        "jsCode": "// Fresh open-weight repos straight from the Hugging Face API (no web search, exact ids and dates).\nconst ORGS = ['Qwen', 'google', 'meta-llama', 'mistralai', 'microsoft', 'nvidia', 'deepseek-ai', 'zai-org', 'moonshotai', 'tencent',\n  'ByteDance-Seed', 'kyutai', 'hexgrad', 'nari-labs', 'fishaudio', 'SparkAudio', 'XiaomiMiMo', 'internlm', 'ibm-granite', 'allenai',\n  'HuggingFaceTB', 'openai', 'stepfun-ai', 'MiniMaxAI', 'baidu', 'LiquidAI', 'CohereLabs', 'FunAudioLLM', 'openbmb', 'apple',\n  'facebook', 'ResembleAI', 'canopylabs', 'sesame'];\nconst TASKS = new Set(['text-generation', 'text2text-generation', 'image-text-to-text', 'any-to-any', 'automatic-speech-recognition',\n  'text-to-speech', 'text-to-audio', 'audio-text-to-text', 'audio-to-audio']);\nconst SKIP = /(gguf|awq|gptq|fp8|nvfp4|mxfp4|int4|int8|w4a16|w8a8|mlx|onnx|bnb|4bit|8bit|exl2|eagle|lora|adapter|reward|-prm\\b|draft)/i;\nconst cutoff = Date.now() - 7 * 86400000;\nconst repos = [];\nfor (let i = 0; i < ORGS.length; i += 6) {\n  const chunk = ORGS.slice(i, i + 6);\n  const res = await Promise.all(chunk.map(async org => {\n    try {\n      const arr = await this.helpers.httpRequest({ url: 'https://huggingface.co/api/models?author=' + encodeURIComponent(org) + '&sort=createdAt&direction=-1&limit=40', json: true, timeout: 20000 });\n      return { org, arr: Array.isArray(arr) ? arr : [] };\n    } catch (e) { return { org, arr: [] }; }\n  }));\n  for (const { org, arr } of res) {\n    for (const m of arr) {\n      const t = Date.parse(m.createdAt || '');\n      if (isNaN(t) || t < cutoff) continue;\n      const id = String(m.id || m.modelId || '');\n      if (!id || SKIP.test(id) || m.private) continue;\n      const task = m.pipeline_tag || '';\n      if (task && !TASKS.has(task)) continue;\n      repos.push({\n        id, org, created: new Date(t).toISOString().slice(0, 10), task: task || 'unknown',\n        likes: m.likes || 0, downloads: m.downloads || 0,\n        tags: (m.tags || []).filter(x => !/^(region|arxiv|base_model|dataset|endpoints|autotrain|deploy|doi)/.test(x)).slice(0, 12),\n      });\n    }\n  }\n}\nif (!repos.length) return [];\nreturn [{ json: { repos } }];\n"
+      }
+    },
+    {
+      "id": "92472a63-537f-42cf-991d-cb8bba2b9837",
+      "name": "Digest Build",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1116,
+        2576
+      ],
+      "parameters": {
+        "jsCode": "// Evening digest from the shared story memory: today's new stories plus today's updates.\nconst rows = ($json.rows || []).filter(r => r && r.story_id);\nconst tz = 'Europe/Berlin';\nconst today = $now.setZone(tz).toFormat('yyyy-LL-dd');\nconst dayOf = iso => { if (!iso) return ''; const d = DateTime.fromISO(String(iso)); return d.isValid ? d.setZone(tz).toFormat('yyyy-LL-dd') : String(iso).slice(0, 10); };\nconst fresh = rows.filter(r => dayOf(r.first_sent) === today);\nconst upd = rows.filter(r => Number(r.updates || 0) > 0 && dayOf(r.last_update) === today && dayOf(r.first_sent) !== today);\nif (!fresh.length && !upd.length) return [];\nconst items = fresh.map(r => ({ kind: 'new', bucket: r.bucket, entity: r.entity, title: r.headline, gist: r.summary, url: r.url }))\n  .concat(upd.map(r => ({ kind: 'update', bucket: r.bucket, entity: r.entity, title: r.headline, gist: r.last_note, url: r.url })));\nconst system = `You write the evening digest for the Tryll Engine team's Telegram news topic (Tryll Engine: on-device AI middleware for games). Write in English. Use ONLY Telegram HTML tags b, i, a. Replace every & in text with &amp;.\n\nFormat:\n- First line: exactly the HEADER line given in the input.\n- Then these sections in this order, only when they have items, each heading on its own line: 🎮 <b>AI in games</b> (bucket ai-in-games), 🎯 <b>Competitors</b> (competitor), 🧠 <b>Local models</b> (local-model), 🔬 <b>Research</b> (research), 📡 <b>Other</b> (anything else), 🔄 <b>Updates</b> (kind \"update\" items only go here).\n- Each item: one line \"• <b>short title</b> — gist in 6-12 words — <a href=\"URL\">site</a>\", where site is the domain name of the URL.\n- No intro, no outro, nothing else.`;\nconst date = $now.setZone(tz).toFormat('dd.LL.yyyy');\nconst header = '<b>Daily digest — ' + date + '</b> · ' + fresh.length + (fresh.length === 1 ? ' story' : ' stories') + (upd.length ? ' · ' + upd.length + (upd.length === 1 ? ' update' : ' updates') : '');\nconst user = 'HEADER: ' + header + '\\nITEMS:\\n' + JSON.stringify(items);\nreturn [{ json: { request_body: {\n  model: 'claude-sonnet-5', max_tokens: 4000, output_config: { effort: 'low' },\n  system, messages: [{ role: 'user', content: user }],\n} } }];\n"
+      }
+    },
+    {
+      "id": "57151fc2-6af6-4861-8462-4fa0dc6ff6da",
+      "name": "Digest Claude",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1336,
+        2576
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.request_body) }}",
+        "options": {
+          "timeout": 180000
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "anthropicApi": {
+          "id": "Kd6puzMUt71Ko9fg",
+          "name": "Anthropic (Tryll)"
+        }
+      }
+    },
+    {
+      "id": "21c8013e-b5a4-46f0-b836-d1159f3c57eb",
+      "name": "Digest Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1556,
+        2576
+      ],
+      "parameters": {
+        "jsCode": "// Digest text from the Claude answer (skips thinking blocks).\nlet t = '';\nfor (const b of ($json.content || [])) if (b && b.type === 'text') t += b.text;\nt = t.trim();\nif (!t) return [];\nreturn [{ json: { text: t } }];\n"
+      }
+    },
+    {
+      "id": "9ffbeecc-68aa-4347-be54-a2e8885f399c",
+      "name": "Health Weekly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        6200
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 9 * * 1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "4e05ae52-d7d5-41b2-8e07-1dda3e1093f4",
+      "name": "Health Sources",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        460,
+        6200
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "cHUyEGAFsNnpqjC6"
+        },
+        "returnAll": true
+      }
+    },
+    {
+      "id": "cae8ebce-3476-4d5a-8a17-1e5ee8bd0ff4",
+      "name": "Health Stories",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        680,
+        6200
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "QSazNbs9LfUBFQKc"
+        },
+        "returnAll": true
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "id": "b0e6ff37-5c9c-4e81-81d5-5f78d022c441",
+      "name": "Health Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        6200
+      ],
+      "parameters": {
+        "jsCode": "// Weekly health report: which feeds are dead or quiet, and what the news topic posted this week.\nconst sources = $('Health Sources').all().map(i => i.json).filter(s => s && s.active === true && s.feed_url);\nconst stories = $input.all().map(i => i.json).filter(s => s && s.story_id);\nconst UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';\nconst DAY = 86400000, now = Date.now();\nconst res = [];\nfor (let i = 0; i < sources.length; i += 8) {\n  const chunk = sources.slice(i, i + 8);\n  const r = await Promise.all(chunk.map(async s => {\n    try {\n      const x = await this.helpers.httpRequest({ url: s.feed_url, returnFullResponse: true, timeout: 20000, headers: { 'User-Agent': UA } });\n      const b = String(x.body || '');\n      const n = (b.match(/<item[\\s>]/gi) || []).length || (b.match(/<entry[\\s>]/gi) || []).length;\n      const ds = (b.match(/<(pubDate|published|updated)[^>]*>[^<]+</gi) || [])\n        .map(m => Date.parse(m.replace(/<[^>]+>/g, '').replace(/<$/, '').trim())).filter(t => !isNaN(t));\n      return { name: s.name, n, newest: ds.length ? Math.max(...ds) : 0, err: n ? '' : 'no items' };\n    } catch (e) {\n      const code = e && (e.httpCode || (e.response && e.response.status) || e.statusCode);\n      return { name: s.name, n: 0, newest: 0, err: code ? 'HTTP ' + code : String((e && e.message) || e).slice(0, 40) };\n    }\n  }));\n  res.push(...r);\n}\nconst esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst dead = res.filter(r => r.err);\nconst quiet = res.filter(r => !r.err && r.newest && now - r.newest > 30 * DAY);\nconst ok = res.length - dead.length;\nconst weekNew = stories.filter(s => now - Date.parse(s.first_sent || '') <= 7 * DAY);\nconst weekUpd = stories.filter(s => Number(s.updates || 0) > 0 && now - Date.parse(s.last_update || '') <= 7 * DAY);\nconst byBucket = {};\nfor (const s of weekNew) byBucket[s.bucket || 'other'] = (byBucket[s.bucket || 'other'] || 0) + 1;\nconst lines = [];\nlines.push('🩺 <b>News bot health</b> · ' + $now.setZone('Europe/Berlin').toFormat('dd.LL.yyyy'));\nlines.push('Feeds OK: ' + ok + '/' + res.length);\nif (dead.length) lines.push('❌ Not working: ' + dead.map(d => esc(d.name) + ' (' + esc(d.err) + ')').join(', '));\nif (quiet.length) lines.push('💤 Quiet for 30+ days: ' + quiet.map(q => esc(q.name)).join(', '));\nlines.push('Posted this week: ' + weekNew.length + ' stories' + (weekUpd.length ? ', ' + weekUpd.length + ' updated' : ''));\nconst parts = Object.keys(byBucket).sort().map(k => k + ' ' + byBucket[k]);\nif (parts.length) lines.push('By topic: ' + parts.join(' · '));\nreturn [{ json: { message: lines.join('\\n') } }];\n"
+      }
+    },
+    {
+      "id": "3d8cbda5-3840-46c2-8859-ab4b441bdebb",
+      "name": "Health Post",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        1560,
-        4720
+        1120,
+        6200
       ],
       "parameters": {
         "chatId": "-1004406148635",
@@ -4362,17 +5011,16 @@
         "additionalFields": {
           "appendAttribution": false,
           "disable_web_page_preview": true,
-          "parse_mode": "HTML",
-          "message_thread_id": 187
+          "parse_mode": "HTML"
         }
       },
+      "webhookId": "77a5767a-4ffc-4db0-9f2a-b245463528f0",
       "credentials": {
         "telegramApi": {
           "id": "CUOcdBn2atlIO15O",
           "name": "Telegram account"
         }
-      },
-      "id": "lm62gekb5"
+      }
     }
   ],
   "connections": {
@@ -4861,66 +5509,6 @@
         ]
       ]
     },
-    "Build Claude Input": {
-      "main": [
-        [
-          {
-            "node": "Claude Value Filter",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Claude Value Filter": {
-      "main": [
-        [
-          {
-            "node": "Select Valuable",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Select Valuable": {
-      "main": [
-        [
-          {
-            "node": "Record Seen",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Resolve Image",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "News Claude Sonnet": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Claude Value Filter",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Verdict Parser": {
-      "ai_outputParser": [
-        [
-          {
-            "node": "Claude Value Filter",
-            "type": "ai_outputParser",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Schedule 19 CET": {
       "main": [
         [
@@ -4937,28 +5525,6 @@
         [
           {
             "node": "Aggregate Day",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Aggregate Day": {
-      "main": [
-        [
-          {
-            "node": "News Claude Summary",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "News Claude Summary": {
-      "main": [
-        [
-          {
-            "node": "Post Summary",
             "type": "main",
             "index": 0
           }
@@ -5026,17 +5592,6 @@
           {
             "node": "Delete Old Pin",
             "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Summary Claude Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "News Claude Summary",
-            "type": "ai_languageModel",
             "index": 0
           }
         ]
@@ -5207,35 +5762,6 @@
           {
             "node": "itch Claude Filter",
             "type": "ai_outputParser",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Resolve Image": {
-      "main": [
-        [
-          {
-            "node": "Has Image",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Has Image": {
-      "main": [
-        [
-          {
-            "node": "Post News Photo",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Post News",
-            "type": "main",
             "index": 0
           }
         ]
@@ -5691,17 +6217,6 @@
         ]
       ]
     },
-    "CW Schedule": {
-      "main": [
-        [
-          {
-            "node": "CW Build Request",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "CW Build Request": {
       "main": [
         [
@@ -5718,55 +6233,6 @@
         [
           {
             "node": "CW Extract",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "CW Extract": {
-      "main": [
-        [
-          {
-            "node": "CW New Only",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "CW New Only": {
-      "main": [
-        [
-          {
-            "node": "CW Build Message",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "CW Build Message": {
-      "main": [
-        [
-          {
-            "node": "CW Record Seen",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "CW Post",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "LM Schedule": {
-      "main": [
-        [
-          {
-            "node": "LM Build Request",
             "type": "main",
             "index": 0
           }
@@ -5795,18 +6261,328 @@
         ]
       ]
     },
-    "LM Extract": {
+    "SG In": {
       "main": [
         [
           {
-            "node": "LM New Only",
+            "node": "SG Load Stories",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "LM New Only": {
+    "SG Load Stories": {
+      "main": [
+        [
+          {
+            "node": "SG Prep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SG Prep": {
+      "main": [
+        [
+          {
+            "node": "SG Need Judge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SG Need Judge": {
+      "main": [
+        [
+          {
+            "node": "SG Judge",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SG Apply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SG Judge": {
+      "main": [
+        [
+          {
+            "node": "SG Apply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SG Apply": {
+      "main": [
+        [
+          {
+            "node": "SG Route",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SG Route": {
+      "main": [
+        [
+          {
+            "node": "Resolve Image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SG Post Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SG Post Update Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SG Post Update",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SG Update Story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SG Post Text": {
+      "main": [
+        [
+          {
+            "node": "SG Save New Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SG Save New Text": {
+      "main": [
+        [
+          {
+            "node": "SG Insert Story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SG Post Update Reply": {
+      "main": [
+        [
+          {
+            "node": "SG Save Update R",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SG Save Update R": {
+      "main": [
+        [
+          {
+            "node": "SG Update Story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SG Post Update": {
+      "main": [
+        [
+          {
+            "node": "SG Save Update P",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SG Save Update P": {
+      "main": [
+        [
+          {
+            "node": "SG Update Story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SG Save New Photo": {
+      "main": [
+        [
+          {
+            "node": "SG Insert Story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Claude Input": {
+      "main": [
+        [
+          {
+            "node": "News Build Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "News Build Request": {
+      "main": [
+        [
+          {
+            "node": "News Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "News Claude": {
+      "main": [
+        [
+          {
+            "node": "Select Valuable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Valuable": {
+      "main": [
+        [
+          {
+            "node": "SG In",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve Image": {
+      "main": [
+        [
+          {
+            "node": "Post News",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post News": {
+      "main": [
+        [
+          {
+            "node": "SG Save New Photo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CW Schedule": {
+      "main": [
+        [
+          {
+            "node": "CW Load Stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CW Load Stories": {
+      "main": [
+        [
+          {
+            "node": "CW Build Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CW Extract": {
+      "main": [
+        [
+          {
+            "node": "CW Build Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CW Build Message": {
+      "main": [
+        [
+          {
+            "node": "SG In",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LM Schedule": {
+      "main": [
+        [
+          {
+            "node": "LM Fetch HF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LM Fetch HF": {
+      "main": [
+        [
+          {
+            "node": "LM Build Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LM Extract": {
       "main": [
         [
           {
@@ -5821,12 +6597,95 @@
       "main": [
         [
           {
-            "node": "LM Record Seen",
+            "node": "SG In",
             "type": "main",
             "index": 0
-          },
+          }
+        ]
+      ]
+    },
+    "Aggregate Day": {
+      "main": [
+        [
           {
-            "node": "LM Post",
+            "node": "Digest Build",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Digest Build": {
+      "main": [
+        [
+          {
+            "node": "Digest Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Digest Claude": {
+      "main": [
+        [
+          {
+            "node": "Digest Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Digest Text": {
+      "main": [
+        [
+          {
+            "node": "Post Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Health Weekly": {
+      "main": [
+        [
+          {
+            "node": "Health Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Health Sources": {
+      "main": [
+        [
+          {
+            "node": "Health Stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Health Stories": {
+      "main": [
+        [
+          {
+            "node": "Health Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Health Check": {
+      "main": [
+        [
+          {
+            "node": "Health Post",
             "type": "main",
             "index": 0
           }
