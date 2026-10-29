@@ -1,38 +1,47 @@
-# Feature: /idea в топике «Game Ideas»
+# Feature: Game Ideas (Steam-ссылка → идеи Tryll Engine)
 
-**Где:** Telegram-группа TryllAuto, топик **💡 Game Ideas** (`message_thread_id = 1283`, chat `-1004406148635`), бот @Tryllauto_bot.
-**Что:** перенос команды `/idea` из бота Tryll Nexus (`[Sub 9] LinkedIn Idea`, `4124iMuFjqRScMyX`). Кристиан пишет `/idea <игра>` и примерно через минуту получает готовую фразу для LinkedIn-сообщения, две альтернативы и ссылку на подробный Google Doc. В HubSpot ничего не пишется.
+**Где:** Telegram-группа TryllAuto, топик **💡 Game Ideas** (`message_thread_id = 1283`, chat `-1004406148635`), бот @Tryllauto_bot. Позже переедет в основную группу Tryll Engine.
+**Что:** кто угодно кидает в топик ссылку на игру в Steam (можно с комментарием), бот примерно через минуту отвечает реплаем: что за игра, core loop и 10–12 конкретных идей, как встроить Tryll Engine именно в эту игру. Три лучшие идеи сверху («Top picks»), остальные ниже. У каждой идеи — к какой системе игры цепляется, что видит игрок, как это работает на Tryll, оценки fit / wow, effort и 1–2 ссылки на страницы документации.
 
 ## Как вызвать
-- `/idea https://store.steampowered.com/app/1234567` — ссылка Steam
-- `/idea https://studio-site.com` — сайт студии
-- `/idea Fading Tides` — просто название (поиск в Steam)
-- `/idea` без аргумента — инструкция. Работает и `/idea@Tryllauto_bot ...`.
+- `https://store.steampowered.com/app/1145350/Hades_II/` — просто ссылка
+- `https://store.steampowered.com/app/1145350/ сфокусируйся на персонажах хаба` — ссылка + комментарий. Всё, что написано рядом со ссылкой, уходит модели как «TEAM COMMENT», и бот отдельно отвечает на него (строка 💬).
+- Работает и для подписи к картинке со ссылкой.
 
-Доступ: белый список в ноде `GI Gate` (`ALLOWED`: Максим 1240344207, Кристиан 7657670413). Остальным — вежливый отказ.
+Команд нет. Сообщения без Steam-ссылки бот не видит вообще.
+
+## Почему обычный чат не тратит executions
+1. Vercel-фильтр (`tryllauto-tg-filter`, оба файла `api/tg.js`) пропускает из топика 1283 только сообщения, где в тексте или подписи есть `store.steampowered.com/app/<id>`. Остальное отбрасывается до n8n.
+2. В n8n `Route Update` (выход `idea`) проверяет то же самое ещё раз.
+Редактирование сообщений (`edited_message`) не пропускается, чтобы правка не запускала второй разбор.
 
 ## Путь сообщения
 ```
-Telegram → Vercel фильтр (tryllauto-tg-filter, пропускает /idea только из топика 1283)
-  → TG Webhook → TG Adapter → Route Update (выход idea)
-  → GI Gate (доступ, разбор команды) → GI Go
-      ├─ нет → GI Notice (отказ / инструкция)
-      └─ да  → GI Ack («Researching …»)
-               → GI Intake (Steam, посты разработчиков, отзывы, сайт студии, документация Tryll из llms.txt)
-               → GI Embed (Gemini embedding, cred «Google Gemini(PaLM) Api account»)
-               → GI KB Search (Supabase match_kb_documents, use_cases, cred «Supabase (Vector Store)»)
-               → GI Prompt (подставляет найденные юзкейсы) → GI Claude (claude-sonnet-5-5, web search ≤ 2)
-               → GI Build Doc → GI Create Doc (Team Drive, папка «Nexus LinkedIn Ideas»)
-               → GI Reply Text → GI Send Reply (в топик 1283)
+Telegram → Vercel фильтр → TG Webhook → TG Adapter → Route Update (выход idea)
+  → GI Gate (вытаскивает ссылку и комментарий) → GI Go
+      ├─ нет → GI Notice (подсказка, на практике не срабатывает)
+      └─ да  → GI Ack («🔎 Looking into this game…», реплаем на сообщение)
+               → GI Intake: Steam (факты, посты разработчиков, отзывы), сайт студии,
+                 документация Tryll из llms.txt (всегда последняя версия)
+               → GI Embed + GI KB Search (похожие юзкейсы из базы, Supabase)
+               → GI Prompt → GI Claude (claude-sonnet-5-5, web search ≤ 2 только если источников мало)
+               → GI Format (разбивка на сообщения < 4000 символов, проверка ссылок на доки)
+               → GI Send Reply (реплаями на исходное сообщение)
 ```
 
-## Отличия от Sub 9
-- Все сообщения идут через Telegram-ноды с кредом @Tryllauto_bot и `message_thread_id` топика, а не через зашитый токен бота Tryll Nexus.
-- Ключи Supabase и Gemini не лежат в коде: поиск похожих юзкейсов вынесен в HTTP-ноды на сохранённых кредах n8n.
-- Уведомления Максиму в личку при отказе/ошибке убраны (ошибка видна прямо в топике).
-- Промпт, правила (не называть Tryll SDK, без цен, без жаргона во фразе, без выдуманных фактов, без длинных тире), формат документа и ответа — без изменений.
+## Документация Tryll
+Каждый запуск заново читает `https://docs.tryllengine.com/llms.txt`, так что новые версии и страницы подхватываются сами:
+- целиком (по ~1500 символов): все страницы **Use Cases** и **Concepts**, две последние **Release Notes** и ключевые how-to (список `READ_PAGES` в `GI Intake`), всего до 45 страниц;
+- каталог всех страниц из Use Cases / Concepts / How-to / Workflow Nodes / Release Notes — из него модель выбирает ссылки. Ссылки, которых нет в каталоге, `GI Format` выкидывает.
+Если доки недоступны, используется встроенное краткое описание возможностей, а ссылки на доки не ставятся.
 
-Sub 9 в Tryll Nexus не тронут и продолжает работать как раньше. Если промпт там поменяют, эту копию нужно обновить отдельно (ноды `GI Intake`, `GI Build Doc`, `GI Reply Text`).
+## Что убрано по сравнению с /idea (v1)
+- Команда `/idea` и белый список пользователей.
+- Google Doc на Drive (бриф не создаётся, всё только в Telegram).
+- Формат «фраза для LinkedIn-письма Кристиана» заменён на командный брейншторм.
 
-## Проверка
-29.10.2026: тестовый прогон `/idea Fading Tides` от Максима — ответ пришёл в топик 1283, документ создан, найдено 5 юзкейсов из базы.
+Ключи Supabase / Gemini / Anthropic в коде нет: только сохранённые креды n8n.
+
+## История
+- 29.10.2026: перенос `/idea` из Tryll Nexus (Sub 9) в топик 1283.
+- 29.10.2026: v2 — триггер по Steam-ссылке, комментарий для модели, 10–12 идей по свежей документации, без Google Doc. Тест на Hades II с комментарием про хаб: 62 секунды, 11 идей тремя сообщениями, прочитано 37 страниц доки v0.9.
