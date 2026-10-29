@@ -224,7 +224,7 @@
                 },
                 "conditions": [
                   {
-                    "leftValue": "={{ /store\\.steampowered\\.com\\/app\\/\\d+/i.test(String($json.message?.text || $json.message?.caption || '')) && $json.message?.chat?.id == -1004406148635 && $json.message?.message_thread_id == 1283 }}",
+                    "leftValue": "={{ /store\\.steampowered\\.com\\/app\\/\\d+/i.test(String($json.message?.text || $json.message?.caption || '')) && (($json.message?.chat?.id == -1002699410666 && $json.message?.message_thread_id == 25206) || ($json.message?.chat?.id == -1004406148635 && $json.message?.message_thread_id == 1283)) }}",
                     "operator": {
                       "type": "boolean",
                       "operation": "true",
